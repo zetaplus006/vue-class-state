@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/zetaplus006/vues#readme",
   "devDependencies": {
+    "css-loader": "^0.28.4",
     "express": "^4.15.3",
     "reflect-metadata": "^0.1.10",
     "ts-loader": "^2.3.1",
