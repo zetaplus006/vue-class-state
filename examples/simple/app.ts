@@ -1,10 +1,10 @@
 import Vue from 'vue';
-import vues from 'vues';
+import Vues from '../../src'
 import Simple from './Simple.vue';
-
-console.log('hello world', vues, Simple, Vue.prototype.$isServer);
+Vue.use(Vues);
 
 new Vue({
     el: '#app',
     render: h => h(Simple)
 })
+
