@@ -9,20 +9,26 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { AppService, IPerson } from './appService';
-// const appService = new AppService();
-// console.log(appService);
+import { AppService } from './appService';
+const appService = new AppService();
+console.log(appService);
 export default {
     computed: {
-        persons (): IPerson[] {
-            // return appService.list;
-            return []
+        persons (): any {
+            return appService.list;
+        },
+        appService () {
+            return appService;
         }
     },
     mounted () {
+        appService.addPerson();
+        /* setTimeout(() => {
+            appService.addPerson();
+        }, 2000) */
         setInterval(() => {
-            // appService.addPerson();
-        }, 1000)
+            appService.addPerson();
+        }, 2000)
     }
 };
 </script>

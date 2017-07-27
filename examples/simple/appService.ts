@@ -1,22 +1,40 @@
-import { obsverable } from 'vues';
+import Vue from 'vue';
+import { createObserveDecorator, Service } from 'vues';
+
+
+const obverable = createObserveDecorator(Vue)
+
 
 export interface IPerson {
     name: string
     age: number
 }
 
-@obsverable
-export class AppService {
+@obverable
+export class AppService extends Service {
     list: IPerson[] = []
-    id = 'ssss';
-    constructor() {
-        this.id = 'aaaaa';
+    get Person() {
+        return this.list;
     }
+
     addPerson() {
         this.list.push({
             name: 'bruce',
             age: 16
         })
+    }
+
+    beforeCreate() {
+
+    }
+
+    closer: any
+    created() {
+        const closer = this.$watch('list', (val) => {
+            console.log(val)
+            closer();
+        });
+        this.$emit('test');
     }
 
 }

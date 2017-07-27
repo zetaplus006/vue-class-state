@@ -1,84 +1,63 @@
 import Vue from 'vue';
-import __Vue from 'vue4vues';
 
-
-
-export default class Obsverable {
-
-    private vm: Vue;
-
-    constructor(_Vue: typeof Vue) {
-
-    }
-
-    protected initObsverable(storeConstructor: Function) {
-        const getters = getPropertyGetters(storeConstructor.prototype);
-
-        if (!this.vm) {
-            this.vm = new Vue({
-                data: this,
-                computed: getters
-            });
-        }
-        for (const key in getters) {
-            Object.defineProperty(this, key, {
-                get: () => this.vm[key],
-                set: value => this.vm[key] = value
-            });
-        }
-    }
-
+export abstract class Service {
+    /**
+     * $watch  return a function that can close this watcher
+     */
+    protected $watch: typeof Vue.prototype.$watch;
+    protected $on: typeof Vue.prototype.$on;
+    protected $once: typeof Vue.prototype.$once;
+    protected $emit: typeof Vue.prototype.$emit;
+    protected $off: typeof Vue.prototype.$off;
+    protected $set: typeof Vue.prototype.$set;
+    protected $delete: typeof Vue.prototype.$delete;
+    protected $destroy: typeof Vue.prototype.$destroy;
 
     protected replaceState() {
-        console.log(Object.keys(this));
-    }
 
-    protected get $watch() {
-        return this.vm.$watch.bind(this.vm);
-    }
-    protected get $on() {
-        return this.vm.$on.bind(this.vm);
-    }
-    protected get $once() {
-        return this.vm.$once.bind(this.vm);
-    }
-    protected get $emit() {
-        return this.vm.$emit.bind(this.vm);
-    }
-    protected get $off() {
-        return this.vm.$off.bind(this.vm);
-    }
-    protected get $set() {
-        return this.vm.$set.bind(this.vm);
-    }
-    protected get $delete() {
-        return this.vm.$delete.bind(this.vm);
     }
 
 }
 
-// def class observable
+
+const vmMethod = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
 
 /**
- * rewirte class constructor to defined observe
- * @param constructor  
+ * createObserveDecorator
  * @param _Vue 
  */
-export function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
-    return class VuesClass extends constructor {
-        constructor(...arg: any[]) {
-            super();
-            const getters = getPropertyGetters(constructor.prototype);
-            const vm: Vue = new __Vue({
-                data: this,
-                computed: getters
-            });
-            // computed proxy
-            for (const key in getters) {
-                Object.defineProperty(this, key, {
-                    get: () => vm[key],
-                    set: value => vm[key] = value
+export function createObserveDecorator(_Vue: typeof Vue) {
+    /**
+     * rewirte class constructor to defined observe
+     * @param constructor  
+     * @param _Vue 
+     */
+    return function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
+        return class VuesClass extends constructor {
+            constructor(...arg: any[]) {
+                super();
+                const getters = getPropertyGetters(constructor.prototype);
+                // get hook
+                const { beforeCreate, created } = constructor.prototype;
+                const vm: Vue = new _Vue({
+                    data: this,
+                    computed: getters,
+                    beforeCreate,
+                    created
                 });
+                // computed proxy
+                for (const key in getters) {
+                    Object.defineProperty(this, key, {
+                        get: () => vm[key],
+                        set: value => vm[key] = value
+                    });
+                }
+                // method proxy
+                for (const key of vmMethod) {
+                    Object.defineProperty(this, key, {
+                        get: () => vm[key].bind(vm)
+                    });
+                }
             }
         }
     }
@@ -88,6 +67,7 @@ export function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
 export function getPropertyGetters(target: Function): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
     const keys: string[] = Object.getOwnPropertyNames(target);
+    console.log(keys);
     keys.forEach(key => {
         if (key === 'constructor') { return; }
         const descriptor = Object.getOwnPropertyDescriptor(target, key);
@@ -103,14 +83,14 @@ export function getPropertyGetters(target: Function): { [key: string]: { get(): 
 
 
 export function enumerable(value: boolean) {
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         descriptor.enumerable = value;
     };
 }
 
 export function action(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const val = descriptor.value;
-    descriptor.value = function () {
+    descriptor.value = function() {
         const res = val.apply(this, arguments);
         // console.log('----action-----', res && (res instanceof Promise), res);
         if (isPromise(res)) {
@@ -130,3 +110,4 @@ function isPromise(obj: any) {
     return obj && (obj instanceof Promise);
 }
 
+console.log(process.env.NODE_ENV)
