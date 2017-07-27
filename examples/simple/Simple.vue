@@ -2,7 +2,7 @@
     <div>
         <h4>demo</h4>
         <ul>
-            <li v-for="(person , index) in persons">{{person.name}}</li>
+            <li v-for="(person , index) in persons" :key="index">{{person.name}}</li>
         </ul>
     </div>
 </template>
@@ -10,18 +10,19 @@
 <script lang="ts">
 import Vue from 'vue';
 import { AppService } from './appService';
+import { Service } from 'vues';
 const appService = new AppService();
-console.log(appService);
+console.log(appService, appService instanceof Service);
 export default {
     computed: {
-        persons (): any {
+        persons(): any {
             return appService.list;
         },
-        appService () {
+        appService() {
             return appService;
         }
     },
-    mounted () {
+    mounted() {
         appService.addPerson();
         /* setTimeout(() => {
             appService.addPerson();

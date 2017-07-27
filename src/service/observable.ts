@@ -1,4 +1,6 @@
 import Vue from 'vue';
+import { enumerable } from '../decorator';
+import { assert } from '../util';
 
 export abstract class Service {
     /**
@@ -26,6 +28,8 @@ export interface ICreateOption {
     strict?: Boolean
 }
 
+
+export const commitKey = '__isCommitting';
 /**
  * createObserveDecorator
  * @param _Vue 
@@ -38,9 +42,15 @@ export function createObserveDecorator(_Vue: typeof Vue, option?: ICreateOption)
      */
     return function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
 
-
+        let __isCommitting: boolean = false;
         return class VuesClass extends constructor {
-            public __isCommitting: boolean = false;
+
+            get [commitKey]() {
+                return __isCommitting;
+            }
+            set [commitKey](val: any) {
+                __isCommitting = val;
+            }
 
             constructor(...arg: any[]) {
                 super();
@@ -57,7 +67,8 @@ export function createObserveDecorator(_Vue: typeof Vue, option?: ICreateOption)
                 for (const key in getters) {
                     Object.defineProperty(this, key, {
                         get: () => vm[key],
-                        set: value => vm[key] = value
+                        set: value => vm[key] = value,
+                        enumerable: true
                     });
                 }
                 // method proxy
@@ -75,20 +86,20 @@ export function createObserveDecorator(_Vue: typeof Vue, option?: ICreateOption)
 }
 
 function openStrict(vm: Vue, service: any) {
-    vm.$watch<any>(function() {
+    vm.$watch<any>(function () {
         return this.$data;
     }, (val) => {
-        console.log('watch', val['name'], service.__isCommitting)
-    }, { deep: true })
-    //sync: true
+        if (process.env.NODE_ENV !== 'production') {
+            assert(service.__isCommitting, 'Do not mutate vubx service data outside mutation handlers.')
+        }
+    }, { deep: true, sync: true })
 }
 
 
 
-export function getPropertyGetters(target: Function): { [key: string]: { get(): any, set?(): void } } {
+function getPropertyGetters(target: Function): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
     const keys: string[] = Object.getOwnPropertyNames(target);
-    console.log(keys);
     keys.forEach(key => {
         if (key === 'constructor') { return; }
         const descriptor = Object.getOwnPropertyDescriptor(target, key);

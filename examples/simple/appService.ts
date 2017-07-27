@@ -10,22 +10,24 @@ export interface IPerson {
     age: number
 }
 
+
 @obverable
 export class AppService extends Service {
     list: IPerson[] = []
 
     name: string = 'appName'
 
+
     get Person() {
         return this.list;
     }
-
+    @mutation
     addPerson() {
-        /* this.list.push({
+        this.list.push({
             name: 'bruce',
             age: 16
-        }) */
-        this.changeName(this.name + 's');
+        })
+        // this.changeName(this.name + 's');
     }
 
     @mutation

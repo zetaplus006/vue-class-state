@@ -10,3 +10,9 @@ declare module "vue/types/vue" {
         $service: any;
     }
 }
+
+declare module "vue/types/options" {
+    interface WatchOptions {
+        sync?: boolean
+    }
+}

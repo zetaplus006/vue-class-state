@@ -1,4 +1,4 @@
-import { createObserveDecorator } from './service/observable';
+import { createObserveDecorator, commitKey } from './service/observable';
 import { isFn, isPromise } from './util';
 
 export function action(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -23,11 +23,10 @@ export function action(target: any, propertyKey: string, descriptor: PropertyDes
 export function mutation(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const val = descriptor.value;
     descriptor.value = function (...arg: any[]) {
-        this['__isCommitting'] = true
-        console.log(this['name'], this['__isCommitting']);
+        const temp = this[commitKey];
+        this[commitKey] = true
         const res = val.apply(this, arg);
-        this['__isCommitting'] = false;
-        console.log(this['name'], this['__isCommitting']);
+        this[commitKey] = temp;
     };
     return descriptor;
 }
