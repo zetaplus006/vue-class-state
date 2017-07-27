@@ -1,22 +1,26 @@
 {
-  "name": "vues",
-  "version": "1.0.0",
-  "description": "A simple state management for Vue",
-  "main": "index.js",
+  "name": "vubx",
+  "version": "0.0.1",
+  "description": "A simple style state management for Vue(in dev)",
+  "main": "src/index.ts",
   "scripts": {
     "dev": "node examples/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "vue",
+    "typescript"
+  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zetaplus006/vues.git"
+    "url": "git+https://github.com/zetaplus006/vubx.git"
   },
   "author": "zetaplus006",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zetaplus006/vues/issues"
+    "url": "https://github.com/zetaplus006/vubx/issues"
   },
-  "homepage": "https://github.com/zetaplus006/vues#readme",
+  "homepage": "https://github.com/zetaplus006/vubx#readme",
   "devDependencies": {
     "@types/node": "^8.0.17",
     "css-loader": "^0.28.4",
