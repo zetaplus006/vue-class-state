@@ -1,8 +1,8 @@
 import Vue from 'vue';
-import { createObserveDecorator, Service } from 'vues';
+import { createObserveDecorator, Service, mutation } from 'vues';
 
 
-const obverable = createObserveDecorator(Vue)
+const obverable = createObserveDecorator(Vue, { strict: true })
 
 
 export interface IPerson {
@@ -13,15 +13,24 @@ export interface IPerson {
 @obverable
 export class AppService extends Service {
     list: IPerson[] = []
+
+    name: string = 'appName'
+
     get Person() {
         return this.list;
     }
 
     addPerson() {
-        this.list.push({
+        /* this.list.push({
             name: 'bruce',
             age: 16
-        })
+        }) */
+        this.changeName(this.name + 's');
+    }
+
+    @mutation
+    changeName(newName: string) {
+        this.name = newName;
     }
 
     beforeCreate() {
@@ -36,5 +45,4 @@ export class AppService extends Service {
         });
         this.$emit('test');
     }
-
 }

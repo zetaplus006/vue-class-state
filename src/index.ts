@@ -8,7 +8,7 @@ export interface IVuesOption {
 }
 
 const plugin = {
-    install: function (_Vue: typeof Vue, vuesOption: IVuesOption) {
+    install: function(_Vue: typeof Vue, vuesOption: IVuesOption) {
 
     }
 }

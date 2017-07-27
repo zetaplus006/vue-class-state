@@ -26,7 +26,7 @@ export default {
         /* setTimeout(() => {
             appService.addPerson();
         }, 2000) */
-        setInterval(() => {
+        setTimeout(() => {
             appService.addPerson();
         }, 2000)
     }

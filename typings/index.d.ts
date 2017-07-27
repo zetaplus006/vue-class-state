@@ -14,7 +14,7 @@ export class Service {
     protected $delete: typeof Vue.prototype.$delete
     protected $destroy: typeof Vue.prototype.$destroy
 
-    protected replaceState(): void
+    protected replaceState<T extends Service>(state: T): void
 }
 
 declare class V {

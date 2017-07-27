@@ -2,7 +2,7 @@ import Vue from 'vue';
 
 export abstract class Service {
     /**
-     * $watch  return a function that can close this watcher
+     * $watch return a function that can close this watcher
      */
     protected $watch: typeof Vue.prototype.$watch;
     protected $on: typeof Vue.prototype.$on;
@@ -13,7 +13,7 @@ export abstract class Service {
     protected $delete: typeof Vue.prototype.$delete;
     protected $destroy: typeof Vue.prototype.$destroy;
 
-    protected replaceState() {
+    protected replaceState<T extends Service>(state: T): void {
 
     }
 
@@ -22,18 +22,26 @@ export abstract class Service {
 
 const vmMethod = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
 
+export interface ICreateOption {
+    strict?: Boolean
+}
+
 /**
  * createObserveDecorator
  * @param _Vue 
  */
-export function createObserveDecorator(_Vue: typeof Vue) {
+export function createObserveDecorator(_Vue: typeof Vue, option?: ICreateOption) {
     /**
      * rewirte class constructor to defined observe
      * @param constructor  
      * @param _Vue 
      */
     return function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
+
+
         return class VuesClass extends constructor {
+            public __isCommitting: boolean = false;
+
             constructor(...arg: any[]) {
                 super();
                 const getters = getPropertyGetters(constructor.prototype);
@@ -58,10 +66,23 @@ export function createObserveDecorator(_Vue: typeof Vue) {
                         get: () => vm[key].bind(vm)
                     });
                 }
+                if (option && option.strict) {
+                    openStrict(vm, this);
+                }
             }
         }
     }
 }
+
+function openStrict(vm: Vue, service: any) {
+    vm.$watch<any>(function() {
+        return this.$data;
+    }, (val) => {
+        console.log('watch', val['name'], service.__isCommitting)
+    }, { deep: true })
+    //sync: true
+}
+
 
 
 export function getPropertyGetters(target: Function): { [key: string]: { get(): any, set?(): void } } {
@@ -82,32 +103,7 @@ export function getPropertyGetters(target: Function): { [key: string]: { get(): 
 };
 
 
-export function enumerable(value: boolean) {
-    return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        descriptor.enumerable = value;
-    };
-}
 
-export function action(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const val = descriptor.value;
-    descriptor.value = function() {
-        const res = val.apply(this, arguments);
-        // console.log('----action-----', res && (res instanceof Promise), res);
-        if (isPromise(res)) {
-            return res.then((res: any) => {
-                console.log('promise return ');
-                return res;
-            });
-        } else {
-            // console.log('not promise return ');
-            return res;
-        }
-    };
-    return descriptor;
-}
 
-function isPromise(obj: any) {
-    return obj && (obj instanceof Promise);
-}
 
-console.log(process.env.NODE_ENV)
+
