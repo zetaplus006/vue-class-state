@@ -7,10 +7,10 @@ export function action(target: any, propertyKey: string, descriptor: PropertyDes
     descriptor.value = function () {
         const res = val.apply(this, arguments);
         if (isPromise(res)) {
-            return res.then((res: any) => {
+            /* return res.then((res: any) => {
                 console.log('promise return ');
                 return res;
-            });
+            }); */
         } else {
             return res;
         }
@@ -21,7 +21,7 @@ export function action(target: any, propertyKey: string, descriptor: PropertyDes
 type Mutation = {
     type: string,
     payload: any
-}
+};
 
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
@@ -31,9 +31,9 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
         const vubxMutation: Mutation = {
             type: mutationyKey,
             payload: arg
-        }
+        };
         const temp = this[commitKey];
-        this[commitKey] = true
+        this[commitKey] = true;
         let res;
         try {
             !isSkip && middleware && middleware.dispatchBefore(vubxMutation, this);
@@ -57,4 +57,4 @@ export function enumerable(value: boolean) {
 
 export {
     createObserveDecorator
-}
+};

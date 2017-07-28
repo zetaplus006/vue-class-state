@@ -29,23 +29,23 @@ const def = Object.defineProperty;
 export const commitKey = '__isCommitting';
 export const middlewareKey = '__middleware';
 export interface ICreateOption {
-    strict?: Boolean
+    strict?: Boolean;
 }
 /**
  * createObserveDecorator
- * @param _Vue 
+ * @param _Vue
  */
 export function createObserveDecorator(_Vue: typeof Vue, option?: ICreateOption) {
     /**
      * rewirte class constructor to defined observe
-     * @param constructor  
-     * @param _Vue 
+     * @param constructor
+     * @param _Vue
      */
     return function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
 
         let __isCommitting: boolean = false;
-        const __middleware: Middleware = new Middleware()
-        return class vubxClass extends constructor {
+        const __middleware: Middleware = new Middleware();
+        return class VubxClass extends constructor {
 
             constructor(...arg: any[]) {
                 super();
@@ -67,7 +67,7 @@ export function createObserveDecorator(_Vue: typeof Vue, option?: ICreateOption)
                 def(this, middlewareKey, {
                     get: () => __middleware,
                     enumerable: false
-                })
+                });
                 if (option && option.strict) {
                     openStrict(vm, this);
                 }
@@ -76,10 +76,10 @@ export function createObserveDecorator(_Vue: typeof Vue, option?: ICreateOption)
                     set: (val: boolean) =>
                         __isCommitting = val,
                     enumerable: false
-                })
+                });
             }
-        }
-    }
+        };
+    };
 }
 
 function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
@@ -89,13 +89,13 @@ function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
             get: () => vm[key],
             set: value => vm[key] = value,
             enumerable: true
-        })
+        });
         $getters[key] = ctx[key];
-    })
+    });
     def(ctx, '$getters', {
         get: () => $getters,
         enumerable: false
-    })
+    });
 }
 
 function proxyState(ctx: any, getterKeys: string[]) {
@@ -110,7 +110,7 @@ function proxyState(ctx: any, getterKeys: string[]) {
     def(ctx, '$state', {
         get: () => $state,
         enumerable: false
-    })
+    });
 }
 
 const vmMethod = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
@@ -123,14 +123,13 @@ function proxyMethod(ctx: any, vm: Vue) {
     }
 }
 
-
 function openStrict(vm: Vue, service: any) {
     if (process.env.NODE_ENV !== 'production') {
         vm.$watch<any>(function () {
             return this.$data;
         }, (val) => {
-            assert(service[commitKey], 'Do not mutate vubx service data outside mutation handlers.')
-        }, { deep: true, sync: true })
+            assert(service[commitKey], 'Do not mutate vubx service data outside mutation handlers.');
+        }, { deep: true, sync: true });
     }
 }
 
@@ -148,10 +147,4 @@ function getPropertyGetters(target: any): { [key: string]: { get(): any, set?():
         }
     });
     return getters;
-};
-
-
-
-
-
-
+}

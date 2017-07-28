@@ -6,7 +6,7 @@ export type ISubs = Array<ISub>;
 export type ISubscribeOption = {
     before?: ISub
     after?: ISub
-}
+};
 
 export class Middleware {
     private beforeSubs: ISubs = [];
@@ -32,6 +32,6 @@ export class Middleware {
     public run(subs: ISubs, ...arg: any[]) {
         subs.forEach(sub => {
             sub.apply(null, arg);
-        })
+        });
     }
 }

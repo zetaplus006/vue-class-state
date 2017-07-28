@@ -2,46 +2,44 @@ import { Service } from '../service/';
 import { middlewareKey } from '../service/observable';
 import { Middleware } from '../service/middleware';
 
-
 export default function devtool(service: Service) {
 
     const devtoolHook =
         typeof window !== 'undefined' &&
-        window['__VUE_DEVTOOLS_GLOBAL_HOOK__']
+        window['__VUE_DEVTOOLS_GLOBAL_HOOK__'];
 
-    if (!devtoolHook) return
+    if (!devtoolHook) return;
 
-    const store = simulationStore(service)
+    const store = simulationStore(service);
 
-    store._devtoolHook = devtoolHook
+    store._devtoolHook = devtoolHook;
 
-    devtoolHook.emit('vuex:init', store)
+    devtoolHook.emit('vuex:init', store);
 
     devtoolHook.on('vuex:travel-to-state', (targetState: any) => {
-        service.replaceState(targetState)
-    })
+        service.replaceState(targetState);
+    });
 
     service[middlewareKey].subscribe({
         after: (mutation: string, state: any) => {
-            devtoolHook.emit('vuex:mutation', mutation, state)
+            devtoolHook.emit('vuex:mutation', mutation, state);
         }
-    })
+    });
 }
 
-interface Store {
+interface IStore {
     state: any;
     getters: any;
     _devtoolHook: any;
     // subscribe(fn: (mutation: string, state: any) => void): any
 }
 
-function simulationStore(service: Service): Store {
+function simulationStore(service: Service): IStore {
     const store = {
         state: service.$state,
         getters: service.$getters,
         _devtoolHook: null
         // subscribe:
-    }
+    };
     return store;
 }
-
