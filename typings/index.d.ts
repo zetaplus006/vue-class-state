@@ -21,5 +21,5 @@ declare class V {
     install: PluginFunction<any>
 }
 
-declare class Vues extends V { }
+declare class vubx extends V { }
 

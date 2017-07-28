@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { createObserveDecorator, Service, mutation } from 'vues';
+import { createObserveDecorator, Service, mutation } from 'vubx';
 
 
 const obverable = createObserveDecorator(Vue, { strict: true })
@@ -17,17 +17,18 @@ export class AppService extends Service {
 
     name: string = 'appName'
 
-
     get Person() {
         return this.list;
     }
+
     @mutation
     addPerson() {
         this.list.push({
             name: 'bruce',
             age: 16
         })
-        // this.changeName(this.name + 's');
+        this.changeName(this.name + 's');
+        this.$emit('test', { a: 'ss' });
     }
 
     @mutation
@@ -41,10 +42,12 @@ export class AppService extends Service {
 
     closer: any
     created() {
-        const closer = this.$watch('list', (val) => {
+        this.closer = this.$watch('list', (val) => {
             console.log(val)
-            closer();
+            this.closer();
         });
-        this.$emit('test');
+        this.$on('test', function (obj: any) {
+            console.log(obj);
+        });
     }
 }

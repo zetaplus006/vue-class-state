@@ -19,10 +19,10 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "vues": [
+      "vubx": [
         "src/index.ts"
       ],
-      "vue4vues": [
+      "vue4vubx": [
         "node_modules/vue/types/index.d.ts"
       ]
     }

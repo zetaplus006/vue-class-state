@@ -1,7 +1,7 @@
 import Vue from 'vue';
-import Vues from '../../src'
+import vubx from '../../src'
 import Simple from './Simple.vue';
-Vue.use(Vues);
+Vue.use(vubx);
 
 new Vue({
     el: '#app',

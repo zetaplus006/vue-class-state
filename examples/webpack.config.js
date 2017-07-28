@@ -48,8 +48,8 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js'],
     alias: {
-      vues: path.resolve(__dirname, '../src/index.ts'),
-      vue4vues: "vue/dist/vue.esm.js"
+      vubx: path.resolve(__dirname, '../src/index.ts'),
+      vue4vubx: "vue/dist/vue.esm.js"
     }
   },
 

@@ -1,6 +1,7 @@
 import Vue from 'vue';
-import { enumerable } from '../decorator';
+import { enumerable, mutation } from '../decorator';
 import { assert } from '../util';
+import { Middleware } from './middleware';
 
 export abstract class Service {
     /**
@@ -14,22 +15,22 @@ export abstract class Service {
     protected $set: typeof Vue.prototype.$set;
     protected $delete: typeof Vue.prototype.$delete;
     protected $destroy: typeof Vue.prototype.$destroy;
+    $getters: any;
+    $state: any;
 
-    protected replaceState<T extends Service>(state: T): void {
-
+    @mutation
+    replaceState(state: any): void {
+        Object.assign(this, state);
     }
 
 }
 
-
-const vmMethod = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
-
+const def = Object.defineProperty;
+export const commitKey = '__isCommitting';
+export const middlewareKey = '__middleware';
 export interface ICreateOption {
     strict?: Boolean
 }
-
-
-export const commitKey = '__isCommitting';
 /**
  * createObserveDecorator
  * @param _Vue 
@@ -43,61 +44,97 @@ export function createObserveDecorator(_Vue: typeof Vue, option?: ICreateOption)
     return function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
 
         let __isCommitting: boolean = false;
-        return class VuesClass extends constructor {
-
-            get [commitKey]() {
-                return __isCommitting;
-            }
-            set [commitKey](val: any) {
-                __isCommitting = val;
-            }
+        const __middleware: Middleware = new Middleware()
+        return class vubxClass extends constructor {
 
             constructor(...arg: any[]) {
                 super();
                 const getters = getPropertyGetters(constructor.prototype);
                 // get hook
                 const { beforeCreate, created } = constructor.prototype;
+                const getterKeys = Object.keys(getters);
                 const vm: Vue = new _Vue({
                     data: this,
                     computed: getters,
                     beforeCreate,
                     created
                 });
-                // computed proxy
-                for (const key in getters) {
-                    Object.defineProperty(this, key, {
-                        get: () => vm[key],
-                        set: value => vm[key] = value,
-                        enumerable: true
-                    });
-                }
-                // method proxy
-                for (const key of vmMethod) {
-                    Object.defineProperty(this, key, {
-                        get: () => vm[key].bind(vm)
-                    });
-                }
+                proxyGetters(this, vm, getterKeys);
+                proxyState(this, getterKeys);
+                proxyMethod(this, vm);
+
+                // mutaion middleware
+                def(this, middlewareKey, {
+                    get: () => __middleware,
+                    enumerable: false
+                })
                 if (option && option.strict) {
                     openStrict(vm, this);
                 }
+                def(this, commitKey, {
+                    get: () => __isCommitting,
+                    set: (val: boolean) =>
+                        __isCommitting = val,
+                    enumerable: false
+                })
             }
         }
     }
 }
 
-function openStrict(vm: Vue, service: any) {
-    vm.$watch<any>(function () {
-        return this.$data;
-    }, (val) => {
-        if (process.env.NODE_ENV !== 'production') {
-            assert(service.__isCommitting, 'Do not mutate vubx service data outside mutation handlers.')
+function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
+    const $getters = {};
+    getterKeys.forEach(key => {
+        def(ctx, key, {
+            get: () => vm[key],
+            set: value => vm[key] = value,
+            enumerable: true
+        })
+        $getters[key] = ctx[key];
+    })
+    def(ctx, '$getters', {
+        get: () => $getters,
+        enumerable: false
+    })
+}
+
+function proxyState(ctx: any, getterKeys: string[]) {
+    const $state = {};
+    Object.keys(ctx).forEach(
+        key => {
+            if (getterKeys.indexOf(key) < 0) {
+                $state[key] = ctx[key];
+            }
         }
-    }, { deep: true, sync: true })
+    );
+    def(ctx, '$state', {
+        get: () => $state,
+        enumerable: false
+    })
+}
+
+const vmMethod = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
+
+function proxyMethod(ctx: any, vm: Vue) {
+    for (const key of vmMethod) {
+        def(ctx, key, {
+            get: () => vm[key].bind(vm)
+        });
+    }
 }
 
 
+function openStrict(vm: Vue, service: any) {
+    if (process.env.NODE_ENV !== 'production') {
+        vm.$watch<any>(function () {
+            return this.$data;
+        }, (val) => {
+            assert(service[commitKey], 'Do not mutate vubx service data outside mutation handlers.')
+        }, { deep: true, sync: true })
+    }
+}
 
-function getPropertyGetters(target: Function): { [key: string]: { get(): any, set?(): void } } {
+function getPropertyGetters(target: any): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
     const keys: string[] = Object.getOwnPropertyNames(target);
     keys.forEach(key => {
