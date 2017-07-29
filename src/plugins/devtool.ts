@@ -1,5 +1,5 @@
 import { Service } from '../service/';
-import { middlewareKey } from '../service/observable';
+import { mutationMiddlewareKey } from '../service/observable';
 import { Middleware } from '../service/middleware';
 
 export default function devtool(service: Service) {
@@ -20,7 +20,7 @@ export default function devtool(service: Service) {
         service.replaceState(targetState);
     });
 
-    service[middlewareKey].subscribe({
+    service[mutationMiddlewareKey].subscribe({
         after: (mutation: string, state: any) => {
             devtoolHook.emit('vuex:mutation', mutation, state);
         }

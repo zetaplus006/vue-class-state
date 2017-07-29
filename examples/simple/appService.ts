@@ -1,24 +1,30 @@
 import Vue from 'vue';
-import { createObserveDecorator, Service, mutation } from 'vubx';
+import { createDecorator, Service, mutation } from 'vubx';
 
-
-const obverable = createObserveDecorator(Vue, { strict: true })
-
+const obverable = createDecorator(Vue);
 
 export interface IPerson {
-    name: string
-    age: number
+    name: string;
+    age: number;
 }
 
-
-@obverable
+@obverable({
+    strict: true
+})
 export class AppService extends Service {
-    list: IPerson[] = []
+    list: IPerson[] = [];
 
-    name: string = 'appName'
+    name: string = 'appName';
 
     get Person() {
         return this.list;
+    }
+
+    userInfo: UserService;
+
+    constructor() {
+        super();
+        this.appendChild<UserService>(new UserService, 'userInfo', Symbol('userInfo'));
     }
 
     @mutation
@@ -26,7 +32,7 @@ export class AppService extends Service {
         this.list.push({
             name: 'bruce',
             age: 16
-        })
+        });
         this.changeName(this.name + 's');
         this.$emit('test', { a: 'ss' });
     }
@@ -36,18 +42,24 @@ export class AppService extends Service {
         this.name = newName;
     }
 
-    beforeCreate() {
-
-    }
-
-    closer: any
+    closer: any;
     created() {
         this.closer = this.$watch('list', (val) => {
-            console.log(val)
+            console.log(val);
             this.closer();
         });
-        this.$on('test', function (obj: any) {
+        this.$on('test', function(obj: any) {
             console.log(obj);
         });
+        this.changeName('sddd');
+
     }
+}
+
+@obverable()
+export class UserService extends Service {
+    info: IPerson = {
+        name: 'bruce',
+        age: 16
+    };
 }

@@ -9,7 +9,7 @@
         "indent": [
             true,
             "space",
-            4
+            2
         ],
         "interface-name": [
             true
@@ -75,6 +75,9 @@
             "check-operator",
             "check-separator",
             "check-type"
+        ],
+        "no-unused-variable": [
+            true
         ]
     }
 }

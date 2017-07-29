@@ -1,7 +1,11 @@
 import Vue from 'vue';
 import { enumerable, mutation } from '../decorator';
-import { assert } from '../util';
+import { assert, warn } from '../util';
 import { Middleware } from './middleware';
+
+const def = Object.defineProperty;
+const defGet = (obj: Object, key: string, val: any, isEnumerable: boolean = false) =>
+    def(obj, key, { get: () => val, enumerable: isEnumerable });
 
 export abstract class Service {
     /**
@@ -15,19 +19,53 @@ export abstract class Service {
     protected $set: typeof Vue.prototype.$set;
     protected $delete: typeof Vue.prototype.$delete;
     protected $destroy: typeof Vue.prototype.$destroy;
+
     $getters: any;
     $state: any;
+    $parent: Service;
+    $childs: Service[] = [];
+    $uuid: string | Symbol;
+
+    /**
+     * After initialization has been completed
+     */
+    protected created?(): void;
 
     @mutation
     replaceState(state: any): void {
         Object.assign(this, state);
     }
 
+    appendChild<S extends Service>(child: S, childName: keyof this, uuid: string | Symbol): void {
+        Service.appendChild(this, childName, child, uuid);
+    }
+
+    static appendChild<P extends Service, C extends Service>(parent: P, childName: keyof P, child: C, uuid: string | Symbol) {
+        if (process.env.NODE_ENV !== 'production') {
+            if (parent.$childs.indexOf(child) > -1) {
+                warn('The parent service already has this child service' +
+                    'and cannot be added repeatedly');
+                return;
+            }
+            if (child.$parent === parent) {
+                warn('Services cannot be mutually parent and child');
+                return;
+            }
+        }
+        parent.$childs.push(child);
+        child.$parent = parent;
+        defGet(parent, '$uuid', uuid);
+        def(parent, childName, {
+            enumerable: true,
+            configurable: true,
+            get: () => child
+        });
+    }
+
 }
 
-const def = Object.defineProperty;
 export const commitKey = '__isCommitting';
-export const middlewareKey = '__middleware';
+export const mutationMiddlewareKey = '__middleware';
 export interface ICreateOption {
     strict?: Boolean;
 }
@@ -35,49 +73,48 @@ export interface ICreateOption {
  * createObserveDecorator
  * @param _Vue
  */
-export function createObserveDecorator(_Vue: typeof Vue, option?: ICreateOption) {
-    /**
-     * rewirte class constructor to defined observe
-     * @param constructor
-     * @param _Vue
-     */
-    return function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
+export function createDecorator(_Vue: typeof Vue) {
+    return function observable(option?: ICreateOption) {
+        /**
+         * rewirte class constructor to defined observe
+         * @param constructor
+         * @param _Vue
+         */
+        return function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
+            let __isCommitting: boolean = false;
+            const __middleware: Middleware = new Middleware();
+            return class VubxClass extends constructor {
 
-        let __isCommitting: boolean = false;
-        const __middleware: Middleware = new Middleware();
-        return class VubxClass extends constructor {
+                constructor(...arg: any[]) {
+                    super();
+                    const getters = getPropertyGetters(constructor.prototype);
+                    // get hook
+                    const { created } = constructor.prototype;
+                    const getterKeys = Object.keys(getters);
+                    const self = this;
+                    const vm: Vue = new _Vue({
+                        data: this,
+                        computed: getters
+                    });
+                    defGet(this, '__$$vm', vm);
+                    proxyGetters(this, vm, getterKeys);
+                    proxyState(this, getterKeys);
+                    proxyMethod(this, vm);
 
-            constructor(...arg: any[]) {
-                super();
-                const getters = getPropertyGetters(constructor.prototype);
-                // get hook
-                const { beforeCreate, created } = constructor.prototype;
-                const getterKeys = Object.keys(getters);
-                const vm: Vue = new _Vue({
-                    data: this,
-                    computed: getters,
-                    beforeCreate,
-                    created
-                });
-                proxyGetters(this, vm, getterKeys);
-                proxyState(this, getterKeys);
-                proxyMethod(this, vm);
-
-                // mutaion middleware
-                def(this, middlewareKey, {
-                    get: () => __middleware,
-                    enumerable: false
-                });
-                if (option && option.strict) {
-                    openStrict(vm, this);
+                    // mutaion middleware
+                    defGet(this, mutationMiddlewareKey, __middleware);
+                    if (option && option.strict) {
+                        openStrict(vm, this);
+                    }
+                    def(this, commitKey, {
+                        get: () => __isCommitting,
+                        set: (val: boolean) =>
+                            __isCommitting = val,
+                        enumerable: false
+                    });
+                    created && created.call(this);
                 }
-                def(this, commitKey, {
-                    get: () => __isCommitting,
-                    set: (val: boolean) =>
-                        __isCommitting = val,
-                    enumerable: false
-                });
-            }
+            };
         };
     };
 }
@@ -92,10 +129,7 @@ function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
         });
         $getters[key] = ctx[key];
     });
-    def(ctx, '$getters', {
-        get: () => $getters,
-        enumerable: false
-    });
+    defGet(ctx, '$getters', $getters);
 }
 
 function proxyState(ctx: any, getterKeys: string[]) {
@@ -107,16 +141,13 @@ function proxyState(ctx: any, getterKeys: string[]) {
             }
         }
     );
-    def(ctx, '$state', {
-        get: () => $state,
-        enumerable: false
-    });
+    defGet(ctx, '$state', $state);
 }
 
-const vmMethod = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
+const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
 
 function proxyMethod(ctx: any, vm: Vue) {
-    for (const key of vmMethod) {
+    for (const key of vmMethods) {
         def(ctx, key, {
             get: () => vm[key].bind(vm)
         });
@@ -125,10 +156,11 @@ function proxyMethod(ctx: any, vm: Vue) {
 
 function openStrict(vm: Vue, service: any) {
     if (process.env.NODE_ENV !== 'production') {
-        vm.$watch<any>(function () {
+        vm.$watch<any>(function() {
             return this.$data;
         }, (val) => {
-            assert(service[commitKey], 'Do not mutate vubx service data outside mutation handlers.');
+            assert(service[commitKey],
+                'Do not mutate vubx service data outside mutation handlers.');
         }, { deep: true, sync: true });
     }
 }

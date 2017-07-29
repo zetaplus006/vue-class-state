@@ -17,9 +17,5 @@ export class Service {
     protected replaceState<T extends Service>(state: T): void
 }
 
-declare class V {
-    install: PluginFunction<any>
-}
 
-declare class vubx extends V { }
 
