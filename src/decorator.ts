@@ -1,4 +1,4 @@
-import { createDecorator, commitKey, mutationMiddlewareKey } from './service/observable';
+import { createDecorator, Service } from './service/observable';
 import { isFn, isPromise } from './util';
 import { Middleware } from './service/middleware';
 import Vue from 'vue';
@@ -27,30 +27,24 @@ interface IMutation {
 
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
-    descriptor.value = function(...arg: any[]) {
-        const isNotSkip = mutationyKey !== 'replaceState';
-        const middleware = this[mutationMiddlewareKey] as Middleware;
+    descriptor.value = function(this: Service, ...arg: any[]) {
+        const middleware = this.__middleware;
         const vubxMutation: IMutation = {
             type: mutationyKey,
             payload: arg
         };
-        const temp = this[commitKey];
-        this[commitKey] = true;
-        let res;
-        try {
-            isNotSkip && middleware.dispatchBefore(this, vubxMutation, this);
-            res = mutationFn.apply(this, arg);
-            isNotSkip && middleware.dispatchAfter(this, vubxMutation, this);
+        const temp = this.__isCommitting;
+        this.__isCommitting = true;
 
-            // arguments is different
-            // res = isSkip ? mutationFn.apply(this, arg)
-            //     : middleware.createTask(mutationFn, this)(...arg);
+        middleware.dispatchBefore(this, vubxMutation, this);
+        let res = mutationFn.apply(this, arg);
+        middleware.dispatchAfter(this, vubxMutation, this);
 
-        } catch (e) {
-            throw new Error(e);
-        } finally {
-            this[commitKey] = temp;
-        }
+        // arguments is different
+        // res = isSkip ? mutationFn.apply(this, arg)
+        //     : middleware.createTask(mutationFn, this)(...arg);
+
+        this.__isCommitting = temp;
         return res;
     };
     return descriptor;

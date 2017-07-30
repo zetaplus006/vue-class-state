@@ -15,7 +15,7 @@ export function assert(condition: any, msg: string) {
 }
 
 export function warn(msg: string) {
-    console.warn(`[vubx] warn: The parent service already has this child service and cannot be added repeatedly`);
+    console.warn(`[vubx] warn: ${msg}`);
 }
 
 export const hasSymbol = typeof Symbol === 'function';

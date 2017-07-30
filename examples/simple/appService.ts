@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { createDecorator, Service, mutation } from 'vubx';
+import devtool from '../../src/plugins/devtool';
 
 const obverable = createDecorator(Vue);
 
@@ -9,32 +10,39 @@ export interface IPerson {
 }
 
 @obverable({
-    strict: true
+    strict: true,
+    identifier: Symbol('app')
 })
 export class AppService extends Service {
     list: IPerson[] = [];
 
-    name: string = 'appName';
+    name: string = '';
+
+    data = {
+        num: 0
+    };
 
     get Person() {
         return this.list;
     }
 
     userInfo: UserService;
+    userInfoOther: UserService;
 
-    constructor() {
+    constructor(test: string) {
         super();
         this.appendChild<UserService>(new UserService, 'userInfo', Symbol('userInfo'));
     }
 
     @mutation
     addPerson() {
-        this.list.push({
-            name: 'bruce',
-            age: 16
-        });
+        // this.list.push({
+        //     name: 'bruce',
+        //     age: 16
+        // });
         this.changeName(this.name + 's');
-        this.$emit('test', { a: 'ss' });
+        this.data.num = 10;
+        // this.$emit('test', { a: 'ss' });
     }
 
     @mutation
@@ -51,8 +59,10 @@ export class AppService extends Service {
         this.$on('test', function(obj: any) {
             console.log(obj);
         });
-        this.changeName('sddd');
-
+        setTimeout(() => {
+            // this.userInfo.change();
+        }, 1000);
+        // this.changeName('sddd');
     }
 }
 
@@ -62,4 +72,12 @@ export class UserService extends Service {
         name: 'bruce',
         age: 16
     };
+
+    get computed() {
+        return this.info;
+    }
+    @mutation
+    change() {
+        this.info.age++;
+    }
 }

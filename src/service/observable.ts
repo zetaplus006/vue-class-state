@@ -2,10 +2,11 @@ import Vue from 'vue';
 import { enumerable, mutation } from '../decorator';
 import { assert, warn } from '../util';
 import { Middleware } from './middleware';
+import { AppService } from '../../examples/simple/appService';
 
-const def = Object.defineProperty;
-const defGet = (obj: Object, key: string, val: any, isEnumerable: boolean = false) =>
-    def(obj, key, { get: () => val, enumerable: isEnumerable });
+const def = Object.defineProperty,
+    defGet = (obj: Object, key: string, val: any, isEnumerable: boolean = false) =>
+        def(obj, key, { get: () => val, enumerable: isEnumerable });
 
 export abstract class Service {
     /**
@@ -20,27 +21,39 @@ export abstract class Service {
     protected $delete: typeof Vue.prototype.$delete;
     protected $destroy: typeof Vue.prototype.$destroy;
 
-    $getters: any;
-    $state: any;
-    $parent: Service;
+    $getters: any = {};
+    $state: any = {};
+    $root: Service | null = null;
+    $parent: Service | null = null;
     $childs: Service[] = [];
-    $uuid: string | Symbol;
+    $identifier: string | Symbol = '';
 
+    __isCommitting: boolean = false;
+    __middleware: Middleware = new Middleware();
     /**
      * After initialization has been completed
      */
     protected created?(): void;
 
     @mutation
-    replaceState(state: any): void {
-        Object.assign(this, state);
+    replaceState(state: Service): void {
+        let keys = Object.keys(state);
+        for (const key in state) {
+            if (!this[key]) continue;
+            if (this[key] instanceof Service) {
+                (this[key] as Service).replaceState(state[key]);
+            } else {
+                this[key] = state[key];
+            }
+        }
     }
 
-    appendChild<S extends Service>(child: S, childName: keyof this, uuid: string | Symbol): void {
-        Service.appendChild(this, childName, child, uuid);
+    appendChild<S extends Service>(child: S, childName: keyof this, identifier?: string | Symbol): void {
+        Service.appendChild(this, childName, child, identifier);
     }
 
-    static appendChild<P extends Service, C extends Service>(parent: P, childName: keyof P, child: C, uuid: string | Symbol) {
+    static appendChild<P extends Service, C extends Service>
+        (parent: P, childName: keyof P, child: C, identifier?: string | Symbol) {
         if (process.env.NODE_ENV !== 'production') {
             if (parent.$childs.indexOf(child) > -1) {
                 warn('The parent service already has this child service' +
@@ -54,64 +67,68 @@ export abstract class Service {
         }
         parent.$childs.push(child);
         child.$parent = parent;
-        defGet(parent, '$uuid', uuid);
+        setRoot(parent.$root || parent);
+        identifier && (child.$identifier = identifier);
         def(parent, childName, {
             enumerable: true,
-            configurable: true,
             get: () => child
         });
+        if (!parent.$getters) {
+            parent.$getters = {};
+        }
+        parent.$getters[childName] = child.$getters;
     }
-
 }
 
-export const commitKey = '__isCommitting';
-export const mutationMiddlewareKey = '__middleware';
-export interface ICreateOption {
-    strict?: Boolean;
+const $gettersKey = '$getters', $stateKey = '$state', $identifierKey = '$identifier', $rootKey = '$root';
+const hiddenKey = ['$childs', '$parent', $rootKey, $identifierKey, $gettersKey, $stateKey, '__isCommitting', '__middleware'];
+export interface IChildOption {
+    childName: string;
+    child: Service;
+    identifier: string | Symbol;
+}
+export interface IDecoratorOption {
+    strict?: boolean;
+    identifier?: string | Symbol;
+    childOption?: IChildOption[];
 }
 /**
  * createObserveDecorator
  * @param _Vue
  */
 export function createDecorator(_Vue: typeof Vue) {
-    return function observable(option?: ICreateOption) {
+    return function observable(option?: IDecoratorOption) {
         /**
          * rewirte class constructor to defined observe
-         * @param constructor
-         * @param _Vue
          */
         return function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
-            let __isCommitting: boolean = false;
             const __middleware: Middleware = new Middleware();
-            return class VubxClass extends constructor {
+            return class Vubx extends constructor {
 
                 constructor(...arg: any[]) {
-                    super();
-                    const getters = getPropertyGetters(constructor.prototype);
-                    // get hook
-                    const { created } = constructor.prototype;
-                    const getterKeys = Object.keys(getters);
-                    const self = this;
+                    super(...arg);
+                    hiddenKey.forEach(key => def(this, key, { enumerable: false }));
+                    const getters = getPropertyGetters(constructor.prototype),
+                        { created } = constructor.prototype,
+                        getterKeys = Object.keys(getters),
+                        self = this;
                     const vm: Vue = new _Vue({
                         data: this,
                         computed: getters
                     });
-                    defGet(this, '__$$vm', vm);
-                    proxyGetters(this, vm, getterKeys);
                     proxyState(this, getterKeys);
+                    proxyGetters(this, vm, getterKeys);
                     proxyMethod(this, vm);
 
-                    // mutaion middleware
-                    defGet(this, mutationMiddlewareKey, __middleware);
-                    if (option && option.strict) {
-                        openStrict(vm, this);
+                    this[$rootKey] = this;
+                    if (option) {
+                        if (option.strict) {
+                            openStrict(vm, this);
+                        }
+                        if (option.identifier) {
+                            this[$identifierKey] = option.identifier;
+                        }
                     }
-                    def(this, commitKey, {
-                        get: () => __isCommitting,
-                        set: (val: boolean) =>
-                            __isCommitting = val,
-                        enumerable: false
-                    });
                     created && created.call(this);
                 }
             };
@@ -120,7 +137,7 @@ export function createDecorator(_Vue: typeof Vue) {
 }
 
 function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
-    const $getters = {};
+    const $getters = (ctx as Service).$getters;
     getterKeys.forEach(key => {
         def(ctx, key, {
             get: () => vm[key],
@@ -129,19 +146,22 @@ function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
         });
         $getters[key] = ctx[key];
     });
-    defGet(ctx, '$getters', $getters);
 }
 
 function proxyState(ctx: any, getterKeys: string[]) {
-    const $state = {};
+    const $state = (ctx as Service).$state;
     Object.keys(ctx).forEach(
         key => {
             if (getterKeys.indexOf(key) < 0) {
-                $state[key] = ctx[key];
+                if (ctx[key] instanceof Service) {
+                    $state[key] = ctx[key].$state;
+                    // Object.assign(ctx.getters, ctx[key].getters);
+                } else {
+                    $state[key] = ctx[key];
+                }
             }
         }
     );
-    defGet(ctx, '$state', $state);
 }
 
 const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
@@ -149,17 +169,18 @@ const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete']
 function proxyMethod(ctx: any, vm: Vue) {
     for (const key of vmMethods) {
         def(ctx, key, {
-            get: () => vm[key].bind(vm)
+            get: () => vm[key].bind(vm),
+            enumerable: false
         });
     }
 }
 
 function openStrict(vm: Vue, service: any) {
     if (process.env.NODE_ENV !== 'production') {
-        vm.$watch<any>(function() {
+        vm.$watch<any>(function () {
             return this.$data;
         }, (val) => {
-            assert(service[commitKey],
+            assert((service as Service).__isCommitting,
                 'Do not mutate vubx service data outside mutation handlers.');
         }, { deep: true, sync: true });
     }
@@ -179,4 +200,11 @@ function getPropertyGetters(target: any): { [key: string]: { get(): any, set?():
         }
     });
     return getters;
+}
+
+function setRoot(root: Service) {
+    root.$childs.forEach(s => {
+        s.$root = root;
+        setRoot(s);
+    });
 }
