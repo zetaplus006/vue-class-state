@@ -28,26 +28,24 @@ interface IMutation {
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
     descriptor.value = function (this: Service, ...arg: any[]) {
-        const middleware = this.__middleware;
-        const vubxMutation: IMutation = {
-            type: mutationyKey,
-            payload: arg
-        };
+        const middleware = this.__.middleware,
+            vubxMutation: IMutation = {
+                type: this.__.identifier + ': ' + mutationyKey,
+                payload: arg
+            };
+        const root = this.__.$root || this as Service;
 
-        const root = this.$root as any;
-
-        const temp = root.__isCommitting;
-        root.__isCommitting = true;
-
+        const temp = root.__.isCommitting;
+        root.__.isCommitting = true;
         middleware.dispatchBefore(this, vubxMutation, this);
-        let res = mutationFn.apply(this, arg);
+        const res = mutationFn.apply(this, arg);
         middleware.dispatchAfter(this, vubxMutation, this);
 
         // arguments is different
         // res = isSkip ? mutationFn.apply(this, arg)
         //     : middleware.createTask(mutationFn, this)(...arg);
 
-        root.__isCommitting = temp;
+        root.__.isCommitting = temp;
         return res;
     };
     return descriptor;

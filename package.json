@@ -1,7 +1,7 @@
 {
   "name": "vubx",
   "version": "0.0.1",
-  "description": "A simple style state management for Vue(in dev)",
+  "description": "A simple state management for Vue(in dev)",
   "main": "src/index.ts",
   "scripts": {
     "dev": "node examples/server.js",

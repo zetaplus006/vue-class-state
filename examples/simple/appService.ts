@@ -1,10 +1,12 @@
 import Vue from 'vue';
 import { createDecorator, Service, mutation } from 'vubx';
+import { identifier } from '../chat/store/index';
 
 const obverable = createDecorator(Vue);
 
 @obverable({
-    strict: true
+    strict: true,
+    identifier: 'appService'
 })
 export class AppService extends Service {
 

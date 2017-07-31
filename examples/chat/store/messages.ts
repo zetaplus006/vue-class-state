@@ -12,13 +12,3 @@ export interface IMessage {
 }
 
 export interface IMessages { [id: string]: IMessage; }
-
-@store()
-export class MessageStore extends Service {
-    messages: IMessages = {};
-
-    @mutation
-    addMessages(message: IMessage) {
-        this.$set(this.messages, message.id, message);
-    }
-}

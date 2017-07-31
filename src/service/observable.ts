@@ -6,6 +6,17 @@ import { AppService } from '../../examples/simple/appService';
 
 const def = Object.defineProperty;
 
+export interface IVubxHelper {
+    $getters: any;
+    $state: any;
+    $root: Service | null;
+    $parent: Service | null;
+    $children: Service[];
+    identifier: string;
+    isCommitting: boolean;
+    middleware: Middleware;
+}
+
 export abstract class Service {
     /**
      * $watch return a function that can close this watcher
@@ -19,15 +30,17 @@ export abstract class Service {
     protected $delete: typeof Vue.prototype.$delete;
     protected $destroy: typeof Vue.prototype.$destroy;
 
-    $getters: any = {};
-    $state: any = {};
-    $root: Service | null = null;
-    $parent: Service | null = null;
-    $children: Service[] = [];
-    $identifier: string = '';
+    __: IVubxHelper = {
+        $getters: {},
+        $state: {},
+        $root: null,
+        $parent: null,
+        $children: [],
+        identifier: '',
+        isCommitting: false,
+        middleware: new Middleware()
+    };
 
-    __isCommitting: boolean = false;
-    __middleware: Middleware = new Middleware();
     /**
      * After initialization has been completed
      */
@@ -53,33 +66,37 @@ export abstract class Service {
     static appendChild<P extends Service, C extends Service>
         (parent: P, childName: keyof P, child: C, identifier?: string) {
         if (process.env.NODE_ENV !== 'production') {
-            if (parent.$children.indexOf(child) > -1) {
+            if (parent.__.$children.indexOf(child) > -1) {
                 warn('The parent service already has this child service' +
                     'and cannot be added repeatedly');
                 return;
             }
-            if (child.$parent === parent) {
+            if (child.__.$parent === parent) {
                 warn('Services cannot be mutually parent and child');
                 return;
             }
         }
-        parent.$children.push(child);
-        child.$parent = parent;
-        setRoot(parent.$root || parent);
-        identifier && (child.$identifier = identifier);
+        parent.__.$children.push(child);
+        child.__.$parent = parent;
+        let root;
+        if (parent.__.$root) {
+            root = parent.__.$root;
+        } else {
+            root = parent.__.$root = parent;
+        }
+        setRoot(parent, root);
+        identifier && (child.__.identifier = identifier);
         def(parent, childName, {
             enumerable: true,
             get: () => child
         });
-        if (!parent.$getters) {
-            parent.$getters = {};
+        if (!parent.__.$getters) {
+            parent.__.$getters = {};
         }
-        parent.$getters[childName] = child.$getters;
+        parent.__.$getters[childName] = child.__.$getters;
     }
 }
 
-const $gettersKey = '$getters', $stateKey = '$state', $identifierKey = '$identifier', $rootKey = '$root';
-const hiddenKey = ['$children', '$parent', $rootKey, $identifierKey, $gettersKey, $stateKey, '__isCommitting', '__middleware'];
 export interface IChildOption {
     childName: string;
     child: Service;
@@ -87,7 +104,7 @@ export interface IChildOption {
 }
 export interface IDecoratorOption {
     strict?: boolean;
-    identifier?: string;
+    identifier: string;
     childOption?: IChildOption[];
 }
 export type IConstructor = { new(...args: any[]): {} };
@@ -102,32 +119,31 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
         /**
          * rewirte class constructor to defined observe
          */
-        return function observe<T extends { new(...args: any[]): {} }>(constructor: T) {
-            const __middleware: Middleware = new Middleware();
+        return function observe(constructor: IConstructor) {
             return class Vubx extends constructor {
-
                 constructor(...arg: any[]) {
                     super(...arg);
-                    hiddenKey.forEach(key => def(this, key, { enumerable: false }));
+                    // hiddenKey.forEach(key => def(this, key, { enumerable: false }));
+                    def(this, '__', { enumerable: false });
                     const getters = getPropertyGetters(constructor.prototype),
                         { created } = constructor.prototype,
-                        getterKeys = Object.keys(getters),
-                        self = this;
+                        getterKeys = Object.keys(getters);
                     const vm: Vue = new _Vue({
                         data: this,
                         computed: getters
                     });
+
                     proxyState(this, getterKeys);
                     proxyGetters(this, vm, getterKeys);
                     proxyMethod(this, vm);
 
-                    this[$rootKey] = this;
+                    // this['__']['$root'] = this;
                     if (option) {
                         if (option.strict) {
                             openStrict(vm, this);
                         }
                         if (option.identifier) {
-                            this[$identifierKey] = option.identifier;
+                            this['__']['identifier'] = option.identifier;
                         }
                     }
                     created && created.call(this);
@@ -137,8 +153,22 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     };
 }
 
+function proxyState(ctx: any, getterKeys: string[]) {
+    const $state = (ctx as Service).__.$state;
+    Object.keys(ctx).forEach(
+        key => {
+            if (getterKeys.indexOf(key) < 0) {
+                if (ctx[key] instanceof Service) {
+                    $state[key] = (ctx[key] as Service).__.$state;
+                } else {
+                    def($state, key, { get: () => ctx[key], enumerable: true });
+                }
+            }
+        }
+    );
+}
 function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
-    const $getters = (ctx as Service).$getters;
+    const $getters = (ctx as Service).__.$getters;
     getterKeys.forEach(key => {
         def(ctx, key, {
             get: () => vm[key],
@@ -151,21 +181,6 @@ function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
             enumerable: true
         });
     });
-}
-
-function proxyState(ctx: any, getterKeys: string[]) {
-    const $state = (ctx as Service).$state;
-    Object.keys(ctx).forEach(
-        key => {
-            if (getterKeys.indexOf(key) < 0) {
-                if (ctx[key] instanceof Service) {
-                    $state[key] = ctx[key].$state;
-                } else {
-                    def($state, key, { get: () => ctx[key], enumerable: true });
-                }
-            }
-        }
-    );
 }
 
 const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
@@ -181,10 +196,10 @@ function proxyMethod(ctx: any, vm: Vue) {
 
 function openStrict(vm: Vue, service: any) {
     if (process.env.NODE_ENV !== 'production') {
-        vm.$watch<any>(function () {
+        vm.$watch<any>(function() {
             return this.$data;
         }, (val) => {
-            assert((service as Service).__isCommitting,
+            assert((service as Service).__.isCommitting,
                 'Do not mutate vubx service data outside mutation handlers.');
         }, { deep: true, sync: true });
     }
@@ -206,9 +221,9 @@ function getPropertyGetters(target: any): { [key: string]: { get(): any, set?():
     return getters;
 }
 
-function setRoot(root: Service) {
-    root.$children.forEach(s => {
-        s.$root = root;
-        setRoot(s);
+function setRoot(parent: Service, root: Service) {
+    parent.__.$children.forEach(s => {
+        s.__.$root = root;
+        setRoot(s, root);
     });
 }

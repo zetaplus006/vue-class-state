@@ -11,13 +11,14 @@ import { AppService } from './appService';
 import { devtool } from 'vubx';
 const appService = new AppService();
 devtool(appService);
+console.log(appService)
 export default {
     computed: {
-        appService () {
+        appService() {
             return appService;
         }
     },
-    mounted () {
+    mounted() {
         appService.start();
     }
 };

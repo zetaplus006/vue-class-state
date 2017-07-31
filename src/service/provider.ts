@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { Service } from './observable';
+import { assert } from '../util';
 export function createProvider(service: Service) {
     const provider = {};
     getProvider(service, provider);
@@ -7,11 +8,8 @@ export function createProvider(service: Service) {
 }
 
 function getProvider(service: Service, provider: any) {
-    if (!service.$identifier) {
-        return;
-    }
-    provider[service.$identifier] = service;
-    if (service.$children.length > 0) {
-        service.$children.forEach(s => getProvider(s, provider));
-    }
+    const __ = service.__;
+    assert(__.identifier, 'This service has not identifier');
+    provider[__.identifier] = service;
+    __.$children.forEach(s => getProvider(s, provider));
 }

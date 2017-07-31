@@ -11,24 +11,3 @@ export interface IThreads {
 
 export interface IThreadsData { [id: string]: IThreads; }
 
-@store()
-export class ThreadsStore extends Service {
-    threadsData: IThreadsData = {};
-
-    currentThreadID: string = '';
-
-    @mutation
-    createThreads(id: string, name: string) {
-        this.$set(this.threadsData, id, {
-            id,
-            name,
-            messages: [],
-            lastMessage: null
-        });
-    }
-    @mutation
-    setCurrentThread(threadId: string) {
-        this.currentThreadID = threadId;
-        this.threadsData[threadId].lastMessage.isRead = true;
-    }
-}

@@ -19,7 +19,7 @@ export default function devtool(service: Service) {
         service.replaceState(targetState);
     });
 
-    service.__middleware.subscribe({
+    service.__.middleware.subscribe({
         after: (mutation: any, state: any) => {
             devtoolHook.emit('vuex:mutation', mutation, state);
         }
@@ -35,8 +35,8 @@ interface IStore {
 
 function simulationStore(service: Service): IStore {
     const store = {
-        state: service.$state,
-        getters: service.$getters,
+        state: service.__.$state,
+        getters: service.__.$getters,
         _devtoolHook: null
         // subscribe:
     };

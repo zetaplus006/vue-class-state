@@ -1,7 +1,6 @@
 .DS_Store
 .vscode
 node_modules
-TODO.md
 lib
 docs/_book
 examples/**/build.js
