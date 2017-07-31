@@ -1,47 +1,25 @@
 <template>
     <div>
-        <h4>{{appName}}</h4>
-        <ul>
-            <li v-for="(person , index) in persons" :key="index">{{person.name}}</li>
-        </ul>
+        <h4>simple demo</h4>
+        <span>{{appService.sum}} </span>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { AppService, UserService } from './appService';
-import { Service, devtool } from 'vubx';
-
-const appService = new AppService('');
+import { AppService } from './appService';
+import { devtool } from 'vubx';
+const appService = new AppService();
 devtool(appService);
-appService.appendChild<UserService>(new UserService(), 'userInfoOther', Symbol('userInfoOther'));
-console.log(appService);
-
-
 export default {
     computed: {
-        persons(): any {
-            return appService.list;
-        },
-        appService() {
+        appService () {
             return appService;
-        },
-        appName() {
-            return appService.name;
         }
     },
-    mounted() {
-        appService.addPerson();
-        /* setTimeout(() => {
-            appService.addPerson();
-        }, 2000) */
-        setTimeout(() => {
-            appService.addPerson();
-        }, 2000)
+    mounted () {
+        appService.start();
     }
 };
 </script>
 
-<style>
-
-</style>

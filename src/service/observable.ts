@@ -4,9 +4,7 @@ import { assert, warn } from '../util';
 import { Middleware } from './middleware';
 import { AppService } from '../../examples/simple/appService';
 
-const def = Object.defineProperty,
-    defGet = (obj: Object, key: string, val: any, isEnumerable: boolean = false) =>
-        def(obj, key, { get: () => val, enumerable: isEnumerable });
+const def = Object.defineProperty;
 
 export abstract class Service {
     /**
@@ -25,8 +23,8 @@ export abstract class Service {
     $state: any = {};
     $root: Service | null = null;
     $parent: Service | null = null;
-    $childs: Service[] = [];
-    $identifier: string | Symbol = '';
+    $children: Service[] = [];
+    $identifier: string = '';
 
     __isCommitting: boolean = false;
     __middleware: Middleware = new Middleware();
@@ -37,7 +35,7 @@ export abstract class Service {
 
     @mutation
     replaceState(state: Service): void {
-        let keys = Object.keys(state);
+        const keys = Object.keys(state);
         for (const key in state) {
             if (!this[key]) continue;
             if (this[key] instanceof Service) {
@@ -48,14 +46,14 @@ export abstract class Service {
         }
     }
 
-    appendChild<S extends Service>(child: S, childName: keyof this, identifier?: string | Symbol): void {
+    appendChild<S extends Service>(child: S, childName: keyof this, identifier?: string): void {
         Service.appendChild(this, childName, child, identifier);
     }
 
     static appendChild<P extends Service, C extends Service>
-        (parent: P, childName: keyof P, child: C, identifier?: string | Symbol) {
+        (parent: P, childName: keyof P, child: C, identifier?: string) {
         if (process.env.NODE_ENV !== 'production') {
-            if (parent.$childs.indexOf(child) > -1) {
+            if (parent.$children.indexOf(child) > -1) {
                 warn('The parent service already has this child service' +
                     'and cannot be added repeatedly');
                 return;
@@ -65,7 +63,7 @@ export abstract class Service {
                 return;
             }
         }
-        parent.$childs.push(child);
+        parent.$children.push(child);
         child.$parent = parent;
         setRoot(parent.$root || parent);
         identifier && (child.$identifier = identifier);
@@ -81,22 +79,25 @@ export abstract class Service {
 }
 
 const $gettersKey = '$getters', $stateKey = '$state', $identifierKey = '$identifier', $rootKey = '$root';
-const hiddenKey = ['$childs', '$parent', $rootKey, $identifierKey, $gettersKey, $stateKey, '__isCommitting', '__middleware'];
+const hiddenKey = ['$children', '$parent', $rootKey, $identifierKey, $gettersKey, $stateKey, '__isCommitting', '__middleware'];
 export interface IChildOption {
     childName: string;
     child: Service;
-    identifier: string | Symbol;
+    identifier: string;
 }
 export interface IDecoratorOption {
     strict?: boolean;
-    identifier?: string | Symbol;
+    identifier?: string;
     childOption?: IChildOption[];
 }
+export type IConstructor = { new(...args: any[]): {} };
+export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
+
 /**
  * createObserveDecorator
  * @param _Vue
  */
-export function createDecorator(_Vue: typeof Vue) {
+export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     return function observable(option?: IDecoratorOption) {
         /**
          * rewirte class constructor to defined observe
@@ -144,7 +145,11 @@ function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
             set: value => vm[key] = value,
             enumerable: true
         });
-        $getters[key] = ctx[key];
+        def($getters, key, {
+            get: () => ctx[key],
+            set: value => ctx[key] = value,
+            enumerable: true
+        });
     });
 }
 
@@ -155,9 +160,8 @@ function proxyState(ctx: any, getterKeys: string[]) {
             if (getterKeys.indexOf(key) < 0) {
                 if (ctx[key] instanceof Service) {
                     $state[key] = ctx[key].$state;
-                    // Object.assign(ctx.getters, ctx[key].getters);
                 } else {
-                    $state[key] = ctx[key];
+                    def($state, key, { get: () => ctx[key], enumerable: true });
                 }
             }
         }
@@ -203,7 +207,7 @@ function getPropertyGetters(target: any): { [key: string]: { get(): any, set?():
 }
 
 function setRoot(root: Service) {
-    root.$childs.forEach(s => {
+    root.$children.forEach(s => {
         s.$root = root;
         setRoot(s);
     });

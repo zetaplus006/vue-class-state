@@ -1,2 +1,2 @@
 export * from './observable';
-export * from './install';
+export * from './provider';

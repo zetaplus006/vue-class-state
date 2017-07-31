@@ -1,83 +1,49 @@
 import Vue from 'vue';
 import { createDecorator, Service, mutation } from 'vubx';
-import devtool from '../../src/plugins/devtool';
 
 const obverable = createDecorator(Vue);
 
-export interface IPerson {
-    name: string;
-    age: number;
-}
-
 @obverable({
-    strict: true,
-    identifier: Symbol('app')
+    strict: true
 })
 export class AppService extends Service {
-    list: IPerson[] = [];
 
-    name: string = '';
+    // state
+    private num1: number = 0;
+    private num2: number = 0;
 
-    data = {
-        num: 0
-    };
+    // No initial value, Will not enter the vue
+    private closer: any;
 
-    get Person() {
-        return this.list;
+    // computed
+    get sum() {
+        return this.num1 + this.num2;
     }
 
-    userInfo: UserService;
-    userInfoOther: UserService;
-
-    constructor(test: string) {
-        super();
-        this.appendChild<UserService>(new UserService, 'userInfo', Symbol('userInfo'));
-    }
-
-    @mutation
-    addPerson() {
-        // this.list.push({
-        //     name: 'bruce',
-        //     age: 16
-        // });
-        this.changeName(this.name + 's');
-        this.data.num = 10;
-        // this.$emit('test', { a: 'ss' });
-    }
-
-    @mutation
-    changeName(newName: string) {
-        this.name = newName;
-    }
-
-    closer: any;
+    // vubx hook
     created() {
-        this.closer = this.$watch('list', (val) => {
-            console.log(val);
-            this.closer();
+        this.$on('close', () => {
+            clearInterval(this.closer);
         });
-        this.$on('test', function(obj: any) {
-            console.log(obj);
+        this.$watch('sum', (sum) => {
+            if (sum >= 10) {
+                console.log(this.sum);
+            }
         });
-        setTimeout(() => {
-            // this.userInfo.change();
+    }
+
+    start() {
+        this.closer = setInterval(() => {
+            this.change();
+            if (this.sum >= 10) {
+                this.$emit('close');
+            }
         }, 1000);
-        // this.changeName('sddd');
     }
-}
 
-@obverable()
-export class UserService extends Service {
-    info: IPerson = {
-        name: 'bruce',
-        age: 16
-    };
-
-    get computed() {
-        return this.info;
-    }
     @mutation
     change() {
-        this.info.age++;
+        this.num1++;
+        this.num2++;
     }
 }
