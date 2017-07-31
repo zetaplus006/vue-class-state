@@ -1,8 +1,7 @@
 import { store } from './decorator';
-import { IMessage, IMessages } from './messages';
-import { IThreadsData, IThreads } from './threads';
 import { createProvider, Service, devtool, mutation } from 'vubx';
 import { getAllMessages } from '../api/index';
+import { IThreadsData, IThreads, IMessages, IMessage } from './type';
 
 export const identifier = {
     CHAT: 'chatStore'
@@ -69,7 +68,6 @@ export class ChatStore extends Service {
 }
 
 const chatStore = new ChatStore();
-console.log(chatStore);
 
 devtool(chatStore);
 

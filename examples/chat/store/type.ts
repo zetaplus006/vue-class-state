@@ -1,5 +1,3 @@
-import { store } from './decorator';
-import { Service, mutation } from 'vubx';
 
 export interface IMessage {
     id: string;
@@ -12,3 +10,12 @@ export interface IMessage {
 }
 
 export interface IMessages { [id: string]: IMessage; }
+
+export interface IThreads {
+    id: string;
+    name: string;
+    messages: string[];
+    lastMessage: IMessage;
+}
+
+export interface IThreadsData { [id: string]: IThreads; }
