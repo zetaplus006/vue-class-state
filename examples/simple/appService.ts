@@ -1,12 +1,23 @@
 import Vue from 'vue';
 import { createDecorator, Service, mutation } from 'vubx';
 import { identifier } from '../chat/store/index';
-
+import { lazyInject } from '../../src/service/provider';
 const obverable = createDecorator(Vue);
+@obverable({
+    identifier: 'string'
+})
+export class Child extends Service {
+    data = {
+        king: true
+    };
+}
 
 @obverable({
     strict: true,
-    identifier: 'appService'
+    identifier: 'appService',
+    injectors: [
+        lazyInject<AppService>('child', 'child', Child)
+    ]
 })
 export class AppService extends Service {
 
@@ -16,6 +27,8 @@ export class AppService extends Service {
 
     // No initial value, Will not enter the vue
     private closer: any;
+
+    child: Child;
 
     // computed
     get sum() {
@@ -41,6 +54,10 @@ export class AppService extends Service {
                 this.$emit('close');
             }
         }, 1000);
+        // console.log(this);
+        // setTimeout(() => {
+        //     console.log(this.child);
+        // }, 3000);
     }
 
     @mutation

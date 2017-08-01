@@ -14,11 +14,11 @@ devtool(appService);
 console.log(appService)
 export default {
     computed: {
-        appService() {
+        appService () {
             return appService;
         }
     },
-    mounted() {
+    mounted () {
         appService.start();
     }
 };

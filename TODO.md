@@ -2,6 +2,6 @@
 
 ## decorator childs
 
-## 动态注册 删除 child
+## 动态注册 自动异步注入 删除 child
 
 ## Map identifer

@@ -18,6 +18,7 @@ export interface IVubxHelper {
 }
 
 export abstract class Service {
+
     /**
      * $watch return a function that can close this watcher
      */
@@ -90,22 +91,17 @@ export abstract class Service {
             enumerable: true,
             get: () => child
         });
-        if (!parent.__.$getters) {
-            parent.__.$getters = {};
-        }
         parent.__.$getters[childName] = child.__.$getters;
+        parent.__.$state[childName] = child.__.$state;
     }
 }
 
-export interface IChildOption {
-    childName: string;
-    child: Service;
-    identifier: string;
-}
+export type IInjector = (s: Service) => void;
+
 export interface IDecoratorOption {
     strict?: boolean;
-    identifier: string;
-    childOption?: IChildOption[];
+    identifier?: string;
+    injectors?: IInjector[];
 }
 export type IConstructor = { new(...args: any[]): {} };
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
@@ -115,7 +111,7 @@ export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConst
  * @param _Vue
  */
 export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
-    return function observable(option?: IDecoratorOption) {
+    return function decorator(option?: IDecoratorOption) {
         /**
          * rewirte class constructor to defined observe
          */
@@ -145,6 +141,9 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         if (option.identifier) {
                             this['__']['identifier'] = option.identifier;
                         }
+                        if (option.injectors) {
+                            injectChildren(this, option.injectors);
+                        }
                     }
                     created && created.call(this);
                 }
@@ -153,16 +152,20 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     };
 }
 
+function injectChildren(ctx: any, injectors: IInjector[]) {
+    injectors.forEach(injector => injector(ctx as Service));
+}
+
 function proxyState(ctx: any, getterKeys: string[]) {
     const $state = (ctx as Service).__.$state;
     Object.keys(ctx).forEach(
         key => {
             if (getterKeys.indexOf(key) < 0) {
-                if (ctx[key] instanceof Service) {
-                    $state[key] = (ctx[key] as Service).__.$state;
-                } else {
-                    def($state, key, { get: () => ctx[key], enumerable: true });
-                }
+                /*  if (ctx[key] instanceof Service) {
+                     // $state[key] = (ctx[key] as Service).__.$state;
+                 } else {
+                 } */
+                def($state, key, { get: () => ctx[key], enumerable: true });
             }
         }
     );
@@ -196,7 +199,7 @@ function proxyMethod(ctx: any, vm: Vue) {
 
 function openStrict(vm: Vue, service: any) {
     if (process.env.NODE_ENV !== 'production') {
-        vm.$watch<any>(function() {
+        vm.$watch<any>(function () {
             return this.$data;
         }, (val) => {
             assert((service as Service).__.isCommitting,
