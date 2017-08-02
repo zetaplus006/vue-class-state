@@ -1,21 +1,9 @@
 import Vue from 'vue';
-import { enumerable, mutation } from '../decorator';
-import { assert, warn } from '../util';
+import { enumerable, mutation, action } from '../decorator';
+import { assert, warn, def } from '../util';
 import { Middleware } from './middleware';
-import { AppService } from '../../examples/simple/appService';
-
-const def = Object.defineProperty;
-
-export interface IVubxHelper {
-    $getters: any;
-    $state: any;
-    $root: Service | null;
-    $parent: Service | null;
-    $children: Service[];
-    identifier: string;
-    isCommitting: boolean;
-    middleware: Middleware;
-}
+import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IInjector, IIentifier } from '../interfaces';
+import { Provider } from './provider';
 
 export abstract class Service {
 
@@ -35,17 +23,29 @@ export abstract class Service {
         $getters: {},
         $state: {},
         $root: null,
-        $parent: null,
+        $parent: [],
         $children: [],
-        identifier: '',
         isCommitting: false,
-        middleware: new Middleware()
+        middleware: new Middleware(),
+        provider: null
     };
 
     /**
      * After initialization has been completed
      */
     protected created?(): void;
+
+    getProvider(): Provider {
+        return (this.__.$root as Service).__.provider as Provider;
+    }
+
+    protected async dispatch(identifier: IIentifier, actionType: string, ...arg: any[]): Promise<any> {
+
+    }
+
+    protected commit(identifier: IIentifier, mutationType: string, ...arg: any[]): any {
+
+    }
 
     @mutation
     replaceState(state: Service): void {
@@ -60,25 +60,14 @@ export abstract class Service {
         }
     }
 
-    appendChild<S extends Service>(child: S, childName: keyof this, identifier?: string): void {
+    appendChild<S extends Service>(child: S, childName: keyof this, identifier?: IIentifier): void {
         Service.appendChild(this, childName, child, identifier);
     }
 
     static appendChild<P extends Service, C extends Service>
-        (parent: P, childName: keyof P, child: C, identifier?: string) {
-        if (process.env.NODE_ENV !== 'production') {
-            if (parent.__.$children.indexOf(child) > -1) {
-                warn('The parent service already has this child service' +
-                    'and cannot be added repeatedly');
-                return;
-            }
-            if (child.__.$parent === parent) {
-                warn('Services cannot be mutually parent and child');
-                return;
-            }
-        }
+        (parent: P, childName: keyof P, child: C, identifier?: IIentifier) {
         parent.__.$children.push(child);
-        child.__.$parent = parent;
+        child.__.$parent.push(parent);
         let root;
         if (parent.__.$root) {
             root = parent.__.$root;
@@ -86,7 +75,6 @@ export abstract class Service {
             root = parent.__.$root = parent;
         }
         setRoot(parent, root);
-        identifier && (child.__.identifier = identifier);
         def(parent, childName, {
             enumerable: true,
             get: () => child
@@ -95,16 +83,6 @@ export abstract class Service {
         parent.__.$state[childName] = child.__.$state;
     }
 }
-
-export type IInjector = (s: Service) => void;
-
-export interface IDecoratorOption {
-    strict?: boolean;
-    identifier?: string;
-    injectors?: IInjector[];
-}
-export type IConstructor = { new(...args: any[]): {} };
-export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
 
 /**
  * createObserveDecorator
@@ -115,7 +93,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
         /**
          * rewirte class constructor to defined observe
          */
-        return function observe(constructor: IConstructor) {
+        return function(constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
@@ -134,15 +112,21 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     proxyMethod(this, vm);
 
                     // this['__']['$root'] = this;
+                    let __ = this['__'] as IVubxHelper;
                     if (option) {
                         if (option.strict) {
                             openStrict(vm, this);
                         }
-                        if (option.identifier) {
-                            this['__']['identifier'] = option.identifier;
+
+                        if (option.root) {
+                            __.$root = this as any;
+                            __.provider = new Provider();
+                            if (option.identifier) {
+                                __.provider.push(option.identifier, this as any);
+                            }
                         }
-                        if (option.injectors) {
-                            injectChildren(this, option.injectors);
+                        if (option.injector) {
+                            injectChildren(this, option.injector);
                         }
                     }
                     created && created.call(this);
@@ -199,7 +183,7 @@ function proxyMethod(ctx: any, vm: Vue) {
 
 function openStrict(vm: Vue, service: any) {
     if (process.env.NODE_ENV !== 'production') {
-        vm.$watch<any>(function () {
+        vm.$watch<any>(function() {
             return this.$data;
         }, (val) => {
             assert((service as Service).__.isCommitting,

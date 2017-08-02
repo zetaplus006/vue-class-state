@@ -1,5 +1,5 @@
-import { Service } from '../service/';
 import { Middleware } from '../service/middleware';
+import { Service } from '../service/observable';
 
 export default function devtool(service: Service) {
 

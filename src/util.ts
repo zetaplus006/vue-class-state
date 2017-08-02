@@ -19,3 +19,5 @@ export function warn(msg: string) {
 }
 
 export const hasSymbol = typeof Symbol === 'function';
+
+export const def = Object.defineProperty;

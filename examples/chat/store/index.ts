@@ -9,6 +9,7 @@ export const identifier = {
 
 @store({
     strict: true,
+    root: true,
     identifier: identifier.CHAT
 })
 export class ChatStore extends Service {

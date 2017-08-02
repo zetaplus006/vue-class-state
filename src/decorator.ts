@@ -1,6 +1,7 @@
 import { createDecorator, Service } from './service/observable';
 import { isFn, isPromise } from './util';
 import { Middleware } from './service/middleware';
+import { IMutation } from './interfaces';
 import Vue from 'vue';
 
 export function action(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -20,17 +21,14 @@ export function action(target: any, propertyKey: string, descriptor: PropertyDes
 }
 
 // for vuex devtool
-interface IMutation {
-    type: string;
-    payload: any;
-}
 
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
     descriptor.value = function (this: Service, ...arg: any[]) {
         const middleware = this.__.middleware,
             vubxMutation: IMutation = {
-                type: this.__.identifier + ': ' + mutationyKey,
+                // type: this.__.identifier.toString() + ': ' + mutationyKey,
+                type: mutationyKey,
                 payload: arg
             };
         const root = this.__.$root || this as Service;

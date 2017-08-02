@@ -14,8 +14,9 @@ export class Child extends Service {
 
 @obverable({
     strict: true,
-    identifier: 'appService',
-    injectors: [
+    identifier: Symbol('appService'),
+    root: true,
+    injector: [
         lazyInject<AppService>('child', 'child', Child)
     ]
 })
