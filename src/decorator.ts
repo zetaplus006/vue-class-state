@@ -27,8 +27,7 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
     descriptor.value = function (this: Service, ...arg: any[]) {
         const middleware = this.__.middleware,
             vubxMutation: IMutation = {
-                // type: this.__.identifier.toString() + ': ' + mutationyKey,
-                type: mutationyKey,
+                type: this.__.identifier.toString() + ': ' + mutationyKey,
                 payload: arg
             };
         const root = this.__.$root || this as Service;

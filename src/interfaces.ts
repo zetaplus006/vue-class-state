@@ -22,6 +22,7 @@ export interface IVubxHelper {
     isCommitting: boolean;
     middleware: Middleware;
     provider: Provider | null;
+    identifier: IIentifier;
 }
 
 export type IIentifier = string | symbol;

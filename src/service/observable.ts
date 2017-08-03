@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import { enumerable, mutation, action } from '../decorator';
-import { assert, warn, def } from '../util';
+import { assert, def } from '../util';
 import { Middleware } from './middleware';
 import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IInjector, IIentifier } from '../interfaces';
 import { Provider } from './provider';
@@ -27,17 +27,14 @@ export abstract class Service {
         $children: [],
         isCommitting: false,
         middleware: new Middleware(),
-        provider: null
+        provider: null,
+        identifier: '__vubx__'
     };
 
     /**
      * After initialization has been completed
      */
     protected created?(): void;
-
-    getProvider(): Provider {
-        return (this.__.$root as Service).__.provider as Provider;
-    }
 
     protected async dispatch(identifier: IIentifier, actionType: string, ...arg: any[]): Promise<any> {
 
@@ -60,28 +57,19 @@ export abstract class Service {
         }
     }
 
-    appendChild<S extends Service>(child: S, childName: keyof this, identifier?: IIentifier): void {
-        Service.appendChild(this, childName, child, identifier);
-    }
-
-    static appendChild<P extends Service, C extends Service>
-        (parent: P, childName: keyof P, child: C, identifier?: IIentifier) {
-        parent.__.$children.push(child);
-        child.__.$parent.push(parent);
-        let root;
-        if (parent.__.$root) {
-            root = parent.__.$root;
-        } else {
-            root = parent.__.$root = parent;
-        }
-        setRoot(parent, root);
-        def(parent, childName, {
+    appendChild<S extends Service>(child: S, childName: keyof this, identifier: IIentifier): void {
+        def(this, childName, {
             enumerable: true,
             get: () => child
         });
-        parent.__.$getters[childName] = child.__.$getters;
-        parent.__.$state[childName] = child.__.$state;
+        appendServiceChild(this, childName, child, identifier);
+        this.__.$root && this.__.$root.getProvider().push(identifier, child);
     }
+
+    getProvider(): Provider {
+        return (this.__.$root as Service).__.provider as Provider;
+    }
+
 }
 
 /**
@@ -93,7 +81,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
         /**
          * rewirte class constructor to defined observe
          */
-        return function(constructor: IConstructor) {
+        return function (constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
@@ -117,11 +105,11 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         if (option.strict) {
                             openStrict(vm, this);
                         }
-
                         if (option.root) {
                             __.$root = this as any;
                             __.provider = new Provider();
                             if (option.identifier) {
+                                __.identifier = option.identifier;
                                 __.provider.push(option.identifier, this as any);
                             }
                         }
@@ -183,7 +171,7 @@ function proxyMethod(ctx: any, vm: Vue) {
 
 function openStrict(vm: Vue, service: any) {
     if (process.env.NODE_ENV !== 'production') {
-        vm.$watch<any>(function() {
+        vm.$watch<any>(function () {
             return this.$data;
         }, (val) => {
             assert((service as Service).__.isCommitting,
@@ -206,6 +194,22 @@ function getPropertyGetters(target: any): { [key: string]: { get(): any, set?():
         }
     });
     return getters;
+}
+
+export function appendServiceChild<P extends Service, C extends Service>
+    (parent: P, childName: keyof P, child: C, identifier: IIentifier) {
+    parent.__.$children.push(child);
+    child.__.$parent.push(parent);
+    let root;
+    if (parent.__.$root) {
+        root = parent.__.$root;
+    } else {
+        root = parent.__.$root = parent;
+    }
+    setRoot(parent, root);
+    child.__.identifier = identifier;
+    parent.__.$getters[childName] = child.__.$getters;
+    parent.__.$state[childName] = child.__.$state;
 }
 
 function setRoot(parent: Service, root: Service) {

@@ -14,10 +14,6 @@ export function assert(condition: any, msg: string) {
     if (!condition) throw new Error(`[vubx warn] ${msg}`);
 }
 
-export function warn(msg: string) {
-    console.warn(`[vubx] warn: ${msg}`);
-}
-
 export const hasSymbol = typeof Symbol === 'function';
 
 export const def = Object.defineProperty;

@@ -1,24 +1,16 @@
 import Vue from 'vue';
 import { assert, def } from '../util';
-import { Service } from './observable';
+import { Service, appendServiceChild } from './observable';
 import { IInjector, IIentifier, IServiceClass } from '../interfaces';
+
 export function createProvider(service: Service) {
-    debugger;
     return (service.__.provider as Provider).proxy;
 }
-
-// function getProvider(service: Service, provider: any) {
-//     const __ = service.__;
-//     assert(__.identifier, 'This service has not identifier');
-//     provider[__.identifier] = service;
-//     __.$children.forEach(s => getProvider(s, provider));
-// }
 
 export function lazyInject<T extends Service>(
     key: keyof T,
     identifier: IIentifier,
-    serviceClass: IServiceClass,
-    ...arg: any[]
+    serviceClass: IServiceClass
 ): IInjector {
     return function resolve(parent: T) {
         const provider = parent.getProvider();
@@ -28,7 +20,7 @@ export function lazyInject<T extends Service>(
                 let instance;
                 if (!provider.hasInstance(identifier)) {
                     instance = provider.getInstance(identifier);
-                    parent.appendChild(instance as Service, key, identifier);
+                    appendServiceChild(parent, key, instance as Service, identifier);
                 }
                 return provider.getInstance(identifier);
             },
@@ -47,13 +39,27 @@ export class Provider {
     // for vue provide
     public readonly proxy: {} = {};
 
-    register(identifier: IIentifier, serviceClass?: IServiceClass) {
-        if (process.env.NODE_ENV !== 'production') {
-            assert(!this.classMap.has(identifier),
-                `The IIentifier ${identifier.toString()} has been repeated`);
-        }
+    get instances() {
+        return Array.from(this.instancesMap);
+    }
 
-        serviceClass && this.classMap.set(identifier, serviceClass);
+    get classes() {
+        return Array.from(this.classMap);
+    }
+
+    register(identifier: IIentifier, serviceClass: IServiceClass) {
+        this.checkIdentifier(identifier);
+        this.classMap.set(identifier, serviceClass);
+        this.defProxy(identifier);
+    }
+
+    push(identifier: IIentifier, service: Service) {
+        this.checkIdentifier(identifier);
+        this.instancesMap.set(identifier, service);
+        this.defProxy(identifier);
+    }
+
+    defProxy(identifier: IIentifier) {
         def(this.proxy, identifier, {
             get: () => {
                 return this.getInstance(identifier);
@@ -67,19 +73,25 @@ export class Provider {
         if (!this.instancesMap.has(identifier)) {
             const serviceClass = this.classMap.get(identifier);
             if (process.env.NODE_ENV !== 'production') {
-                assert(serviceClass, `${identifier} can not find this class`);
+                assert(serviceClass, `${identifier.toString()} can not find this class`);
             }
             serviceClass && this.instancesMap.set(identifier, new serviceClass());
         }
         return this.instancesMap.get(identifier);
     }
 
-    push(identifier: IIentifier, service: Service) {
-        this.register(identifier);
-        this.instancesMap.set(identifier, service);
+    checkIdentifier(identifier: IIentifier) {
+        if (process.env.NODE_ENV !== 'production') {
+            assert(!this.classMap.has(identifier),
+                `The identifier ${identifier.toString()} has been repeated`);
+        }
     }
 
     hasInstance(identifier: IIentifier) {
         return this.instancesMap.has(identifier);
+    }
+
+    hasClass(identifier: IIentifier) {
+        return this.classMap.has(identifier);
     }
 }

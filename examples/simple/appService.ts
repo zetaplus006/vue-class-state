@@ -3,21 +3,21 @@ import { createDecorator, Service, mutation } from 'vubx';
 import { identifier } from '../chat/store/index';
 import { lazyInject } from '../../src/service/provider';
 const obverable = createDecorator(Vue);
-@obverable({
-    identifier: 'string'
-})
-export class Child extends Service {
+
+@obverable()
+export class Children extends Service {
+    text = 'lazyInject child service';
     data = {
-        king: true
+        s: 1
     };
 }
 
 @obverable({
-    strict: true,
+    // strict: true,
     identifier: Symbol('appService'),
     root: true,
     injector: [
-        lazyInject<AppService>('child', 'child', Child)
+        lazyInject<AppService>('child', Symbol('child'), Children)
     ]
 })
 export class AppService extends Service {
@@ -29,7 +29,8 @@ export class AppService extends Service {
     // No initial value, Will not enter the vue
     private closer: any;
 
-    child: Child;
+    child: Children;
+    child2: Children;
 
     // computed
     get sum() {
@@ -43,9 +44,10 @@ export class AppService extends Service {
         });
         this.$watch('sum', (sum) => {
             if (sum >= 10) {
-                console.log(this.sum);
+                console.log(this.child);
             }
         });
+        this.appendChild(new Children(), 'child2', Symbol('child2'));
     }
 
     start() {
