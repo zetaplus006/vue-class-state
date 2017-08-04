@@ -9,12 +9,11 @@ export function createProvider(service: Service) {
 
 export function lazyInject<T extends Service>(
     key: keyof T,
-    identifier: IIentifier,
-    serviceClass: IServiceClass
+    identifier: IIentifier
 ): IInjector {
     return function resolve(parent: T) {
         const provider = parent.getProvider();
-        provider.register(identifier, serviceClass);
+        // provider.register(identifier, serviceClass);
         def(parent, key, {
             get: () => {
                 let instance;
@@ -30,11 +29,29 @@ export function lazyInject<T extends Service>(
     };
 }
 
+export function bindClass<T extends Service>(
+    identifier: IIentifier,
+    serviceClass: IServiceClass<T>
+): IInjector {
+    return function registerClass(parent: Service) {
+        parent.getProvider().register(identifier, serviceClass);
+    };
+}
+
+export function bindFactory<T extends Service>(
+    identifier: IIentifier,
+    serviceFactory: () => T
+): IInjector {
+    return function registerFactory(parent: Service) {
+        parent.getProvider().push(identifier, serviceFactory());
+    };
+}
+
 export class Provider {
     // instances: { [identifier: IIentifier]: Service } = {};
-    private instancesMap: Map<IIentifier, Service> = new Map();
+    private instancesMap: Map<IIentifier, any> = new Map();
 
-    private classMap: Map<IIentifier, IServiceClass> = new Map();
+    private classMap: Map<IIentifier, any> = new Map();
 
     // for vue provide
     public readonly proxy: {} = {};
@@ -47,7 +64,7 @@ export class Provider {
         return Array.from(this.classMap);
     }
 
-    register(identifier: IIentifier, serviceClass: IServiceClass) {
+    register<T extends Service>(identifier: IIentifier, serviceClass: IServiceClass<T>) {
         this.checkIdentifier(identifier);
         this.classMap.set(identifier, serviceClass);
         this.defProxy(identifier);

@@ -3,12 +3,13 @@ import { Middleware } from './service/middleware';
 import { Provider } from './service/provider';
 
 export type IConstructor = { new(...args: any[]): {} };
-export type IServiceClass = { new(...args: any[]): Service };
+export type IServiceClass<T extends Service> = { new(...args: any[]): T };
 
 export interface IDecoratorOption {
     strict?: boolean;
     identifier?: IIentifier;
     root?: boolean;
+    provider?: IInjector[];
     injector?: IInjector[];
 }
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;

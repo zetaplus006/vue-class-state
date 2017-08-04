@@ -81,7 +81,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
         /**
          * rewirte class constructor to defined observe
          */
-        return function (constructor: IConstructor) {
+        return function(constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
@@ -102,20 +102,18 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     // this['__']['$root'] = this;
                     let __ = this['__'] as IVubxHelper;
                     if (option) {
-                        if (option.strict) {
-                            openStrict(vm, this);
-                        }
-                        if (option.root) {
+                        const { strict, root, identifier, provider, injector } = option;
+                        strict && openStrict(vm, this);
+                        if (root) {
                             __.$root = this as any;
                             __.provider = new Provider();
-                            if (option.identifier) {
-                                __.identifier = option.identifier;
-                                __.provider.push(option.identifier, this as any);
+                            if (identifier) {
+                                __.identifier = identifier;
+                                __.provider.push(identifier, this as any);
                             }
                         }
-                        if (option.injector) {
-                            injectChildren(this, option.injector);
-                        }
+                        provider && injectChildren(this, provider);
+                        injector && injectChildren(this, injector);
                     }
                     created && created.call(this);
                 }
@@ -171,7 +169,7 @@ function proxyMethod(ctx: any, vm: Vue) {
 
 function openStrict(vm: Vue, service: any) {
     if (process.env.NODE_ENV !== 'production') {
-        vm.$watch<any>(function () {
+        vm.$watch<any>(function() {
             return this.$data;
         }, (val) => {
             assert((service as Service).__.isCommitting,

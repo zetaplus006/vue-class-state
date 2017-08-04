@@ -1,23 +1,34 @@
 import Vue from 'vue';
 import { createDecorator, Service, mutation } from 'vubx';
 import { identifier } from '../chat/store/index';
-import { lazyInject } from '../../src/service/provider';
+import { lazyInject, bindFactory, bindClass } from '../../src/service/provider';
 const obverable = createDecorator(Vue);
 
-@obverable()
+const key = Symbol('child');
+const factoryKey = Symbol('factory');
+
+@obverable({
+    injector: [
+        // from parent 
+        // lazyInject<Children>('child', key)
+    ]
+})
 export class Children extends Service {
     text = 'lazyInject child service';
-    data = {
-        s: 1
-    };
+    child: Children;
 }
 
 @obverable({
     // strict: true,
     identifier: Symbol('appService'),
     root: true,
+    provider: [
+        bindClass<Children>(key, Children),
+        bindFactory<Children>(factoryKey, () => new Children())
+    ],
     injector: [
-        lazyInject<AppService>('child', Symbol('child'), Children)
+        lazyInject<AppService>('child', key),
+        lazyInject<AppService>('childFromFactory', key)
     ]
 })
 export class AppService extends Service {
@@ -31,7 +42,7 @@ export class AppService extends Service {
 
     child: Children;
     child2: Children;
-
+    childFromFactory: Children;
     // computed
     get sum() {
         return this.num1 + this.num2;
@@ -45,6 +56,7 @@ export class AppService extends Service {
         this.$watch('sum', (sum) => {
             if (sum >= 10) {
                 console.log(this.child);
+                console.log(this.childFromFactory);
             }
         });
         this.appendChild(new Children(), 'child2', Symbol('child2'));
