@@ -9,8 +9,7 @@ const factoryKey = Symbol('factory');
 
 @obverable({
     injector: [
-        // from parent 
-        // lazyInject<Children>('child', key)
+        lazyInject<Children>('child', key)
     ]
 })
 export class Children extends Service {

@@ -12,10 +12,9 @@ export function lazyInject<T extends Service>(
     identifier: IIentifier
 ): IInjector {
     return function resolve(parent: T) {
-        const provider = parent.getProvider();
-        // provider.register(identifier, serviceClass);
         def(parent, key, {
             get: () => {
+                const provider = parent.getProvider();
                 let instance;
                 if (!provider.hasInstance(identifier)) {
                     instance = provider.getInstance(identifier);
