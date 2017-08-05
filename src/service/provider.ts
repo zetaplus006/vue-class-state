@@ -2,7 +2,6 @@ import Vue from 'vue';
 import { assert, def } from '../util';
 import { Service, appendServiceChild } from './observable';
 import { IInjector, IIentifier, IServiceClass } from '../interfaces';
-
 export function createProvider(service: Service) {
     return (service.__.provider as Provider).proxy;
 }
@@ -12,18 +11,29 @@ export function lazyInject<T extends Service>(
     identifier: IIentifier
 ): IInjector {
     return function resolve(parent: T) {
+        let instance: Service;
         def(parent, key, {
             get: () => {
-                const provider = parent.getProvider();
-                let instance;
-                if (!provider.hasInstance(identifier)) {
-                    instance = provider.getInstance(identifier);
-                    appendServiceChild(parent, key, instance as Service, identifier);
+                if (instance) {
+                    return instance;
                 }
-                return provider.getInstance(identifier);
+                const provider = parent.getProvider();
+                instance = provider.getInstance(identifier);
+                appendServiceChild(parent, key, instance, identifier);
+                return instance;
             },
             enumerable: true,
             configurable: true
+        });
+    };
+}
+
+export function inject(identifier: IIentifier): PropertyDecorator {
+    return function (targe: any, propertyKey: string) {
+        def(targe, propertyKey, {
+            get: () => {
+                return 'key';
+            }
         });
     };
 }
@@ -98,7 +108,8 @@ export class Provider {
 
     checkIdentifier(identifier: IIentifier) {
         if (process.env.NODE_ENV !== 'production') {
-            assert(!this.classMap.has(identifier),
+            assert(!this.classMap.has(identifier)
+                && !this.instancesMap.has(identifier),
                 `The identifier ${identifier.toString()} has been repeated`);
         }
     }

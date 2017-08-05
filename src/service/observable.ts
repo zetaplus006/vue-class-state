@@ -2,22 +2,22 @@ import Vue from 'vue';
 import { enumerable, mutation, action } from '../decorator';
 import { assert, def } from '../util';
 import { Middleware } from './middleware';
-import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IInjector, IIentifier } from '../interfaces';
+import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IInjector, IIentifier, IService } from '../interfaces';
 import { Provider } from './provider';
 
-export abstract class Service {
+export abstract class Service implements IService {
 
     /**
      * $watch return a function that can close this watcher
      */
-    protected $watch: typeof Vue.prototype.$watch;
-    protected $on: typeof Vue.prototype.$on;
-    protected $once: typeof Vue.prototype.$once;
-    protected $emit: typeof Vue.prototype.$emit;
-    protected $off: typeof Vue.prototype.$off;
-    protected $set: typeof Vue.prototype.$set;
-    protected $delete: typeof Vue.prototype.$delete;
-    protected $destroy: typeof Vue.prototype.$destroy;
+    $watch: typeof Vue.prototype.$watch;
+    $on: typeof Vue.prototype.$on;
+    $once: typeof Vue.prototype.$once;
+    $emit: typeof Vue.prototype.$emit;
+    $off: typeof Vue.prototype.$off;
+    $set: typeof Vue.prototype.$set;
+    $delete: typeof Vue.prototype.$delete;
+    $destroy: typeof Vue.prototype.$destroy;
 
     __: IVubxHelper = {
         $getters: {},
@@ -34,13 +34,13 @@ export abstract class Service {
     /**
      * After initialization has been completed
      */
-    protected created?(): void;
+    created?(): void;
 
-    protected async dispatch(identifier: IIentifier, actionType: string, ...arg: any[]): Promise<any> {
+    async dispatch(identifier: IIentifier, actionType: string, ...arg: any[]): Promise<any> {
 
     }
 
-    protected commit(identifier: IIentifier, mutationType: string, ...arg: any[]): any {
+    commit(identifier: IIentifier, mutationType: string, ...arg: any[]): any {
 
     }
 
@@ -57,16 +57,20 @@ export abstract class Service {
         }
     }
 
-    appendChild<S extends Service>(child: S, childName: keyof this, identifier: IIentifier): void {
-        def(this, childName, {
+    appendChild<S extends Service>(child: S, key: keyof this, identifier: IIentifier): void {
+        this.getProvider().checkIdentifier(identifier);
+        def(this, key, {
             enumerable: true,
             get: () => child
         });
-        appendServiceChild(this, childName, child, identifier);
+        appendServiceChild(this, key, child, identifier);
         this.__.$root && this.__.$root.getProvider().push(identifier, child);
     }
 
     getProvider(): Provider {
+        assert(this.__.$root,
+            'Make sure to have a root service, ' +
+            'Please check the root options in the decorator configuration');
         return (this.__.$root as Service).__.provider as Provider;
     }
 
@@ -81,7 +85,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
         /**
          * rewirte class constructor to defined observe
          */
-        return function(constructor: IConstructor) {
+        return function (constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
@@ -169,7 +173,7 @@ function proxyMethod(ctx: any, vm: Vue) {
 
 function openStrict(vm: Vue, service: any) {
     if (process.env.NODE_ENV !== 'production') {
-        vm.$watch<any>(function() {
+        vm.$watch<any>(function () {
             return this.$data;
         }, (val) => {
             assert((service as Service).__.isCommitting,
@@ -197,14 +201,14 @@ function getPropertyGetters(target: any): { [key: string]: { get(): any, set?():
 export function appendServiceChild<P extends Service, C extends Service>
     (parent: P, childName: keyof P, child: C, identifier: IIentifier) {
     parent.__.$children.push(child);
-    child.__.$parent.push(parent);
-    let root;
-    if (parent.__.$root) {
-        root = parent.__.$root;
-    } else {
-        root = parent.__.$root = parent;
+    if (child.__.$parent.indexOf(parent) <= -1) {
+        child.__.$parent.push(parent);
     }
-    setRoot(parent, root);
+
+    assert(parent.__.$root,
+        'Make sure to have a root service, ' +
+        'Please check the root options in the decorator configuration');
+    setRoot(parent, parent.__.$root as Service);
     child.__.identifier = identifier;
     parent.__.$getters[childName] = child.__.$getters;
     parent.__.$state[childName] = child.__.$state;

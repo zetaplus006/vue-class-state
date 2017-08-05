@@ -1,33 +1,45 @@
 import Vue from 'vue';
-import { createDecorator, Service, mutation } from 'vubx';
-import { identifier } from '../chat/store/index';
-import { lazyInject, bindFactory, bindClass } from '../../src/service/provider';
+import {
+    createDecorator,
+    Service,
+    mutation,
+    bindClass,
+    bindFactory,
+    lazyInject,
+    IService
+} from 'vubx';
 const obverable = createDecorator(Vue);
 
 const key = Symbol('child');
 const factoryKey = Symbol('factory');
 
-@obverable({
-    injector: [
-        lazyInject<Children>('child', key)
-    ]
-})
-export class Children extends Service {
-    text = 'lazyInject child service';
-    child: Children;
+export interface IChildren extends IService {
+    text: string;
+}
+
+let n = 1;
+
+@obverable()
+export class Children extends Service implements IChildren {
+
+    text = 'child service ';
+    constructor() {
+        super();
+        this.text += n++;
+    }
 }
 
 @obverable({
-    // strict: true,
+    strict: true,
     identifier: Symbol('appService'),
     root: true,
     provider: [
-        bindClass<Children>(key, Children),
-        bindFactory<Children>(factoryKey, () => new Children())
+        bindClass<IChildren>(key, Children),
+        bindFactory<IChildren>(factoryKey, () => new Children())
     ],
     injector: [
         lazyInject<AppService>('child', key),
-        lazyInject<AppService>('childFromFactory', key)
+        lazyInject<AppService>('childFromFactory', factoryKey)
     ]
 })
 export class AppService extends Service {
@@ -58,7 +70,8 @@ export class AppService extends Service {
                 console.log(this.childFromFactory);
             }
         });
-        this.appendChild(new Children(), 'child2', Symbol('child2'));
+        this.appendChild(new Children(), 'child2', Symbol('appChild'));
+        console.log(this.child2 === this.childFromFactory);
     }
 
     start() {
@@ -68,10 +81,6 @@ export class AppService extends Service {
                 this.$emit('close');
             }
         }, 1000);
-        // console.log(this);
-        // setTimeout(() => {
-        //     console.log(this.child);
-        // }, 3000);
     }
 
     @mutation

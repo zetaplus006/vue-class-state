@@ -1,12 +1,21 @@
 import Vue from 'vue';
 import devtool from './plugins/devtool';
 import { Service } from './service/observable';
-import { createProvider } from './service/provider';
+import { createProvider, lazyInject, bindClass, bindFactory } from './service/provider';
 
 export * from './interfaces';
-export * from './decorator';
+
 export {
-    devtool,
+    createDecorator,
+    mutation,
+    action
+} from './decorator';
+
+export {
+    createProvider,
     Service,
-    createProvider
+    devtool,
+    lazyInject,
+    bindClass,
+    bindFactory
 };

@@ -2,6 +2,7 @@
     <div>
         <h4>simple demo</h4>
         <span>{{appService.sum}} </span>
+        <span>{{appService.childFromFactory.text}}</span>
     </div>
 </template>
 
@@ -14,11 +15,11 @@ devtool(appService);
 console.log(appService)
 export default {
     computed: {
-        appService () {
+        appService() {
             return appService;
         }
     },
-    mounted () {
+    mounted() {
         appService.start();
     }
 };

@@ -1,6 +1,7 @@
 import { Service } from './service/observable';
 import { Middleware } from './service/middleware';
 import { Provider } from './service/provider';
+import Vue from 'vue';
 
 export type IConstructor = { new(...args: any[]): {} };
 export type IServiceClass<T extends Service> = { new(...args: any[]): T };
@@ -24,6 +25,31 @@ export interface IVubxHelper {
     middleware: Middleware;
     provider: Provider | null;
     identifier: IIentifier;
+}
+
+export interface IService {
+    $watch: typeof Vue.prototype.$watch;
+    $on: typeof Vue.prototype.$on;
+    $once: typeof Vue.prototype.$once;
+    $emit: typeof Vue.prototype.$emit;
+    $off: typeof Vue.prototype.$off;
+    $set: typeof Vue.prototype.$set;
+    $delete: typeof Vue.prototype.$delete;
+    $destroy: typeof Vue.prototype.$destroy;
+
+    __: IVubxHelper;
+
+    created?(): void;
+
+    dispatch(identifier: IIentifier, actionType: string, ...arg: any[]): Promise<any>;
+
+    commit(identifier: IIentifier, mutationType: string, ...arg: any[]): any;
+
+    replaceState(state: Service): void;
+
+    appendChild<S extends Service>(child: S, childName: keyof this, identifier: IIentifier): void;
+
+    getProvider(): Provider;
 }
 
 export type IIentifier = string | symbol;

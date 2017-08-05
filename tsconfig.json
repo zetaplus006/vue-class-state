@@ -13,6 +13,7 @@
     "declaration": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
+    "strict": true,
     "strictNullChecks": true,
     "removeComments": true,
     "suppressImplicitAnyIndexErrors": true,
