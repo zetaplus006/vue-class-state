@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { assert, def } from '../util';
 import { Service, appendServiceChild } from './observable';
-import { IInjector, IIentifier, IServiceClass } from '../interfaces';
+import { IPlugin, IIentifier, IServiceClass } from '../interfaces';
 export function createProvider(service: Service) {
     return (service.__.provider as Provider).proxy;
 }
@@ -9,7 +9,7 @@ export function createProvider(service: Service) {
 export function lazyInject<T extends Service>(
     key: keyof T,
     identifier: IIentifier
-): IInjector {
+): IPlugin {
     return function resolve(parent: T) {
         let instance: Service;
         def(parent, key, {
@@ -41,7 +41,7 @@ export function inject(identifier: IIentifier): PropertyDecorator {
 export function bindClass<T extends Service>(
     identifier: IIentifier,
     serviceClass: IServiceClass<T>
-): IInjector {
+): IPlugin {
     return function registerClass(parent: Service) {
         parent.getProvider().register(identifier, serviceClass);
     };
@@ -50,7 +50,7 @@ export function bindClass<T extends Service>(
 export function bindFactory<T extends Service>(
     identifier: IIentifier,
     serviceFactory: () => T
-): IInjector {
+): IPlugin {
     return function registerFactory(parent: Service) {
         parent.getProvider().push(identifier, serviceFactory());
     };

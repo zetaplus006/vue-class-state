@@ -2,7 +2,7 @@ import Vue from 'vue';
 import { enumerable, mutation, action } from '../decorator';
 import { assert, def } from '../util';
 import { Middleware } from './middleware';
-import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IInjector, IIentifier, IService } from '../interfaces';
+import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IPlugin, IIentifier, IService } from '../interfaces';
 import { Provider } from './provider';
 
 export abstract class Service implements IService {
@@ -116,8 +116,8 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                                 __.provider.push(identifier, this as any);
                             }
                         }
-                        provider && injectChildren(this, provider);
-                        injector && injectChildren(this, injector);
+                        provider && initPlugins(this, provider);
+                        injector && initPlugins(this, injector);
                     }
                     created && created.call(this);
                 }
@@ -126,8 +126,8 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     };
 }
 
-function injectChildren(ctx: any, injectors: IInjector[]) {
-    injectors.forEach(injector => injector(ctx as Service));
+function initPlugins(ctx: any, plugin: IPlugin[]) {
+    plugin.forEach(injector => injector(ctx as Service));
 }
 
 function proxyState(ctx: any, getterKeys: string[]) {
@@ -204,7 +204,6 @@ export function appendServiceChild<P extends Service, C extends Service>
     if (child.__.$parent.indexOf(parent) <= -1) {
         child.__.$parent.push(parent);
     }
-
     assert(parent.__.$root,
         'Make sure to have a root service, ' +
         'Please check the root options in the decorator configuration');

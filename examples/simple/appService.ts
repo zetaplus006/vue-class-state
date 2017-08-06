@@ -71,7 +71,6 @@ export class AppService extends Service {
             }
         });
         this.appendChild(new Children(), 'child2', Symbol('appChild'));
-        console.log(this.child2 === this.childFromFactory);
     }
 
     start() {

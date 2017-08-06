@@ -10,8 +10,8 @@ export interface IDecoratorOption {
     strict?: boolean;
     identifier?: IIentifier;
     root?: boolean;
-    provider?: IInjector[];
-    injector?: IInjector[];
+    provider?: IPlugin[];
+    injector?: IPlugin[];
 }
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
 
@@ -54,13 +54,13 @@ export interface IService {
 
 export type IIentifier = string | symbol;
 
-export type IInjector = (s: Service) => void;
+export type IPlugin = (service: Service) => void;
 
 // middleware
 
 export type ISub = (...arg: any[]) => any;
 
-export type ISubs = Array<ISub>;
+export type ISubs = ISub[];
 
 export type ISubscribeOption = {
     before?: ISub
