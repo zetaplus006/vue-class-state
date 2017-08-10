@@ -1,11 +1,11 @@
-import { identifier, ChatStore } from '../store/index';
+import { ChatStore, serviceKey } from '../store/index';
 import Vue from 'vue';
 import component from 'vue-class-component';
-import { Inject, Prop } from 'vue-property-decorator';
+import { Inject } from 'vue-property-decorator';
 
 @component
 export default class App extends Vue {
-    @Inject(identifier.CHAT)
+    @Inject(serviceKey.CHAT)
     chat: ChatStore;
 
     mounted() {

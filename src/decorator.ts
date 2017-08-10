@@ -34,15 +34,17 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
 
         const temp = root.__.isCommitting;
         root.__.isCommitting = true;
-        middleware.dispatchBefore(this, vubxMutation, this);
-        const res = mutationFn.apply(this, arg);
-        middleware.dispatchAfter(this, vubxMutation, this);
+        let res;
+        try {
+            middleware.dispatchBefore(this, vubxMutation, this);
+            res = mutationFn.apply(this, arg);
+            middleware.dispatchAfter(this, vubxMutation, this);
 
-        // arguments is different
-        // res = isSkip ? mutationFn.apply(this, arg)
-        //     : middleware.createTask(mutationFn, this)(...arg);
-
-        root.__.isCommitting = temp;
+            // arguments is different
+            // res =  middleware.createTask(mutationFn, this)(...arg);
+        } finally {
+            root.__.isCommitting = temp;
+        }
         return res;
     };
     return descriptor;

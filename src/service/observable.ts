@@ -2,7 +2,7 @@ import Vue from 'vue';
 import { enumerable, mutation, action } from '../decorator';
 import { assert, def } from '../util';
 import { Middleware } from './middleware';
-import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IPlugin, IIentifier, IService } from '../interfaces';
+import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IPlugin, IIdentifier, IService, ISubscribeOption } from '../interfaces';
 import { Provider } from './provider';
 
 export abstract class Service implements IService {
@@ -36,28 +36,28 @@ export abstract class Service implements IService {
      */
     created?(): void;
 
-    async dispatch(identifier: IIentifier, actionType: string, ...arg: any[]): Promise<any> {
-
+    async dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any> {
+        return await this.getProvider().getInstance(identifier)[actionType](...arg);
     }
 
-    commit(identifier: IIentifier, mutationType: string, ...arg: any[]): any {
-
+    commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any {
+        return this.getProvider().getInstance(identifier)[mutationType](...arg);
     }
 
-    @mutation
     replaceState(state: Service): void {
-        const keys = Object.keys(state);
+        const temp = this.__.isCommitting;
+        this.__.isCommitting = true;
         for (const key in state) {
-            if (!this[key]) continue;
             if (this[key] instanceof Service) {
                 (this[key] as Service).replaceState(state[key]);
             } else {
                 this[key] = state[key];
             }
         }
+        this.__.isCommitting = temp;
     }
 
-    appendChild<S extends Service>(child: S, key: keyof this, identifier: IIentifier): void {
+    appendChild<S extends Service>(child: S, key: keyof this, identifier: IIdentifier): void {
         this.getProvider().checkIdentifier(identifier);
         def(this, key, {
             enumerable: true,
@@ -67,11 +67,28 @@ export abstract class Service implements IService {
         this.__.$root && this.__.$root.getProvider().push(identifier, child);
     }
 
+    removeChild(key: keyof this, identifier: IIdentifier): void {
+        const provider = this.getProvider();
+        const child = provider.getInstance(identifier);
+        child.__.$parent.forEach(p => {
+            delete p.__.$state[key];
+            delete p.__.$getters[key];
+            const index = p.__.$children.indexOf(child);
+            p.__.$children.splice(index, 1);
+        });
+        this.getProvider().removeInstance(identifier);
+        child.$destroy();
+    }
+
     getProvider(): Provider {
         assert(this.__.$root,
             'Make sure to have a root service, ' +
             'Please check the root options in the decorator configuration');
         return (this.__.$root as Service).__.provider as Provider;
+    }
+
+    subscribe(option: ISubscribeOption) {
+        this.__.middleware.subscribe(option);
     }
 
 }
@@ -82,9 +99,6 @@ export abstract class Service implements IService {
  */
 export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     return function decorator(option?: IDecoratorOption) {
-        /**
-         * rewirte class constructor to defined observe
-         */
         return function (constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
@@ -106,7 +120,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     // this['__']['$root'] = this;
                     let __ = this['__'] as IVubxHelper;
                     if (option) {
-                        const { strict, root, identifier, provider, injector } = option;
+                        const { strict, root, identifier, provider = [], injector = [], plugins = [] } = option;
                         strict && openStrict(vm, this);
                         if (root) {
                             __.$root = this as any;
@@ -116,8 +130,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                                 __.provider.push(identifier, this as any);
                             }
                         }
-                        provider && initPlugins(this, provider);
-                        injector && initPlugins(this, injector);
+                        initPlugins(this, provider.concat(injector).concat(plugins));
                     }
                     created && created.call(this);
                 }
@@ -135,15 +148,12 @@ function proxyState(ctx: any, getterKeys: string[]) {
     Object.keys(ctx).forEach(
         key => {
             if (getterKeys.indexOf(key) < 0) {
-                /*  if (ctx[key] instanceof Service) {
-                     // $state[key] = (ctx[key] as Service).__.$state;
-                 } else {
-                 } */
                 def($state, key, { get: () => ctx[key], enumerable: true });
             }
         }
     );
 }
+
 function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
     const $getters = (ctx as Service).__.$getters;
     getterKeys.forEach(key => {
@@ -199,7 +209,7 @@ function getPropertyGetters(target: any): { [key: string]: { get(): any, set?():
 }
 
 export function appendServiceChild<P extends Service, C extends Service>
-    (parent: P, childName: keyof P, child: C, identifier: IIentifier) {
+    (parent: P, childName: keyof P, child: C, identifier: IIdentifier) {
     parent.__.$children.push(child);
     if (child.__.$parent.indexOf(parent) <= -1) {
         child.__.$parent.push(parent);

@@ -1,16 +1,16 @@
 import { store } from './decorator';
-import { createProvider, Service, devtool, mutation } from 'vubx';
+import { Service, devtool, mutation } from 'vubx';
 import { getAllMessages } from '../api/index';
 import { IThreadsData, IThreads, IMessages, IMessage } from './type';
 
-export const identifier = {
+export const serviceKey = {
     CHAT: 'chatStore'
 };
 
 @store({
     strict: true,
     root: true,
-    identifier: identifier.CHAT
+    identifier: serviceKey.CHAT
 })
 export class ChatStore extends Service {
     currentThreadID: string = '';
@@ -72,4 +72,4 @@ const chatStore = new ChatStore();
 
 devtool(chatStore);
 
-export default createProvider(chatStore);
+export default chatStore.getProvider().proxy;

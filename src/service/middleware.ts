@@ -18,7 +18,7 @@ export class Middleware {
     public createTask(fn: ISub, ctx: any | null = null): Function {
         // fn maybe array
         const self = this;
-        return function(...arg: any[]) {
+        return function (...arg: any[]) {
             self.dispatchBefore(ctx, ...arg);
             const res = fn.apply(ctx, arg);
             self.dispatchAfter(ctx, ...arg);
@@ -35,6 +35,7 @@ export class Middleware {
 
     private run(subs: ISubs, ctx: any | null, ...arg: any[]) {
         for (const sub of subs) {
+            // todo if promise
             if (sub.apply(ctx, arg) === false) {
                 break;
             }

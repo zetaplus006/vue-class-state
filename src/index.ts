@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import devtool from './plugins/devtool';
 import { Service } from './service/observable';
-import { createProvider, lazyInject, bindClass, bindFactory } from './service/provider';
+import { lazyInject, bindClass, bindFactory } from './service/provider';
 
 export * from './interfaces';
 
@@ -12,7 +12,6 @@ export {
 } from './decorator';
 
 export {
-    createProvider,
     Service,
     devtool,
     lazyInject,

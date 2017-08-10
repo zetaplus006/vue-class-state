@@ -3,15 +3,16 @@ import { Middleware } from './service/middleware';
 import { Provider } from './service/provider';
 import Vue from 'vue';
 
-export type IConstructor = { new(...args: any[]): {} };
-export type IServiceClass<T extends Service> = { new(...args: any[]): T };
+export interface IConstructor { new(...args: any[]): {}; }
+export interface IServiceClass<T extends Service> { new(...args: any[]): T; }
 
 export interface IDecoratorOption {
     strict?: boolean;
-    identifier?: IIentifier;
+    identifier?: IIdentifier;
     root?: boolean;
     provider?: IPlugin[];
     injector?: IPlugin[];
+    plugins?: IPlugin[];
 }
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
 
@@ -24,7 +25,7 @@ export interface IVubxHelper {
     isCommitting: boolean;
     middleware: Middleware;
     provider: Provider | null;
-    identifier: IIentifier;
+    identifier: IIdentifier;
 }
 
 export interface IService {
@@ -41,18 +42,22 @@ export interface IService {
 
     created?(): void;
 
-    dispatch(identifier: IIentifier, actionType: string, ...arg: any[]): Promise<any>;
+    dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any>;
 
-    commit(identifier: IIentifier, mutationType: string, ...arg: any[]): any;
+    commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any;
 
     replaceState(state: Service): void;
 
-    appendChild<S extends Service>(child: S, childName: keyof this, identifier: IIentifier): void;
+    appendChild<S extends Service>(child: S, childName: keyof this, identifier: IIdentifier): void;
+
+    removeChild(key: keyof this, identifier: IIdentifier): void;
 
     getProvider(): Provider;
+
+    subscribe(option: ISubscribeOption): void;
 }
 
-export type IIentifier = string | symbol;
+export type IIdentifier = string | symbol;
 
 export type IPlugin = (service: Service) => void;
 

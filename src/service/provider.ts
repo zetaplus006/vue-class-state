@@ -1,14 +1,11 @@
 import Vue from 'vue';
 import { assert, def } from '../util';
 import { Service, appendServiceChild } from './observable';
-import { IPlugin, IIentifier, IServiceClass } from '../interfaces';
-export function createProvider(service: Service) {
-    return (service.__.provider as Provider).proxy;
-}
+import { IPlugin, IIdentifier, IServiceClass } from '../interfaces';
 
 export function lazyInject<T extends Service>(
     key: keyof T,
-    identifier: IIentifier
+    identifier: IIdentifier
 ): IPlugin {
     return function resolve(parent: T) {
         let instance: Service;
@@ -28,7 +25,7 @@ export function lazyInject<T extends Service>(
     };
 }
 
-export function inject(identifier: IIentifier): PropertyDecorator {
+export function inject(identifier: IIdentifier): PropertyDecorator {
     return function (targe: any, propertyKey: string) {
         def(targe, propertyKey, {
             get: () => {
@@ -39,7 +36,7 @@ export function inject(identifier: IIentifier): PropertyDecorator {
 }
 
 export function bindClass<T extends Service>(
-    identifier: IIentifier,
+    identifier: IIdentifier,
     serviceClass: IServiceClass<T>
 ): IPlugin {
     return function registerClass(parent: Service) {
@@ -48,7 +45,7 @@ export function bindClass<T extends Service>(
 }
 
 export function bindFactory<T extends Service>(
-    identifier: IIentifier,
+    identifier: IIdentifier,
     serviceFactory: () => T
 ): IPlugin {
     return function registerFactory(parent: Service) {
@@ -58,9 +55,9 @@ export function bindFactory<T extends Service>(
 
 export class Provider {
     // instances: { [identifier: IIentifier]: Service } = {};
-    private instancesMap: Map<IIentifier, any> = new Map();
+    private instancesMap: Map<IIdentifier, any> = new Map();
 
-    private classMap: Map<IIentifier, any> = new Map();
+    private classMap: Map<IIdentifier, any> = new Map();
 
     // for vue provide
     public readonly proxy: {} = {};
@@ -73,19 +70,19 @@ export class Provider {
         return Array.from(this.classMap);
     }
 
-    register<T extends Service>(identifier: IIentifier, serviceClass: IServiceClass<T>) {
+    register<T extends Service>(identifier: IIdentifier, serviceClass: IServiceClass<T>) {
         this.checkIdentifier(identifier);
         this.classMap.set(identifier, serviceClass);
         this.defProxy(identifier);
     }
 
-    push(identifier: IIentifier, service: Service) {
+    push(identifier: IIdentifier, service: Service) {
         this.checkIdentifier(identifier);
         this.instancesMap.set(identifier, service);
         this.defProxy(identifier);
     }
 
-    defProxy(identifier: IIentifier) {
+    defProxy(identifier: IIdentifier) {
         def(this.proxy, identifier, {
             get: () => {
                 return this.getInstance(identifier);
@@ -95,7 +92,7 @@ export class Provider {
         });
     }
 
-    getInstance(identifier: IIentifier) {
+    getInstance(identifier: IIdentifier): Service {
         if (!this.instancesMap.has(identifier)) {
             const serviceClass = this.classMap.get(identifier);
             if (process.env.NODE_ENV !== 'production') {
@@ -106,7 +103,14 @@ export class Provider {
         return this.instancesMap.get(identifier);
     }
 
-    checkIdentifier(identifier: IIentifier) {
+    removeInstance(identifier: IIdentifier) {
+        if (process.env.NODE_ENV !== 'production') {
+            assert(this.instancesMap.has(identifier), `Can not find this instance : identifier[${identifier}]`);
+        }
+        this.instancesMap.delete(identifier);
+    }
+
+    checkIdentifier(identifier: IIdentifier) {
         if (process.env.NODE_ENV !== 'production') {
             assert(!this.classMap.has(identifier)
                 && !this.instancesMap.has(identifier),
@@ -114,11 +118,11 @@ export class Provider {
         }
     }
 
-    hasInstance(identifier: IIentifier) {
+    hasInstance(identifier: IIdentifier) {
         return this.instancesMap.has(identifier);
     }
 
-    hasClass(identifier: IIentifier) {
+    hasClass(identifier: IIdentifier) {
         return this.classMap.has(identifier);
     }
 }
