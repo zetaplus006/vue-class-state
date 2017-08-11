@@ -2,8 +2,13 @@ import { ChatStore, serviceKey } from '../store/index';
 import Vue from 'vue';
 import component from 'vue-class-component';
 import { Inject } from 'vue-property-decorator';
+import Mod from './Mod.vue';
 
-@component
+@component({
+    components: {
+        Mod
+    }
+})
 export default class App extends Vue {
     @Inject(serviceKey.CHAT)
     chat: ChatStore;
