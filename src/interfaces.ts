@@ -50,8 +50,6 @@ export interface IService {
 
     appendChild<S extends Service>(child: S, childName: keyof this, identifier: IIdentifier): void;
 
-    removeChild(key: keyof this, identifier: IIdentifier): void;
-
     getProvider(): Provider;
 
     subscribe(option: ISubscribeOption): void;

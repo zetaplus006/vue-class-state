@@ -67,18 +67,18 @@ export abstract class Service implements IService {
         this.__.$root && this.__.$root.getProvider().push(identifier, child);
     }
 
-    removeChild(key: keyof this, identifier: IIdentifier): void {
-        const provider = this.getProvider();
-        const child = provider.getInstance(identifier);
-        child.__.$parent.forEach(p => {
-            delete p.__.$state[key];
-            delete p.__.$getters[key];
-            const index = p.__.$children.indexOf(child);
-            p.__.$children.splice(index, 1);
-        });
-        this.getProvider().removeInstance(identifier);
-        child.$destroy();
-    }
+    /*  removeChild(key: keyof this, identifier: IIdentifier): void {
+         const provider = this.getProvider();
+         const child = provider.getInstance(identifier);
+         child.__.$parent.forEach(p => {
+             delete p.__.$state[key];
+             delete p.__.$getters[key];
+             const index = p.__.$children.indexOf(child);
+             p.__.$children.splice(index, 1);
+         });
+         this.getProvider().removeInstance(identifier);
+         child.$destroy();
+     } */
 
     getProvider(): Provider {
         assert(this.__.$root,
@@ -170,7 +170,7 @@ function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
     });
 }
 
-const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete'];
+const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete', '$destroy'];
 
 function proxyMethod(ctx: any, vm: Vue) {
     for (const key of vmMethods) {
@@ -217,7 +217,8 @@ export function appendServiceChild<P extends Service, C extends Service>
     assert(parent.__.$root,
         'Make sure to have a root service, ' +
         'Please check the root options in the decorator configuration');
-    setRoot(parent, parent.__.$root as Service);
+    // setRoot(parent, parent.__.$root as Service);
+    child.__.$root = parent.__.$root;
     child.__.identifier = identifier;
     parent.__.$getters[childName] = child.__.$getters;
     parent.__.$state[childName] = child.__.$state;
