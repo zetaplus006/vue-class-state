@@ -1,7 +1,6 @@
 .DS_Store
 .vscode
 node_modules
-lib
 docs/_book
 examples/**/build.js
 types/typings

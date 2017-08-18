@@ -95,21 +95,28 @@ export class Provider {
     getInstance(identifier: IIdentifier): Service {
         if (!this.instancesMap.has(identifier)) {
             const serviceClass = this.classMap.get(identifier);
-            assert(serviceClass, `${identifier.toString()} can not find this class`);
+            if (process.env.NODE_ENV !== 'production') {
+                assert(serviceClass, `${identifier.toString()} can not find this class`);
+            }
             serviceClass && this.instancesMap.set(identifier, new serviceClass());
         }
         return this.instancesMap.get(identifier);
     }
 
     removeInstance(identifier: IIdentifier) {
-        assert(this.instancesMap.has(identifier), `Can not find this instance : identifier[${identifier.toString()}]`);
+        if (process.env.NODE_ENV !== 'production') {
+            assert(this.instancesMap.has(identifier),
+                `Can not find this instance : identifier[${identifier.toString()}]`);
+        }
         this.instancesMap.delete(identifier);
     }
 
     checkIdentifier(identifier: IIdentifier) {
-        assert(!this.classMap.has(identifier)
-            && !this.instancesMap.has(identifier),
-            `The identifier ${identifier.toString()} has been repeated`);
+        if (process.env.NODE_ENV !== 'production') {
+            assert(!this.classMap.has(identifier)
+                && !this.instancesMap.has(identifier),
+                `The identifier ${identifier.toString()} has been repeated`);
+        }
     }
 
     hasInstance(identifier: IIdentifier) {

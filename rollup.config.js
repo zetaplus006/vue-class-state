@@ -1,56 +1,56 @@
 
 import uglify from 'rollup-plugin-uglify-es';
-import resolve from 'rollup-plugin-node-resolve';
+// import resolve from 'rollup-plugin-node-resolve';
 import typescript from 'rollup-plugin-typescript2';
+import replace from 'rollup-plugin-post-replace';
+import filesize from 'rollup-plugin-filesize';
+const version = process.env.VERSION || require('./package.json').version;
+const banner = `/**
+ * vubx v${version}
+ * (c) ${new Date().getFullYear()} zetaplus006
+ * @license MIT
+ */`
+const entry = 'src/index.ts';
+const moduleName = 'Vubx';
 
-const entry = 'src/index.ts'
-const basePlugins = [
-    resolve(),
-    typescript()
-]
-const minPlugins = basePlugins.concat([uglify()]);
-
-export default [{
-    entry,
-    plugins: basePlugins,
+const options = [{
     dest: 'lib/vubx.esm.js',
     format: 'es'
 }, {
-    entry,
-    plugins: basePlugins,
+    dest: 'lib/vubx.common.js',
+    format: 'cjs'
+}, {
     dest: 'lib/vubx.js',
     format: 'umd',
-    moduleName: 'Vubx'
+    env: '"development"'
 }, {
-    entry,
-    plugins: minPlugins,
     dest: 'lib/vubx.min.js',
     format: 'umd',
-    moduleName: 'Vubx'
+    isMin: true
 }]
 
+export default options.map(({ dest, format, env, isMin }) => {
+    const config = {
+        entry,
+        dest,
+        banner,
+        moduleName,
+        format,
+        plugins: [
+            typescript(),
+            filesize()
+        ]
+    }
+    if (isMin) {
+        config.plugins.push(uglify({
+            ie8: false
+        }));
+    }
+    if (env) {
+        config.plugins.unshift(replace({
+            'process.env.NODE_ENV': env
+        }))
+    }
+    return config;
+})
 
-/* export default {
-    entry: 'src/index.ts',
-    //if es suglify bug
-    // format: 'es',
-    // dest: 'lib/vubx.js',
-    plugins: [
-        resolve(),
-        typescript(),
-        // uglify()
-    ],
-    targets: [
-        {
-            dest: 'lib/vubx.esm.js',
-            format: 'es'
-        },
-        {
-            dest: 'lib/vubx.min.js',
-            format: 'es',
-            plugins: [
-                uglify()
-            ]
-        }
-    ]
-} */

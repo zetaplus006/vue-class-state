@@ -11,9 +11,7 @@ export function isPromise(val: any) {
 }
 
 export function assert(condition: any, msg: string) {
-    if (process.env.NODE_ENV !== 'production') {
-        if (!condition) throw new Error(`[vubx warn] ${msg}`);
-    }
+    if (!condition) throw new Error(`[vubx warn] ${msg}`);
 }
 
 export const hasSymbol = typeof Symbol === 'function';

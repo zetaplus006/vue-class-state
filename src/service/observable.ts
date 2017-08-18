@@ -81,9 +81,11 @@ export abstract class Service implements IService {
      } */
 
     getProvider(): Provider {
-        assert(this.__.$root,
-            'Make sure to have a root service, ' +
-            'Please check the root options in the decorator configuration');
+        if (process.env.NODE_ENV !== 'production') {
+            assert(this.__.$root,
+                'Make sure to have a root service, ' +
+                'Please check the root options in the decorator configuration');
+        }
         return (this.__.$root as Service).__.provider as Provider;
     }
 
@@ -214,9 +216,11 @@ export function appendServiceChild<P extends Service, C extends Service>
     if (child.__.$parent.indexOf(parent) <= -1) {
         child.__.$parent.push(parent);
     }
-    assert(parent.__.$root,
-        'Make sure to have a root service, ' +
-        'Please check the root options in the decorator configuration');
+    if (process.env.NODE_ENV !== 'production') {
+        assert(parent.__.$root,
+            'Make sure to have a root service, ' +
+            'Please check the root options in the decorator configuration');
+    }
     // setRoot(parent, parent.__.$root as Service);
     child.__.$root = parent.__.$root;
     child.__.identifier = identifier;
