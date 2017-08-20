@@ -2,7 +2,15 @@
   "name": "vubx",
   "version": "0.0.1",
   "description": "A simple state management for Vue(in dev)",
-  "main": "src/index.ts",
+  "main": "lib/vubx.common.js",
+  "module": "lib/vubx.esm.js",
+  "unpkg": "lib/vubx.js",
+  "typings": "typeings/index.d.ts",
+  "files": [
+    "lib",
+    "typings",
+    "src"
+  ],
   "scripts": {
     "dev": "node examples/server.js",
     "build": "rollup -c",
