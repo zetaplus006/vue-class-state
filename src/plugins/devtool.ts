@@ -1,7 +1,7 @@
 import { Middleware } from '../service/middleware';
 import { Service } from '../service/observable';
 
-export default function devtool(service: Service) {
+export function devtool(service: Service) {
 
     const devtoolHook =
         typeof window !== 'undefined' &&

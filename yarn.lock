@@ -517,11 +517,7 @@ combined-stream@^1.0.5, combined-stream@~1.0.5:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@^2.9.0, commander@~2.11.0:
-  version "2.11.0"
-  resolved "http://registry.npm.taobao.org/commander/download/commander-2.11.0.tgz#157152fd1e7a6c8d98a5b715cf376df928004563"
-
-commander@~2.9.0:
+commander@^2.9.0, commander@~2.9.0:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.9.0.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
   dependencies:
@@ -1138,7 +1134,7 @@ fresh@0.5.0:
   version "0.5.0"
   resolved "http://registry.npm.taobao.org/fresh/download/fresh-0.5.0.tgz#f474ca5e6a9246d6fd8e0953cfa9b9c805afa78e"
 
-fs-extra@^3.0.1:
+fs-extra@^3.0.0, fs-extra@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-3.0.1.tgz#3794f378c58b342ea7dbbb23095109c4b3b62291"
   dependencies:
@@ -2616,6 +2612,13 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^2.0.0"
     inherits "^2.0.1"
 
+rollup-plugin-copy@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-copy/-/rollup-plugin-copy-0.2.3.tgz#dac1ab81d1f220baeb98e5c4c0108252e1edbb98"
+  dependencies:
+    colors "^1.1.2"
+    fs-extra "^3.0.0"
+
 rollup-plugin-filesize@^1.4.2:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/rollup-plugin-filesize/-/rollup-plugin-filesize-1.4.2.tgz#eebdf571217e2fe14ab14a6534bf21f771a053b1"
@@ -2651,12 +2654,6 @@ rollup-plugin-uglify-es@^0.0.1:
   resolved "https://registry.yarnpkg.com/rollup-plugin-uglify-es/-/rollup-plugin-uglify-es-0.0.1.tgz#e45644f2b685a59abdb9363407207a03a7b5a9b7"
   dependencies:
     uglify-es "3.0.3"
-
-rollup-plugin-uglify@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-uglify/-/rollup-plugin-uglify-2.0.1.tgz#67b37ad1efdafbd83af4c36b40c189ee4866c969"
-  dependencies:
-    uglify-js "^3.0.9"
 
 rollup-pluginutils@^2.0.1:
   version "2.0.1"
@@ -3020,13 +3017,6 @@ uglify-js@^2.8.29:
     yargs "~3.10.0"
   optionalDependencies:
     uglify-to-browserify "~1.0.0"
-
-uglify-js@^3.0.9:
-  version "3.0.27"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.0.27.tgz#a97db8c8ba6b9dba4e2f88d86aa9548fa6320034"
-  dependencies:
-    commander "~2.11.0"
-    source-map "~0.5.1"
 
 uglify-to-browserify@~1.0.0:
   version "1.0.2"

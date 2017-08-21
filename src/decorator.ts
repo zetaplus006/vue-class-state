@@ -1,36 +1,21 @@
-import { createDecorator, Service } from './service/observable';
+import Vue from 'vue';
+
 import { isFn, isPromise } from './util';
 import { Middleware } from './service/middleware';
 import { IMutation } from './interfaces';
-import Vue from 'vue';
+import { IService } from '../lib/src/interfaces';
 
-export function action(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const val = descriptor.value;
-    descriptor.value = function () {
-        const res = val.apply(this, arguments);
-        if (isPromise(res)) {
-            /* return res.then((res: any) => {
-                console.log('promise return ');
-                return res;
-            }); */
-        } else {
-            return res;
-        }
-    };
-    return descriptor;
-}
-
-// for vuex devtool
+export { createDecorator } from './service/observable';
 
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
-    descriptor.value = function (this: Service, ...arg: any[]) {
+    descriptor.value = function (this: IService, ...arg: any[]) {
         const middleware = this.__.middleware,
             vubxMutation: IMutation = {
                 type: this.__.identifier.toString() + ': ' + mutationyKey,
                 payload: arg
             };
-        const root = this.__.$root || this as Service;
+        const root = this.__.$root || this as IService;
 
         const temp = root.__.isCommitting;
         root.__.isCommitting = true;
@@ -55,7 +40,3 @@ export function enumerable(value: boolean) {
         descriptor.enumerable = value;
     };
 }
-
-export {
-    createDecorator
-};

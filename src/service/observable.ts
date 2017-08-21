@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { enumerable, mutation, action } from '../decorator';
+import { enumerable, mutation } from '../decorator';
 import { assert, def } from '../util';
 import { Middleware } from './middleware';
 import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IPlugin, IIdentifier, IService, ISubscribeOption } from '../interfaces';
@@ -7,9 +7,6 @@ import { Provider } from './provider';
 
 export abstract class Service implements IService {
 
-    /**
-     * $watch return a function that can close this watcher
-     */
     $watch: typeof Vue.prototype.$watch;
     $on: typeof Vue.prototype.$on;
     $once: typeof Vue.prototype.$once;

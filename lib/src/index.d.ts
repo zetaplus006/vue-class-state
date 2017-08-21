@@ -1,5 +1,3 @@
-import Vue from 'vue';
-
 export * from './interfaces';
 export { devtool } from './plugins/devtool';
 export { Service } from './service/observable';
