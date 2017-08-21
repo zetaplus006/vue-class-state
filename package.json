@@ -14,7 +14,7 @@
   "scripts": {
     "dev": "node examples/server.js",
     "build": "rollup -c",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/unit/*.js"
   },
   "keywords": [
     "vue",
@@ -31,9 +31,13 @@
   },
   "homepage": "https://github.com/zetaplus006/vubx#readme",
   "devDependencies": {
+    "@types/chai": "^4.0.3",
+    "@types/mocha": "^2.2.41",
     "@types/node": "^8.0.17",
+    "chai": "^4.1.1",
     "css-loader": "^0.28.4",
     "express": "^4.15.3",
+    "mocha": "^3.5.0",
     "reflect-metadata": "^0.1.10",
     "rollup": "^0.45.2",
     "rollup-plugin-copy": "^0.2.3",
