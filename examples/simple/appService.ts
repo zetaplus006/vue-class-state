@@ -51,9 +51,10 @@ export class AppService extends Service {
     // No initial value, Will not enter the vue
     private closer: any;
 
-    child: Children;
-    child2: Children;
-    childFromFactory: Children;
+    // tslint:disable-next-line:member-ordering
+    public child: Children;
+    public child2: Children;
+    public childFromFactory: Children;
     // computed
     get sum() {
         return this.num1 + this.num2;

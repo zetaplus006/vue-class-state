@@ -8,11 +8,12 @@
         "curly": false,
         "indent": [
             true,
-            "space",
-            2
+            "spaces",
+            4
         ],
         "interface-name": [
-            true
+            true,
+            "always-prefix"
         ],
         "jsdoc-format": true,
         "no-consecutive-blank-lines": true,
@@ -38,10 +39,12 @@
             "check-catch"
         ],
         "quotemark": [
-            true
+            true,
+            "single"
         ],
         "semicolon": [
-            true
+            true,
+            "always"
         ],
         "trailing-comma": [
             true,
@@ -75,9 +78,6 @@
             "check-operator",
             "check-separator",
             "check-type"
-        ],
-        "no-unused-variable": [
-            true
         ]
     }
 }

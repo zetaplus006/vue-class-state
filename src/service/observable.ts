@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import { enumerable, mutation } from '../decorator';
 import { assert, def } from '../util';
 import { Middleware } from './middleware';
 import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IPlugin, IIdentifier, IService, ISubscribeOption } from '../interfaces';
