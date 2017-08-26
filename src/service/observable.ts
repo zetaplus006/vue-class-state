@@ -102,7 +102,6 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
-                    // hiddenKey.forEach(key => def(this, key, { enumerable: false }));
                     def(this, '__', { enumerable: false });
                     const getters = getPropertyGetters(constructor.prototype),
                         { created } = constructor.prototype,
@@ -116,7 +115,6 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     proxyGetters(this, vm, getterKeys);
                     proxyMethod(this, vm);
 
-                    // this['__']['$root'] = this;
                     let __ = this['__'] as IVubxHelper;
                     if (option) {
                         const { strict, root, identifier, provider = [], injector = [], plugins = [] } = option;
@@ -197,7 +195,7 @@ function getPropertyGetters(target: any): { [key: string]: { get(): any, set?():
     keys.forEach(key => {
         if (key === 'constructor') { return; }
         const descriptor = Object.getOwnPropertyDescriptor(target, key);
-        if (descriptor.get && descriptor.enumerable) {
+        if (descriptor.get) {
             getters[key] = {
                 get: descriptor.get,
                 set: descriptor.set

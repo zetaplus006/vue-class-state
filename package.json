@@ -1,6 +1,6 @@
 {
   "name": "vubx",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simple state management for Vue(in dev)",
   "main": "lib/vubx.common.js",
   "module": "lib/vubx.esm.js",
