@@ -2,12 +2,12 @@ import { Service } from './service/observable';
 import { Middleware } from './service/middleware';
 import { Provider } from './service/provider';
 import Vue from 'vue';
+import { devtool } from './plugins/devtool';
 
 export interface IConstructor { new(...args: any[]): {}; }
 export interface IServiceClass<T extends Service> { new(...args: any[]): T; }
 
 export interface IDecoratorOption {
-    strict?: boolean;
     identifier?: IIdentifier;
     root?: boolean;
     provider?: IPlugin[];
@@ -17,6 +17,7 @@ export interface IDecoratorOption {
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
 
 export interface IVubxHelper {
+    $vm: Vue | null;
     $getters: any;
     $state: any;
     $root: Service | null;
@@ -53,6 +54,10 @@ export interface IService {
     getProvider(): Provider;
 
     subscribe(option: ISubscribeOption): void;
+
+    useStrict(): this;
+
+    useDevtool(): this;
 }
 
 export type IIdentifier = string | symbol;

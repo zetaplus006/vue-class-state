@@ -13,7 +13,7 @@
     "noImplicitThis": true,
     "declaration": true,
     "strictNullChecks": true,
-    "removeComments": true,
+    // "removeComments": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,

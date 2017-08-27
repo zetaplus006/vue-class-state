@@ -1,9 +1,5 @@
 import { Service } from './observable';
 import { IPlugin, IIdentifier, IServiceClass } from '../interfaces';
-export declare function lazyInject<T extends Service>(key: keyof T, identifier: IIdentifier): IPlugin;
-export declare function inject(identifier: IIdentifier): PropertyDecorator;
-export declare function bindClass<T extends Service>(identifier: IIdentifier, serviceClass: IServiceClass<T>): IPlugin;
-export declare function bindFactory<T extends Service>(identifier: IIdentifier, serviceFactory: () => T): IPlugin;
 export declare class Provider {
     private instancesMap;
     private classMap;
@@ -19,3 +15,6 @@ export declare class Provider {
     hasInstance(identifier: IIdentifier): boolean;
     hasClass(identifier: IIdentifier): boolean;
 }
+export declare function bindClass<T extends Service>(identifier: IIdentifier, serviceClass: IServiceClass<T>): IPlugin;
+export declare function bindFactory<T extends Service>(identifier: IIdentifier, serviceFactory: () => T): IPlugin;
+export declare function lazyInject(identifier: IIdentifier): PropertyDecorator;

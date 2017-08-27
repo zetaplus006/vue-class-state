@@ -2,12 +2,13 @@ import Vue from 'vue';
 import {
     createDecorator,
     Service,
+    IService,
     mutation,
     bindClass,
     bindFactory,
-    lazyInject,
-    IService
+    lazyInject
 } from 'vubx';
+
 const obverable = createDecorator(Vue);
 
 const key = Symbol('child');
@@ -23,23 +24,22 @@ let n = 1;
 export class Children extends Service implements IChildren {
 
     text = 'child service ';
-    constructor() {
+    constructor( @pp public aa?: number) {
         super();
         this.text += n++;
     }
 }
 
+function pp(target: any, propertyKey: PropertyKey, index: number) {
+    console.log(target.prototype, target);
+}
+
 @obverable({
-    strict: true,
     identifier: Symbol('appService'),
     root: true,
     provider: [
         bindClass<IChildren>(key, Children),
         bindFactory<IChildren>(factoryKey, () => new Children())
-    ],
-    injector: [
-        lazyInject<AppService>('child', key),
-        lazyInject<AppService>('childFromFactory', factoryKey)
     ]
 })
 export class AppService extends Service {
@@ -47,14 +47,16 @@ export class AppService extends Service {
     // state
     private num1: number = 0;
     private num2: number = 0;
-
-    // No initial value, Will not enter the vue
     private closer: any;
 
-    // tslint:disable-next-line:member-ordering
-    public child: Children;
-    public child2: Children;
-    public childFromFactory: Children;
+    public child1: IChildren;
+
+    @lazyInject(key)
+    public child2: IChildren;
+
+    @lazyInject(factoryKey)
+    public child3: IChildren;
+
     // computed
     get sum() {
         return this.num1 + this.num2;
@@ -62,16 +64,16 @@ export class AppService extends Service {
 
     // vubx hook
     created() {
+        this.appendChild(new Children(), 'child1', Symbol('appChild'));
         this.$on('close', () => {
             clearInterval(this.closer);
         });
         this.$watch('sum', (sum) => {
             if (sum >= 10) {
-                console.log(this.child);
-                console.log(this.childFromFactory);
+                console.log(this.child1);
+                console.log(this.child2 === this.child3);
             }
         });
-        this.appendChild(new Children(), 'child2', Symbol('appChild'));
     }
 
     start() {

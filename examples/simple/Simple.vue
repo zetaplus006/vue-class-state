@@ -2,16 +2,14 @@
     <div>
         <h4>simple demo</h4>
         <span>{{appService.sum}} </span>
-        <span>{{appService.childFromFactory.text}}</span>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { AppService } from './appService';
-import { devtool } from 'vubx';
-const appService = new AppService();
-devtool(appService);
+const appService = new AppService().useStrict().useDevtool();
+
 console.log(appService)
 export default {
     computed: {

@@ -11,6 +11,9 @@ export declare abstract class Service implements IService {
     $delete: typeof Vue.prototype.$delete;
     $destroy: typeof Vue.prototype.$destroy;
     __: IVubxHelper;
+    /**
+     * After initialization has been completed
+     */
     created?(): void;
     dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any>;
     commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any;
@@ -18,6 +21,12 @@ export declare abstract class Service implements IService {
     appendChild<S extends Service>(child: S, key: keyof this, identifier: IIdentifier): void;
     getProvider(): Provider;
     subscribe(option: ISubscribeOption): void;
+    useStrict(isStrict?: boolean): this;
+    useDevtool(useDevtool?: boolean): this;
 }
+/**
+ * createObserveDecorator
+ * @param _Vue
+ */
 export declare function createDecorator(_Vue: typeof Vue): IVubxDecorator;
 export declare function appendServiceChild<P extends Service, C extends Service>(parent: P, childName: keyof P, child: C, identifier: IIdentifier): void;

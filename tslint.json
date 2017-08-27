@@ -11,10 +11,6 @@
             "spaces",
             4
         ],
-        "interface-name": [
-            true,
-            "always-prefix"
-        ],
         "jsdoc-format": true,
         "no-consecutive-blank-lines": true,
         "no-debugger": true,

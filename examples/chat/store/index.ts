@@ -1,5 +1,5 @@
 import { store } from './decorator';
-import { Service, devtool, mutation } from 'vubx';
+import { Service, mutation } from 'vubx';
 import { getAllMessages } from '../api/index';
 import { IThreadsData, IThreads, IMessages, IMessage } from './type';
 
@@ -8,7 +8,6 @@ export const serviceKey = {
 };
 
 @store({
-    strict: true,
     root: true,
     identifier: serviceKey.CHAT
 })
@@ -68,8 +67,6 @@ export class ChatStore extends Service {
     }
 }
 
-const chatStore = new ChatStore();
-
-devtool(chatStore);
+const chatStore = new ChatStore().useStrict().useDevtool();
 
 export default chatStore.getProvider().proxy;

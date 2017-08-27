@@ -3,56 +3,6 @@ import { assert, def } from '../util';
 import { Service, appendServiceChild } from './observable';
 import { IPlugin, IIdentifier, IServiceClass } from '../interfaces';
 
-export function lazyInject<T extends Service>(
-    key: keyof T,
-    identifier: IIdentifier
-): IPlugin {
-    return function resolve(parent: T) {
-        let instance: Service;
-        def(parent, key, {
-            get: () => {
-                if (instance) {
-                    return instance;
-                }
-                const provider = parent.getProvider();
-                instance = provider.getInstance(identifier);
-                appendServiceChild(parent, key, instance, identifier);
-                return instance;
-            },
-            enumerable: true,
-            configurable: true
-        });
-    };
-}
-
-export function inject(identifier: IIdentifier): PropertyDecorator {
-    return function (targe: any, propertyKey: string) {
-        def(targe, propertyKey, {
-            get: () => {
-                return 'key';
-            }
-        });
-    };
-}
-
-export function bindClass<T extends Service>(
-    identifier: IIdentifier,
-    serviceClass: IServiceClass<T>
-): IPlugin {
-    return function registerClass(parent: Service) {
-        parent.getProvider().register(identifier, serviceClass);
-    };
-}
-
-export function bindFactory<T extends Service>(
-    identifier: IIdentifier,
-    serviceFactory: () => T
-): IPlugin {
-    return function registerFactory(parent: Service) {
-        parent.getProvider().push(identifier, serviceFactory());
-    };
-}
-
 export class Provider {
     // instances: { [identifier: IIentifier]: Service } = {};
     private instancesMap: Map<IIdentifier, any> = new Map();
@@ -126,4 +76,71 @@ export class Provider {
     hasClass(identifier: IIdentifier) {
         return this.classMap.has(identifier);
     }
+}
+
+export function bindClass<T extends Service>(
+    identifier: IIdentifier,
+    serviceClass: IServiceClass<T>
+): IPlugin {
+    return function registerClass(parent: Service) {
+        parent.getProvider().register(identifier, serviceClass);
+    };
+}
+
+export function bindFactory<T extends Service>(
+    identifier: IIdentifier,
+    serviceFactory: () => T
+): IPlugin {
+    return function registerFactory(parent: Service) {
+        parent.getProvider().push(identifier, serviceFactory());
+    };
+}
+
+/* export function lazyInject<T extends Service>(
+    key: keyof T,
+    identifier: IIdentifier
+): IPlugin {
+    return function resolve(parent: T) {
+        let instance: Service;
+        def(parent, key, {
+            get: () => {
+                if (instance) {
+                    return instance;
+                }
+                const provider = parent.getProvider();
+                instance = provider.getInstance(identifier);
+                appendServiceChild(parent, key, instance, identifier);
+                return instance;
+            },
+            enumerable: true,
+            configurable: true
+        });
+    };
+} */
+
+export function lazyInject(identifier: IIdentifier): PropertyDecorator {
+    return function (targe: any, propertyKey: string, desc?: PropertyDescriptor): any {
+        let instance: Service;
+        const getter = function (this: Vue) {
+            if (instance) {
+                return instance;
+            }
+            const provider = this.$service.getProvider();
+            instance = provider.getInstance(identifier);
+            appendServiceChild(this.$service, propertyKey as any, instance, identifier);
+            return instance;
+        };
+        if (desc) {
+            // for es6 decorator
+            desc.get = getter;
+            return desc;
+        }
+        // for ts decorator
+        return {
+            get: getter,
+            set() { },
+            enumerable: true,
+            configurable: true
+        };
+    };
 }

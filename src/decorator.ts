@@ -6,6 +6,7 @@ import { IMutation } from './interfaces';
 import { IService } from '../lib/src/interfaces';
 
 export { createDecorator } from './service/observable';
+export { lazyInject } from './service/provider';
 
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
@@ -35,8 +36,9 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
     return descriptor;
 }
 
-export function enumerable(value: boolean) {
+/* export function enumerable(value: boolean) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         descriptor.enumerable = value;
     };
 }
+ */

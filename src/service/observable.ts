@@ -3,6 +3,7 @@ import { assert, def } from '../util';
 import { Middleware } from './middleware';
 import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IPlugin, IIdentifier, IService, ISubscribeOption } from '../interfaces';
 import { Provider } from './provider';
+import { devtool } from '../plugins/devtool';
 
 export abstract class Service implements IService {
 
@@ -16,6 +17,7 @@ export abstract class Service implements IService {
     $destroy: typeof Vue.prototype.$destroy;
 
     __: IVubxHelper = {
+        $vm: null,
         $getters: {},
         $state: {},
         $root: null,
@@ -89,6 +91,22 @@ export abstract class Service implements IService {
         this.__.middleware.subscribe(option);
     }
 
+    useStrict(isStrict = true) {
+        if (isStrict && process.env.NODE_ENV !== 'production') {
+            this.__.$vm && this.__.$vm.$watch<any>(function() {
+                return this.$data;
+            }, (val) => {
+                assert(this.__.isCommitting,
+                    'Do not mutate vubx service data outside mutation handlers.');
+            }, { deep: true, sync: true });
+        }
+        return this;
+    }
+    useDevtool(useDevtool = true) {
+        useDevtool && devtool(this);
+        return this;
+    }
+
 }
 
 /**
@@ -97,7 +115,7 @@ export abstract class Service implements IService {
  */
 export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     return function decorator(option?: IDecoratorOption) {
-        return function (constructor: IConstructor) {
+        return function(constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
@@ -115,9 +133,10 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     proxyMethod(this, vm);
 
                     let __ = this['__'] as IVubxHelper;
+                    __.$vm = vm;
+                    vm.$service = this as any;
                     if (option) {
-                        const { strict, root, identifier, provider = [], injector = [], plugins = [] } = option;
-                        strict && openStrict(vm, this);
+                        const { root, identifier, provider = [], injector = [], plugins = [] } = option;
                         if (root) {
                             __.$root = this as any;
                             __.provider = new Provider();
@@ -128,6 +147,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         }
                         initPlugins(this, provider.concat(injector).concat(plugins));
                     }
+
                     created && created.call(this);
                 }
             };
@@ -174,17 +194,6 @@ function proxyMethod(ctx: any, vm: Vue) {
             get: () => vm[key].bind(vm),
             enumerable: false
         });
-    }
-}
-
-function openStrict(vm: Vue, service: any) {
-    if (process.env.NODE_ENV !== 'production') {
-        vm.$watch<any>(function () {
-            return this.$data;
-        }, (val) => {
-            assert((service as Service).__.isCommitting,
-                'Do not mutate vubx service data outside mutation handlers.');
-        }, { deep: true, sync: true });
     }
 }
 

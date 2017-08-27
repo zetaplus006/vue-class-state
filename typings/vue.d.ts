@@ -1,7 +1,13 @@
-import Vue from 'vue';
+import { IService } from '../src/interfaces';
 
-declare module "vue/types/options" {
+declare module 'vue/types/options' {
     interface WatchOptions {
-        sync?: boolean
+        sync?: boolean;
+    }
+}
+
+declare module 'vue/types/vue' {
+    interface Vue {
+        $service: IService;
     }
 }
