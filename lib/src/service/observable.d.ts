@@ -15,8 +15,6 @@ export declare abstract class Service implements IService {
      * After initialization has been completed
      */
     created?(): void;
-    dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any>;
-    commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any;
     replaceState(state: Service): void;
     appendChild<S extends Service>(child: S, key: keyof this, identifier: IIdentifier): void;
     getProvider(): Provider;

@@ -5,6 +5,11 @@ import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IPlugin, I
 import { Provider } from './provider';
 import { devtool } from '../plugins/devtool';
 
+const defaultConfig = {
+    enumerable: true,
+    configurable: true
+};
+
 export abstract class Service implements IService {
 
     $watch: typeof Vue.prototype.$watch;
@@ -34,13 +39,13 @@ export abstract class Service implements IService {
      */
     created?(): void;
 
-    async dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any> {
+    /* async dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any> {
         return await this.getProvider().getInstance(identifier)[actionType](...arg);
     }
 
     commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any {
         return this.getProvider().getInstance(identifier)[mutationType](...arg);
-    }
+    } */
 
     replaceState(state: Service): void {
         const temp = this.__.isCommitting;
@@ -93,7 +98,7 @@ export abstract class Service implements IService {
 
     useStrict(isStrict = true) {
         if (isStrict && process.env.NODE_ENV !== 'production') {
-            this.__.$vm && this.__.$vm.$watch<any>(function() {
+            this.__.$vm && this.__.$vm.$watch<any>(function () {
                 return this.$data;
             }, (val) => {
                 assert(this.__.isCommitting,
@@ -115,7 +120,7 @@ export abstract class Service implements IService {
  */
 export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     return function decorator(option?: IDecoratorOption) {
-        return function(constructor: IConstructor) {
+        return function (constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
@@ -164,7 +169,10 @@ function proxyState(ctx: any, getterKeys: string[]) {
     Object.keys(ctx).forEach(
         key => {
             if (getterKeys.indexOf(key) < 0) {
-                def($state, key, { get: () => ctx[key], enumerable: true });
+                def($state, key, {
+                    get: () => ctx[key],
+                    ...defaultConfig
+                });
             }
         }
     );
@@ -176,12 +184,12 @@ function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
         def(ctx, key, {
             get: () => vm[key],
             set: value => vm[key] = value,
-            enumerable: true
+            ...defaultConfig
         });
         def($getters, key, {
             get: () => ctx[key],
             set: value => ctx[key] = value,
-            enumerable: true
+            ...defaultConfig
         });
     });
 }
@@ -224,16 +232,15 @@ export function appendServiceChild<P extends Service, C extends Service>
             'Make sure to have a root service, ' +
             'Please check the root options in the decorator configuration');
     }
-    // setRoot(parent, parent.__.$root as Service);
     child.__.$root = parent.__.$root;
     child.__.identifier = identifier;
-    parent.__.$getters[childName] = child.__.$getters;
-    parent.__.$state[childName] = child.__.$state;
-}
-
-function setRoot(parent: Service, root: Service) {
-    parent.__.$children.forEach(s => {
-        s.__.$root = root;
-        setRoot(s, root);
+    def(parent.__.$state, childName, {
+        get: () => child.__.$state,
+        ...defaultConfig
     });
+    def(parent.__.$getters, childName, {
+        get: () => child.__.$getters,
+        ...defaultConfig
+    });
+
 }

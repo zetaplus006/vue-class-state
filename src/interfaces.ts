@@ -43,9 +43,9 @@ export interface IService {
 
     created?(): void;
 
-    dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any>;
+    /*  dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any>;
 
-    commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any;
+     commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any; */
 
     replaceState(state: Service): void;
 

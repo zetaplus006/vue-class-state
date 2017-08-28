@@ -1,4 +1,7 @@
 import Vue from 'vue';
+import { bindAsync } from '../../src/service/provider';
+import AsyncService from './asyncClass';
+import { isPromise } from '../../src/util';
 import {
     createDecorator,
     Service,
@@ -13,6 +16,7 @@ const obverable = createDecorator(Vue);
 
 const key = Symbol('child');
 const factoryKey = Symbol('factory');
+const asyncKey = Symbol('async');
 
 export interface IChildren extends IService {
     text: string;
@@ -24,14 +28,14 @@ let n = 1;
 export class Children extends Service implements IChildren {
 
     text = 'child service ';
-    constructor( @pp public aa?: number) {
-        super();
-        this.text += n++;
+    index: number;
+    get childText() {
+        return this.text + this.index;
     }
-}
-
-function pp(target: any, propertyKey: PropertyKey, index: number) {
-    console.log(target.prototype, target);
+    constructor() {
+        super();
+        this.index = n++;
+    }
 }
 
 @obverable({
@@ -39,7 +43,10 @@ function pp(target: any, propertyKey: PropertyKey, index: number) {
     root: true,
     provider: [
         bindClass<IChildren>(key, Children),
-        bindFactory<IChildren>(factoryKey, () => new Children())
+        bindFactory<IChildren>(factoryKey, () => new Children()),
+        bindAsync<IChildren>(asyncKey, () => Promise.resolve(Children)),
+        bindAsync<AsyncService>(asyncKey, () => import('./asyncClass') as Promise<any>)
+        // bindAsync<AsyncService>(asyncKey, () => require('./asyncClass'))
     ]
 })
 export class AppService extends Service {
@@ -91,3 +98,7 @@ export class AppService extends Service {
         this.num2++;
     }
 }
+function async() {
+    console.log(isPromise(import('./asyncClass')));
+}
+async();

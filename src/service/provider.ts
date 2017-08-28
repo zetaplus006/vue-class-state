@@ -96,6 +96,23 @@ export function bindFactory<T extends Service>(
     };
 }
 
+export function bindValue<T extends Service>(identifier: IIdentifier, service: T): IPlugin {
+    return function registerValue(parent: Service) {
+        parent.getProvider().push(identifier, service);
+    };
+}
+
+export function bindAsync<T extends Service>(identifier: IIdentifier, asyncBinding: IAsyncBinding<T>) {
+    return function registerAsync(parent: Service) {
+        // parent.getProvider().push(identifier, service);
+    };
+}
+
+export type IAsyncBinding<T extends Service> = (
+    resolve: (c: IServiceClass<T>) => void,
+    reject: (reason?: any) => void
+) => Promise<IServiceClass<T>>;
+
 /* export function lazyInject<T extends Service>(
     key: keyof T,
     identifier: IIdentifier

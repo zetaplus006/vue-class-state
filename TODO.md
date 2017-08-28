@@ -5,3 +5,7 @@
 ## 动态注册 自动异步注入 删除 child
 
 ## Map identifer
+
+## await Promise asyncChild
+
+## di bindValue paramsInject

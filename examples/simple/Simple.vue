@@ -13,11 +13,11 @@ const appService = new AppService().useStrict().useDevtool();
 console.log(appService)
 export default {
     computed: {
-        appService() {
+        appService () {
             return appService;
         }
     },
-    mounted() {
+    mounted () {
         appService.start();
     }
 };
