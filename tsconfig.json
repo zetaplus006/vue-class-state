@@ -6,7 +6,7 @@
       "es2015",
       "es2015.symbol"
     ],
-    "module": "es2015",
+    "module": "esnext",
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "noImplicitAny": true,

@@ -29,12 +29,13 @@ export class Children extends Service implements IChildren {
 
     text = 'child service ';
     index: number;
-    get childText() {
-        return this.text + this.index;
+    get msg() {
+        return this.text + this.index + '  is loading...';
     }
     constructor() {
         super();
         this.index = n++;
+        console.log(this.msg);
     }
 }
 
@@ -44,8 +45,8 @@ export class Children extends Service implements IChildren {
     provider: [
         bindClass<IChildren>(key, Children),
         bindFactory<IChildren>(factoryKey, () => new Children()),
-        bindAsync<IChildren>(asyncKey, () => Promise.resolve(Children)),
-        bindAsync<AsyncService>(asyncKey, () => import('./asyncClass') as Promise<any>)
+        // bindAsync<IChildren>(asyncKey, () => Promise.resolve(Children)),
+        // bindAsync<AsyncService>(asyncKey, async () => await import('./asyncClass'))
         // bindAsync<AsyncService>(asyncKey, () => require('./asyncClass'))
     ]
 })
@@ -98,7 +99,9 @@ export class AppService extends Service {
         this.num2++;
     }
 }
-function async() {
-    console.log(isPromise(import('./asyncClass')));
+async function async() {
+    const res = await import('./asyncClass');
+    console.log(res.default);
+    import('./asyncClass').then(obj => console.log(obj));
 }
 async();

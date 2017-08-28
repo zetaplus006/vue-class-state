@@ -109,10 +109,14 @@ export function bindAsync<T extends Service>(identifier: IIdentifier, asyncBindi
 }
 
 export type IAsyncBinding<T extends Service> = (
-    resolve: (c: IServiceClass<T>) => void,
+    resolve: (c: IESModule<IServiceClass<T>>) => void,
     reject: (reason?: any) => void
-) => Promise<IServiceClass<T>>;
+) => Promise<IESModule<IServiceClass<T>>>;
 
+export type IESModule<T> = {
+    __esModule: boolean,
+    default: T
+};
 /* export function lazyInject<T extends Service>(
     key: keyof T,
     identifier: IIdentifier
