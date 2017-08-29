@@ -1,12 +1,14 @@
 import { IServiceClass, IService, IIdentifier } from '../interfaces';
 
 export type IInjectorOption<T extends IService> = {
-    identifier: IIdentifier,
-    useClass?: IServiceClass<T>,
-    useFactory?: () => T,
-    useValue?: IService,
-    async?: boolean,
+    identifier: IIdentifier
+    instaance: T
+    useClass?: IServiceClass<T>
+    useFactory?: () => T
+    useValue?: IService
+    async?: boolean
     dep?: IIdentifier[]
+    injectorType: INJECT_TYPE
 };
 
 export enum INJECT_TYPE {
@@ -18,13 +20,14 @@ export enum INJECT_TYPE {
 export class Injector<T extends IService> implements IInjectorOption<T> {
 
     identifier: IIdentifier;
+    instaance: T;
     useClass?: IServiceClass<T>;
     useFactory?: () => T;
     useValue?: IService;
     async: boolean = false;
     singleton = true;
     dep: IIdentifier[] = [];
-    injectorType = INJECT_TYPE.CLASS;
+    injectorType: INJECT_TYPE = INJECT_TYPE.CLASS;
 
     resolve(): T | null {
         return null;
@@ -55,4 +58,8 @@ export class Injector<T extends IService> implements IInjectorOption<T> {
         return this;
     }
 
+}
+
+export function bind<T extends IService>(identifier: IIdentifier) {
+    return new Injector<T>().bind(identifier);
 }

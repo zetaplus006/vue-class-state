@@ -2,12 +2,15 @@ import Vue from 'vue';
 import { assert, def } from '../util';
 import { Service, appendServiceChild } from './observable';
 import { IPlugin, IIdentifier, IServiceClass } from '../interfaces';
+import { Injector } from './injector';
 
 export class Provider {
     // instances: { [identifier: IIentifier]: Service } = {};
     private instancesMap: Map<IIdentifier, any> = new Map();
 
     private classMap: Map<IIdentifier, any> = new Map();
+
+    private injectorMap: Map<IIdentifier, Injector<any>> = new Map();
 
     // for vue provide
     public readonly proxy: {} = {};
@@ -19,6 +22,7 @@ export class Provider {
     get classes() {
         return Array.from(this.classMap);
     }
+
 
     register<T extends Service>(identifier: IIdentifier, serviceClass: IServiceClass<T>) {
         this.checkIdentifier(identifier);
