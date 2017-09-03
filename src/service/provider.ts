@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { assert, def } from '../util';
 import { Service, appendServiceChild } from './observable';
-import { IPlugin, IIdentifier, IServiceClass } from '../interfaces';
+import { IPlugin, IIdentifier, IServiceClass, IService } from '../interfaces';
 import { Injector } from './injector';
 
 export class Provider {
@@ -22,7 +22,6 @@ export class Provider {
     get classes() {
         return Array.from(this.classMap);
     }
-
 
     register<T extends Service>(identifier: IIdentifier, serviceClass: IServiceClass<T>) {
         this.checkIdentifier(identifier);
@@ -80,6 +79,11 @@ export class Provider {
     hasClass(identifier: IIdentifier) {
         return this.classMap.has(identifier);
     }
+
+    get(identifier: IIdentifier): IService {
+        const injector = this.injectorMap.get(identifier);
+        return injector && injector.resolve(this);
+    }
 }
 
 export function bindClass<T extends Service>(
@@ -121,38 +125,17 @@ export type IESModule<T> = {
     __esModule: boolean,
     default: T
 };
-/* export function lazyInject<T extends Service>(
-    key: keyof T,
-    identifier: IIdentifier
-): IPlugin {
-    return function resolve(parent: T) {
-        let instance: Service;
-        def(parent, key, {
-            get: () => {
-                if (instance) {
-                    return instance;
-                }
-                const provider = parent.getProvider();
-                instance = provider.getInstance(identifier);
-                appendServiceChild(parent, key, instance, identifier);
-                return instance;
-            },
-            enumerable: true,
-            configurable: true
-        });
-    };
-} */
 
 export function lazyInject(identifier: IIdentifier): PropertyDecorator {
     return function (targe: any, propertyKey: string, desc?: PropertyDescriptor): any {
-        let instance: Service;
-        const getter = function (this: Vue) {
-            if (instance) {
-                return instance;
-            }
-            const provider = this.$service.getProvider();
+        const getter = function (this: IService) {
+            let instance: IService;
+            // const provider = this.$service.getProvider();
+            const provider = this.getProvider();
             instance = provider.getInstance(identifier);
-            appendServiceChild(this.$service, propertyKey as any, instance, identifier);
+            appendServiceChild(this, propertyKey as any, instance, identifier);
+            delete this[propertyKey];
+            this[propertyKey] = instance;
             return instance;
         };
         if (desc) {

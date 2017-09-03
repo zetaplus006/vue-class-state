@@ -4,6 +4,7 @@ import { Middleware } from './middleware';
 import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IPlugin, IIdentifier, IService, ISubscribeOption } from '../interfaces';
 import { Provider } from './provider';
 import { devtool } from '../plugins/devtool';
+import { bind } from './injector';
 
 const defaultConfig = {
     enumerable: true,
@@ -47,12 +48,12 @@ export abstract class Service implements IService {
         return this.getProvider().getInstance(identifier)[mutationType](...arg);
     } */
 
-    replaceState(state: Service): void {
+    replaceState(state: IService): void {
         const temp = this.__.isCommitting;
         this.__.isCommitting = true;
         for (const key in state) {
             if (this[key] instanceof Service) {
-                (this[key] as Service).replaceState(state[key]);
+                (this[key] as IService).replaceState(state[key]);
             } else {
                 this[key] = state[key];
             }
@@ -60,7 +61,7 @@ export abstract class Service implements IService {
         this.__.isCommitting = temp;
     }
 
-    appendChild<S extends Service>(child: S, key: keyof this, identifier: IIdentifier): void {
+    appendChild(child: IService, key: keyof this, identifier: IIdentifier): void {
         this.getProvider().checkIdentifier(identifier);
         def(this, key, {
             enumerable: true,
@@ -89,7 +90,7 @@ export abstract class Service implements IService {
                 'Make sure to have a root service, ' +
                 'Please check the root options in the decorator configuration');
         }
-        return (this.__.$root as Service).__.provider as Provider;
+        return (this.__.$root as IService).__.provider as Provider;
     }
 
     subscribe(option: ISubscribeOption) {
@@ -107,6 +108,7 @@ export abstract class Service implements IService {
         }
         return this;
     }
+
     useDevtool(useDevtool = true) {
         useDevtool && devtool(this);
         return this;
@@ -125,7 +127,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                 constructor(...arg: any[]) {
                     super(...arg);
                     def(this, '__', { enumerable: false });
-                    const getters = getPropertyGetters(constructor.prototype),
+                    const getters = getPropertyGetters(constructor.prototype, this),
                         { created } = constructor.prototype,
                         getterKeys = Object.keys(getters);
                     const vm: Vue = new _Vue({
@@ -161,11 +163,11 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
 }
 
 function initPlugins(ctx: any, plugin: IPlugin[]) {
-    plugin.forEach(injector => injector(ctx as Service));
+    plugin.forEach(injector => injector(ctx as IService));
 }
 
 function proxyState(ctx: any, getterKeys: string[]) {
-    const $state = (ctx as Service).__.$state;
+    const $state = (ctx as IService).__.$state;
     Object.keys(ctx).forEach(
         key => {
             if (getterKeys.indexOf(key) < 0) {
@@ -205,7 +207,7 @@ function proxyMethod(ctx: any, vm: Vue) {
     }
 }
 
-function getPropertyGetters(target: any): { [key: string]: { get(): any, set?(): void } } {
+function getPropertyGetters(target: any, ctx: any): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
     const keys: string[] = Object.getOwnPropertyNames(target);
     keys.forEach(key => {
@@ -213,8 +215,8 @@ function getPropertyGetters(target: any): { [key: string]: { get(): any, set?():
         const descriptor = Object.getOwnPropertyDescriptor(target, key);
         if (descriptor.get) {
             getters[key] = {
-                get: descriptor.get,
-                set: descriptor.set
+                get: descriptor.get.bind(ctx),
+                set: descriptor.set && descriptor.set.bind(ctx)
             };
         }
     });
@@ -242,5 +244,4 @@ export function appendServiceChild<P extends Service, C extends Service>
         get: () => child.__.$getters,
         ...defaultConfig
     });
-
 }

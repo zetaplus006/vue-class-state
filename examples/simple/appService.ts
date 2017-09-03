@@ -67,6 +67,7 @@ export class AppService extends Service {
 
     // computed
     get sum() {
+        console.log(this);
         return this.num1 + this.num2;
     }
 

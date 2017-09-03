@@ -15,8 +15,8 @@ export declare abstract class Service implements IService {
      * After initialization has been completed
      */
     created?(): void;
-    replaceState(state: Service): void;
-    appendChild<S extends Service>(child: S, key: keyof this, identifier: IIdentifier): void;
+    replaceState(state: IService): void;
+    appendChild(child: IService, key: keyof this, identifier: IIdentifier): void;
     getProvider(): Provider;
     subscribe(option: ISubscribeOption): void;
     useStrict(isStrict?: boolean): this;

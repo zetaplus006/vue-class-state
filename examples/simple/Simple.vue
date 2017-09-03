@@ -8,7 +8,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { AppService } from './appService';
-const appService = new AppService().useStrict(false).useDevtool(false);
+const appService = new AppService().useStrict(false).useDevtool(true);
 
 console.log(JSON.stringify(appService))
 export default {

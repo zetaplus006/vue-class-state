@@ -1,11 +1,9 @@
-import { Service } from './service/observable';
 import { Middleware } from './service/middleware';
 import { Provider } from './service/provider';
 import Vue from 'vue';
-import { devtool } from './plugins/devtool';
 
 export interface IConstructor { new(...args: any[]): {}; }
-export interface IServiceClass<T extends Service> { new(...args: any[]): T; }
+export interface IServiceClass<T extends IService> { new(...args: any[]): T; }
 
 export interface IDecoratorOption {
     identifier?: IIdentifier;
@@ -20,9 +18,9 @@ export interface IVubxHelper {
     $vm: Vue | null;
     $getters: any;
     $state: any;
-    $root: Service | null;
-    $parent: Service[];
-    $children: Service[];
+    $root: IService | null;
+    $parent: IService[];
+    $children: IService[];
     isCommitting: boolean;
     middleware: Middleware;
     provider: Provider | null;
@@ -47,9 +45,9 @@ export interface IService {
 
      commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any; */
 
-    replaceState(state: Service): void;
+    replaceState(state: IService): void;
 
-    appendChild<S extends Service>(child: S, childName: keyof this, identifier: IIdentifier): void;
+    appendChild(child: IService, childName: keyof this, identifier: IIdentifier): void;
 
     getProvider(): Provider;
 
@@ -62,7 +60,7 @@ export interface IService {
 
 export type IIdentifier = string | symbol;
 
-export type IPlugin = (service: Service) => void;
+export type IPlugin = (service: IService) => void;
 
 // middleware
 
