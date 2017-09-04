@@ -40,7 +40,7 @@ export class Children extends Service implements IChildren {
 @obverable({
     identifier: Symbol('appService'),
     root: true,
-    provider: [
+    providers: [
         bind<IChildren>(key).toClass(Children).inTransientScope(),
         bind<IChildren>(factoryKey).toFactory(() => new Children())
     ]

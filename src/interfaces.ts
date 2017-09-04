@@ -12,7 +12,7 @@ export interface IServiceClass<T extends IService> { new(...args: any[]): T; }
 export interface IDecoratorOption {
     identifier?: IIdentifier;
     root?: boolean;
-    provider?: IInjector<IService>[];
+    providers?: IInjector<IService>[];
     // injectors?: IInjector<IService>[];
     plugins?: IPlugin[];
 }

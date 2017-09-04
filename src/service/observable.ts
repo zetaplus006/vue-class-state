@@ -144,11 +144,11 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     __.$vm = vm;
                     vm.$service = this as any;
                     if (option) {
-                        const { root, identifier, provider = [], plugins = [] } = option;
+                        const { root, identifier, providers = [], plugins = [] } = option;
                         if (root) {
                             __.$root = this as any;
                             __.provider = new Provider();
-                            provider.forEach(injector => {
+                            providers.forEach(injector => {
                                 (__.provider as Provider).register(injector);
                             });
                             if (identifier) {
