@@ -1,8 +1,10 @@
 // import { Service } from './service/observable';
 import { Middleware } from './service/middleware';
-import { Provider } from './service/provider';
+
 import Vue from 'vue';
 import { devtool } from './plugins/devtool';
+import { Provider } from './di/provider';
+import { IInjector } from './di/injector';
 
 export interface IConstructor { new(...args: any[]): {}; }
 export interface IServiceClass<T extends IService> { new(...args: any[]): T; }
@@ -10,8 +12,8 @@ export interface IServiceClass<T extends IService> { new(...args: any[]): T; }
 export interface IDecoratorOption {
     identifier?: IIdentifier;
     root?: boolean;
-    provider?: IPlugin[];
-    injector?: IPlugin[];
+    provider?: IInjector<IService>[];
+    // injectors?: IInjector<IService>[];
     plugins?: IPlugin[];
 }
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;

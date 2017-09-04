@@ -29,5 +29,8 @@
     "examples/**/*",
     "typings/*"
   ],
+  "exclude": [
+    "lib"
+  ],
   "compileOnSave": false
 }

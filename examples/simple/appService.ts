@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import { bindAsync } from '../../src/service/provider';
 import AsyncService from './asyncClass';
 import { isPromise } from '../../src/util';
 import {
@@ -7,9 +6,8 @@ import {
     Service,
     IService,
     mutation,
-    bindClass,
-    bindFactory,
-    lazyInject
+    lazyInject,
+    bind
 } from 'vubx';
 
 const obverable = createDecorator(Vue);
@@ -43,11 +41,8 @@ export class Children extends Service implements IChildren {
     identifier: Symbol('appService'),
     root: true,
     provider: [
-        bindClass<IChildren>(key, Children),
-        bindFactory<IChildren>(factoryKey, () => new Children()),
-        // bindAsync<IChildren>(asyncKey, () => Promise.resolve(Children)),
-        // bindAsync<AsyncService>(asyncKey, async () => await import('./asyncClass'))
-        // bindAsync<AsyncService>(asyncKey, () => require('./asyncClass'))
+        bind<IChildren>(key).toClass(Children).inTransientScope(),
+        bind<IChildren>(factoryKey).toFactory(() => new Children())
     ]
 })
 export class AppService extends Service {
@@ -92,6 +87,8 @@ export class AppService extends Service {
                 this.$emit('close');
             }
         }, 1000);
+        console.log('---------', this.getProvider().get(key) === this.getProvider().get(key));
+        console.log('---------2', this.getProvider().proxy[key] === this.getProvider().proxy[key]);
     }
 
     @mutation

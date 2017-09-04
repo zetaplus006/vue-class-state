@@ -2,9 +2,9 @@ import Vue from 'vue';
 import { assert, def } from '../util';
 import { Middleware } from './middleware';
 import { IVubxHelper, IVubxDecorator, IDecoratorOption, IConstructor, IPlugin, IIdentifier, IService, ISubscribeOption } from '../interfaces';
-import { Provider } from './provider';
+import { Provider } from '../di/provider';
 import { devtool } from '../plugins/devtool';
-import { bind } from './injector';
+import { ValueInjector, IInjector } from '../di/injector';
 
 const defaultConfig = {
     enumerable: true,
@@ -68,7 +68,8 @@ export abstract class Service implements IService {
             get: () => child
         });
         appendServiceChild(this, key, child, identifier);
-        this.__.$root && this.__.$root.getProvider().push(identifier, child);
+        // this.__.$root && this.__.$root.getProvider().push(identifier, child);
+        this.__.$root && this.__.$root.getProvider().register(new ValueInjector(identifier, child));
     }
 
     /*  removeChild(key: keyof this, identifier: IIdentifier): void {
@@ -143,16 +144,20 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     __.$vm = vm;
                     vm.$service = this as any;
                     if (option) {
-                        const { root, identifier, provider = [], injector = [], plugins = [] } = option;
+                        const { root, identifier, provider = [], plugins = [] } = option;
                         if (root) {
                             __.$root = this as any;
                             __.provider = new Provider();
+                            provider.forEach(injector => {
+                                (__.provider as Provider).register(injector);
+                            });
                             if (identifier) {
                                 __.identifier = identifier;
-                                __.provider.push(identifier, this as any);
+                                // __.provider.push(identifier, this as any);
+                                __.provider.register(new ValueInjector(identifier, this as any));
                             }
                         }
-                        initPlugins(this, provider.concat(injector).concat(plugins));
+                        initPlugins(this, plugins);
                     }
 
                     created && created.call(this);
@@ -163,7 +168,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
 }
 
 function initPlugins(ctx: any, plugin: IPlugin[]) {
-    plugin.forEach(injector => injector(ctx as IService));
+    plugin.forEach(action => action(ctx as IService));
 }
 
 function proxyState(ctx: any, getterKeys: string[]) {
