@@ -1,19 +1,18 @@
 import Vue from 'vue';
-import { assert, def } from '../util';
-import { Middleware, ISubscribeOption } from './middleware';
 import { Provider } from '../di/provider';
-import { devtool } from '../plugins/devtool';
 import { ValueInjector, IInjector } from '../di/injector';
-import { IConstructor, IPlugin, IIdentifier, appendServiceChild, proxyState, getPropertyGetters, proxyMethod, proxyGetters } from './helper';
+import { IConstructor, IPlugin, IIdentifier, proxyState, getPropertyGetters, proxyMethod, proxyGetters } from './helper';
 import { IService, IVubxHelper } from './service';
+import { def } from '../util';
 
 export type IDecoratorOption = {
     identifier?: IIdentifier;
     root?: boolean;
+    vueMethods?: boolean,
     providers?: IInjector<IService>[];
-    // injectors?: IInjector<IService>[];
     plugins?: IPlugin[];
-}
+};
+
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
 
 /**
@@ -37,13 +36,12 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
 
                     proxyState(this, getterKeys);
                     proxyGetters(this, vm, getterKeys);
-                    proxyMethod(this, vm);
 
                     let __ = this['__'] as IVubxHelper;
                     __.$vm = vm;
                     vm.$service = this as any;
                     if (option) {
-                        const { root, identifier, providers = [], plugins = [] } = option;
+                        const { root, identifier, providers = [], plugins = [], vueMethods } = option;
                         if (root) {
                             __.$root = this as any;
                             __.provider = new Provider();
@@ -52,8 +50,10 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                             });
                             if (identifier) {
                                 __.identifier = identifier;
-                                // __.provider.push(identifier, this as any);
                                 __.provider.register(new ValueInjector(identifier, this as any));
+                            }
+                            if (vueMethods) {
+                                proxyMethod(this, vm);
                             }
                         }
                         initPlugins(this, plugins);

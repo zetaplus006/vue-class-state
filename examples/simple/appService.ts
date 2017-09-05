@@ -44,6 +44,7 @@ export class Children extends Service implements IChildren {
 @obverable({
     identifier: Symbol('appService'),
     root: true,
+    vueMethods: true,
     providers: [
         bind<IChildren>(key).toClass(Children),
         bind<IChildren>(factoryKey).toFactory(() => new Children()),

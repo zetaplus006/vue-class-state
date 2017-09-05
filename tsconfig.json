@@ -13,6 +13,7 @@
     "noImplicitThis": true,
     "declaration": true,
     "strictNullChecks": true,
+    // "noUnusedLocals": true,
     // "removeComments": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,

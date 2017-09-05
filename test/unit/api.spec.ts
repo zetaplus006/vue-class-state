@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import * as Vubx from '../../';
+import * as Vubx from '../../src/index';
 
 /* const { expect } = require('chai');
 const Vubx = require('../../'); */

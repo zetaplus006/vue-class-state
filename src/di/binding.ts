@@ -1,4 +1,4 @@
-import { IInjector, ClassInjector, ValueInjector, FactoryInjector, IDeps, IServiceFactory } from './injector';
+import { ClassInjector, ValueInjector, FactoryInjector, IDeps, IServiceFactory } from './injector';
 import { IIdentifier, IServiceClass } from '../service/helper';
 import { Service } from '../service/service';
 

@@ -2,13 +2,22 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es5",
-        "noImplicitAny": true,
+        "lib": [
+            "dom",
+            "es2015",
+            "es2015.symbol"
+        ],
+        "noImplicitAny": false,
         "sourceMap": false,
         "experimentalDecorators": true,
         "allowSyntheticDefaultImports": true,
         "outDir": "../unit-build/"
     },
     "include": [
-        "./**/*.ts"
+        "./**/*.ts",
+        "../../typings/*.ts"
+    ],
+    "exclude": [
+        "../../src"
     ]
 }

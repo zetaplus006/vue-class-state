@@ -9,7 +9,8 @@
   "files": [
     "lib",
     "typings",
-    "src"
+    "src",
+    "LICENSE"
   ],
   "scripts": {
     "dev": "node examples/server.js",
@@ -40,7 +41,6 @@
     "css-loader": "^0.28.4",
     "express": "^4.15.3",
     "mocha": "^3.5.0",
-    "reflect-metadata": "^0.1.10",
     "rollup": "^0.45.2",
     "rollup-plugin-copy": "^0.2.3",
     "rollup-plugin-filesize": "^1.4.2",
@@ -48,7 +48,6 @@
     "rollup-plugin-typescript2": "^0.5.0",
     "rollup-plugin-uglify-es": "^0.0.1",
     "ts-loader": "^2.3.1",
-    "ts-node": "^3.3.0",
     "typescript": "^2.4.2",
     "vue": "^2.4.2",
     "vue-class-component": "^5.0.2",
