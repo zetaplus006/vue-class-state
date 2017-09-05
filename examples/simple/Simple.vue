@@ -10,14 +10,13 @@ import Vue from 'vue';
 import { AppService } from './appService';
 const appService = new AppService().useStrict(false).useDevtool(true);
 
-console.log(JSON.stringify(appService))
 export default {
     computed: {
-        appService() {
+        appService () {
             return appService;
         }
     },
-    mounted() {
+    mounted () {
         appService.start();
     }
 };

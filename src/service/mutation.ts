@@ -1,4 +1,9 @@
-import { IService, IMutation } from '../interfaces';
+import { IService } from './service';
+
+export interface IMutation {
+    type: string;
+    payload: any;
+}
 
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;

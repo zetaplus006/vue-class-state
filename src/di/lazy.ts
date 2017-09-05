@@ -1,5 +1,5 @@
-import { IIdentifier, IService } from '../interfaces';
-import { appendServiceChild } from '../service/observable';
+import { IIdentifier, appendServiceChild } from '../service/helper';
+import { IService } from '../service/service';
 
 export function lazyInject(identifier: IIdentifier): PropertyDecorator {
     return function (target: any, propertyKey: PropertyKey): any {

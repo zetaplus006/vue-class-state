@@ -1,23 +1,24 @@
 import Vue from 'vue';
-import AsyncService from './asyncClass';
-import { isPromise } from '../../src/util';
 import {
     createDecorator,
     Service,
-    IService,
     mutation,
     lazyInject,
-    bind
+    bind,
+    IService
 } from 'vubx';
 
 const obverable = createDecorator(Vue);
 
 const key = Symbol('child');
 const factoryKey = Symbol('factory');
+const valueKey = Symbol('value');
 const asyncKey = Symbol('async');
+const factoryDepKey = Symbol('factoryDepKey');
 
 export interface IChildren extends IService {
     text: string;
+    msg: string;
 }
 
 let n = 1;
@@ -41,8 +42,10 @@ export class Children extends Service implements IChildren {
     identifier: Symbol('appService'),
     root: true,
     providers: [
-        bind<IChildren>(key).toClass(Children).inTransientScope(),
-        bind<IChildren>(factoryKey).toFactory(() => new Children())
+        bind<IChildren>(key).toClass(Children),
+        bind<IChildren>(factoryKey).toFactory(() => new Children()),
+        bind<IChildren>(valueKey).toValue(new Children()),
+        bind<IChildren>(factoryDepKey).toFactory((c: IChildren) => c, [key])
     ]
 })
 export class AppService extends Service {
@@ -60,9 +63,14 @@ export class AppService extends Service {
     @lazyInject(factoryKey)
     public child3: IChildren;
 
+    @lazyInject(valueKey)
+    public child4: IChildren;
+
+    @lazyInject(factoryDepKey)
+    public childDeps: IChildren;
+
     // computed
     get sum() {
-        console.log(this);
         return this.num1 + this.num2;
     }
 
@@ -89,6 +97,7 @@ export class AppService extends Service {
         }, 1000);
         console.log('---------', this.getProvider().get(key) === this.getProvider().get(key));
         console.log('---------2', this.getProvider().proxy[key] === this.getProvider().proxy[key]);
+        console.log('---------2', this.childDeps === this.child2);
     }
 
     @mutation
@@ -97,9 +106,3 @@ export class AppService extends Service {
         this.num2++;
     }
 }
-async function async() {
-    const res = await import('./asyncClass');
-    console.log(res.default);
-    import('./asyncClass').then(obj => console.log(obj));
-}
-async();

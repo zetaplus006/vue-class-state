@@ -1,6 +1,6 @@
-import { Service } from '../service/observable';
 import { IInjector, ClassInjector, ValueInjector, FactoryInjector, IDeps, IServiceFactory } from './injector';
-import { IServiceClass, IIdentifier, IService } from '../interfaces';
+import { IIdentifier, IServiceClass } from '../service/helper';
+import { Service } from '../service/service';
 
 export class Binding<T extends Service> {
 
@@ -24,5 +24,5 @@ export class Binding<T extends Service> {
 }
 
 export function bind<T extends Service>(identifier: IIdentifier) {
-    return new Binding(identifier);
+    return new Binding<T>(identifier);
 }

@@ -1,19 +1,23 @@
-import { IIdentifier, IService, IServiceClass } from '../interfaces';
-import { Service } from '../service/observable';
+import { Provider } from './provider';
+import { IIdentifier, IServiceClass } from '../service/helper';
+import { Service, IService } from '../service/service';
 
 export interface IInjector<T> {
     identifier: IIdentifier;
-    resolve(service?: IService): T;
+    provider: Provider;
+    resolve(): T;
     inSingletonScope(): void;
     inTransientScope(): void;
 }
 
 export type IDeps = IIdentifier[];
+
 export type IServiceFactory<T extends Service> = (...arg: IService[]) => T;
 
 export class BaseInjector<T> {
     protected instance: T;
     protected isSingleton: boolean = true;
+    provider: Provider;
     public inSingletonScope(): this {
         this.isSingleton = true;
         return this;
@@ -28,7 +32,7 @@ export class ClassInjector<T extends IService> extends BaseInjector<T> implement
 
     constructor(
         public identifier: IIdentifier,
-        private ServiceClass: IServiceClass<T>
+        private serviceClass: IServiceClass<T>
     ) {
         super();
     }
@@ -36,16 +40,17 @@ export class ClassInjector<T extends IService> extends BaseInjector<T> implement
     resolve(): T {
         if (this.isSingleton) {
             if (!this.instance) {
-                this.instance = new this.ServiceClass();
+                this.instance = new this.serviceClass();
             }
             return this.instance;
         } else {
-            return new this.ServiceClass();
+            return new this.serviceClass();
         }
     }
 }
 
 export class ValueInjector<T extends IService> extends BaseInjector<T> implements IInjector<T> {
+
     constructor(
         public identifier: IIdentifier,
         private service: T
@@ -68,14 +73,19 @@ export class FactoryInjector<T extends IService> extends BaseInjector<T> impleme
         super();
     }
 
-    resolve(service: IService): T {
+    resolve(): T {
         if (this.inSingletonScope) {
             if (!this.instance) {
-                this.instance = this.ServiceFactory();
+
+                this.instance = this.getInstance();
             }
             return this.instance;
         } else {
-            return this.ServiceFactory();
+            return this.getInstance();
         }
+    }
+    private getInstance() {
+        const args = this.provider.getAll(this.deps);
+        return this.ServiceFactory(...args);
     }
 }

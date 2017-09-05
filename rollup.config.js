@@ -1,10 +1,9 @@
 
 import uglify from 'rollup-plugin-uglify-es';
-// import resolve from 'rollup-plugin-node-resolve';
 import typescript from 'rollup-plugin-typescript2';
 import replace from 'rollup-plugin-post-replace';
 import filesize from 'rollup-plugin-filesize';
-import copy from 'rollup-plugin-copy';
+// import copy from 'rollup-plugin-copy';
 const version = process.env.VERSION || require('./package.json').version;
 const banner = `/**
  * vubx v${version}
@@ -46,10 +45,10 @@ export default options.map(({ dest, format, env, isMin }) => {
         config.plugins.push(uglify({
             ie8: false
         }));
-        config.plugins.push(copy({
-            'src/interfaces.ts': 'lib/src/interfaces.ts',
-            verbose: true
-        }));
+        /*  config.plugins.push(copy({
+             'src/interfaces.ts': 'lib/src/interfaces.ts',
+             verbose: true
+         })); */
     }
     if (env) {
         config.plugins.unshift(replace({

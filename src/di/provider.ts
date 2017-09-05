@@ -1,7 +1,7 @@
-import { IService, IIdentifier } from '../interfaces';
-import { IInjector } from './injector';
-import { Service } from '../service/observable';
+import { IInjector, IDeps } from './injector';
 import { assert, def } from '../util';
+import { IIdentifier } from '../service/helper';
+import { IService } from '../service/service';
 
 export class Provider {
     private injectorMap: Map<IIdentifier, IInjector<IService>> = new Map();
@@ -16,8 +16,13 @@ export class Provider {
         return (injector as IInjector<IService>).resolve();
     }
 
+    public getAll(deps: IDeps): IService[] {
+        return deps.map(identifier => this.get(identifier));
+    }
+
     public register(injector: IInjector<IService>) {
         this.checkIdentifier(injector.identifier);
+        injector.provider = this;
         this.injectorMap.set(injector.identifier, injector);
         this.defProxy(injector);
     }

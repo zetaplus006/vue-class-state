@@ -1,5 +1,13 @@
 import { isFn } from '../util';
-import { ISub, ISubscribeOption, ISubs } from '../interfaces';
+
+export type ISub = (...arg: any[]) => any;
+
+export type ISubs = ISub[];
+
+export type ISubscribeOption = {
+    before?: ISub
+    after?: ISub
+};
 
 export class Middleware {
     private beforeSubs: ISubs = [];
