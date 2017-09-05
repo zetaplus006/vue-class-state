@@ -8,6 +8,9 @@ import {
     IService
 } from 'vubx';
 
+import * as vubx from 'vubx';
+console.log(Object.keys(vubx).sort());
+
 const obverable = createDecorator(Vue);
 
 const key = Symbol('child');

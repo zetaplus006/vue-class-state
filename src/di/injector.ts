@@ -61,6 +61,7 @@ export class ValueInjector<T extends IService> extends BaseInjector<T> implement
     resolve(): T {
         return this.service;
     }
+
 }
 
 export class FactoryInjector<T extends IService> extends BaseInjector<T> implements IInjector<T> {
@@ -76,7 +77,6 @@ export class FactoryInjector<T extends IService> extends BaseInjector<T> impleme
     resolve(): T {
         if (this.inSingletonScope) {
             if (!this.instance) {
-
                 this.instance = this.getInstance();
             }
             return this.instance;
@@ -84,8 +84,10 @@ export class FactoryInjector<T extends IService> extends BaseInjector<T> impleme
             return this.getInstance();
         }
     }
+
     private getInstance() {
         const args = this.provider.getAll(this.deps);
-        return this.ServiceFactory(...args);
+        return this.ServiceFactory.apply(null, args);
     }
+
 }

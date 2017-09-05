@@ -3,11 +3,8 @@
 node_modules
 docs/_book
 examples/**/build.js
-types/typings
-types/test/*.js
 explorations
 *.log
-test/e2e/reports
-test/e2e/screenshots
 .rpt2_cache
 lib
+test/unit-build

@@ -7,7 +7,7 @@ import { ValueInjector, IInjector } from '../di/injector';
 import { IConstructor, IPlugin, IIdentifier, appendServiceChild, proxyState, getPropertyGetters, proxyMethod, proxyGetters } from './helper';
 import { IService, IVubxHelper } from './service';
 
-export interface IDecoratorOption {
+export type IDecoratorOption = {
     identifier?: IIdentifier;
     root?: boolean;
     providers?: IInjector<IService>[];

@@ -27,7 +27,8 @@
   "include": [
     "src/**/*.ts",
     "examples/**/*",
-    "typings/*"
+    "typings/*",
+    "test/*"
   ],
   "exclude": [
     "lib/*"

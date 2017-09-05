@@ -1,5 +1,3 @@
-import { isFn } from '../util';
-
 export type ISub = (...arg: any[]) => any;
 
 export type ISubs = ISub[];

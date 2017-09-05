@@ -2,9 +2,9 @@ import { def, assert } from '../util';
 import Vue from 'vue';
 import { IService, Service } from './service';
 
-export interface IConstructor { new(...args: any[]): {}; }
+export type IConstructor = { new(...args: any[]): {}; };
 
-export interface IServiceClass<T extends IService> { new(...args: any[]): T; }
+export type IServiceClass<T extends IService> = { new(...args: any[]): T; }
 
 export type IIdentifier = string | symbol;
 
