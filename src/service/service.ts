@@ -33,10 +33,6 @@ export interface IService {
 
     created?(): void;
 
-    /*  dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any>;
-
-     commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any; */
-
     replaceState(state: IService): void;
 
     appendChild(child: IService, childName: keyof this, identifier: IIdentifier): void;
@@ -79,14 +75,6 @@ export abstract class Service implements IService {
      */
     created?(): void;
 
-    /* async dispatch(identifier: IIdentifier, actionType: string, ...arg: any[]): Promise<any> {
-        return await this.getProvider().getInstance(identifier)[actionType](...arg);
-    }
-
-    commit(identifier: IIdentifier, mutationType: string, ...arg: any[]): any {
-        return this.getProvider().getInstance(identifier)[mutationType](...arg);
-    } */
-
     replaceState(state: IService): void {
         const temp = this.__.isCommitting;
         this.__.isCommitting = true;
@@ -110,19 +98,6 @@ export abstract class Service implements IService {
         // this.__.$root && this.__.$root.getProvider().push(identifier, child);
         this.__.$root && this.__.$root.getProvider().register(new ValueInjector(identifier, child));
     }
-
-    /*  removeChild(key: keyof this, identifier: IIdentifier): void {
-         const provider = this.getProvider();
-         const child = provider.getInstance(identifier);
-         child.__.$parent.forEach(p => {
-             delete p.__.$state[key];
-             delete p.__.$getters[key];
-             const index = p.__.$children.indexOf(child);
-             p.__.$children.splice(index, 1);
-         });
-         this.getProvider().removeInstance(identifier);
-         child.$destroy();
-     } */
 
     getProvider(): Provider {
         if (process.env.NODE_ENV !== 'production') {

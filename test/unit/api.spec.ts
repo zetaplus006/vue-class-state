@@ -6,7 +6,7 @@ const Vubx = require('../../'); */
 describe('export apis', function() {
     it('export apis', function() {
         const apis = Object.keys(Vubx).sort();
-        console.log(apis);
+        // console.log(apis);
         expect(apis).to.deep.equal(['Service', 'bind', 'createDecorator', 'lazyInject', 'mutation']);
     });
 });

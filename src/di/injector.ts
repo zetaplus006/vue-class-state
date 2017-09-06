@@ -1,6 +1,7 @@
 import { Provider } from './provider';
 import { IIdentifier, IServiceClass } from '../service/helper';
 import { Service, IService } from '../service/service';
+import { assert } from '../util';
 
 export interface IInjector<T> {
     identifier: IIdentifier;
@@ -62,6 +63,10 @@ export class ValueInjector<T extends IService> extends BaseInjector<T> implement
         return this.service;
     }
 
+    inTransientScope() {
+        assert(false, 'Value injector not support inTransientScope');
+        return this;
+    }
 }
 
 export class FactoryInjector<T extends IService> extends BaseInjector<T> implements IInjector<T> {

@@ -3,7 +3,7 @@ import { Provider } from '../di/provider';
 import { ValueInjector, IInjector } from '../di/injector';
 import { IConstructor, IPlugin, IIdentifier, proxyState, getPropertyGetters, proxyMethod, proxyGetters } from './helper';
 import { IService, IVubxHelper } from './service';
-import { def } from '../util';
+import { def, assert } from '../util';
 
 export type IDecoratorOption = {
     identifier?: IIdentifier;
@@ -48,13 +48,14 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                             providers.forEach(injector => {
                                 (__.provider as Provider).register(injector);
                             });
+                            assert(identifier, 'A root Service must has a identifier and please check your decorator option');
                             if (identifier) {
                                 __.identifier = identifier;
                                 __.provider.register(new ValueInjector(identifier, this as any));
                             }
-                            if (vueMethods) {
-                                proxyMethod(this, vm);
-                            }
+                        }
+                        if (vueMethods) {
+                            proxyMethod(this, vm);
                         }
                         initPlugins(this, plugins);
                     }

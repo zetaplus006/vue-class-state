@@ -5,7 +5,7 @@
   "main": "lib/vubx.common.js",
   "module": "lib/vubx.esm.js",
   "unpkg": "lib/vubx.js",
-  "typings": "lib/src/vubx.d.ts",
+  "typings": "lib/vubx.d.ts",
   "files": [
     "lib",
     "typings",
