@@ -1,6 +1,6 @@
 {
   "name": "vubx",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A simple state management for Vue(in dev)",
   "main": "lib/vubx.common.js",
   "module": "lib/vubx.esm.js",
@@ -22,7 +22,9 @@
   },
   "keywords": [
     "vue",
-    "typescript"
+    "typescript",
+    "ioc",
+    "di"
   ],
   "repository": {
     "type": "git",
