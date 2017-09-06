@@ -10,7 +10,7 @@ const banner = `/**
  * (c) ${new Date().getFullYear()} zetaplus006
  * @license MIT
  */`
-const entry = 'src/index.ts';
+const entry = 'src/vubx.ts';
 const moduleName = 'Vubx';
 
 const options = [{

@@ -14,8 +14,8 @@
         "outDir": "../unit-build/"
     },
     "include": [
-        "./**/*.ts",
-        "../../typings/*.ts"
+        "./**/*.ts"
+        // "../../typings/*.ts"
     ],
     "exclude": [
         "../../src"

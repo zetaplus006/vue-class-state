@@ -9,6 +9,7 @@ export const serviceKey = {
 
 @store({
     root: true,
+    vueMethods: true,
     identifier: serviceKey.CHAT
 })
 export class ChatStore extends Service {
