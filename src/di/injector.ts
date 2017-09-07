@@ -18,7 +18,7 @@ export type IServiceFactory<T extends Service> = (...arg: IService[]) => T;
 export class BaseInjector<T> {
     protected instance: T;
     protected isSingleton: boolean = true;
-    provider: Provider;
+    public provider: Provider;
     public inSingletonScope(): this {
         this.isSingleton = true;
         return this;

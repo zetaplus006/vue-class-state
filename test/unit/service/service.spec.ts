@@ -15,7 +15,7 @@ describe('service vue methods', function () {
     const testObj = new TestVueMethods();
     const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete', '$destroy'];
     vmMethods.forEach(key => {
-        it('[' + key + ']', function () {
+        it(key, function () {
             expect(testObj).to.has.property(key);
         });
     });

@@ -1,4 +1,5 @@
 import { IService } from './service';
+import { Middleware } from './middleware';
 
 export interface IMutation {
     type: string;
@@ -12,22 +13,26 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
             type: this.__.identifier.toString() + ': ' + mutationyKey,
             payload: arg
         };
-        const root = this.__.$root || this as IService;
-        const middleware = root.__.middleware;
+        const hasRoot = !!this.__.$root;
+        const root = (hasRoot ? this.__.$root : this) as IService;
+        const rootMiddleware = hasRoot ? root.__.middleware : null;
+        const middleware = this.__.middleware;
+
         const temp = root.__.isCommitting;
         root.__.isCommitting = true;
-        let res;
+        let result;
         try {
+            rootMiddleware && rootMiddleware.dispatchBefore(this, vubxMutation, this);
             middleware.dispatchBefore(this, vubxMutation, this);
-            res = mutationFn.apply(this, arg);
+            result = mutationFn.apply(this, arg);
             middleware.dispatchAfter(this, vubxMutation, this);
-
+            rootMiddleware && rootMiddleware.dispatchAfter(this, vubxMutation, this);
             // arguments is different
             // res =  middleware.createTask(mutationFn, this)(...arg);
         } finally {
             root.__.isCommitting = temp;
         }
-        return res;
+        return result;
     };
     return descriptor;
 }

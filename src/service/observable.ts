@@ -42,6 +42,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     vm.$service = this as any;
                     if (option) {
                         const { root, identifier, providers = [], plugins = [], vueMethods } = option;
+                        __.identifier = identifier || '__vubx';
                         if (root) {
                             __.$root = this as any;
                             __.provider = new Provider();
@@ -50,7 +51,6 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                             });
                             assert(identifier, 'A root Service must has a identifier and please check your decorator option');
                             if (identifier) {
-                                __.identifier = identifier;
                                 __.provider.register(new ValueInjector(identifier, this as any));
                             }
                         }

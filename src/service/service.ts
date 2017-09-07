@@ -5,6 +5,7 @@ import { IIdentifier, appendServiceChild } from './helper';
 import { def, assert } from '../util';
 import { devtool } from '../plugins/devtool';
 import { ValueInjector } from '../di/injector';
+import { IMutation } from './mutation';
 
 export interface IVubxHelper {
     $vm: Vue | null;
@@ -39,12 +40,19 @@ export interface IService {
 
     getProvider(): Provider;
 
-    subscribe(option: ISubscribeOption): void;
+    subscribe(option: IMutationSubscribeOption): void;
 
     useStrict(): this;
 
     useDevtool(): this;
 }
+
+export type IMutationSubscribe = (mutation: IMutation, service: IService) => any;
+
+export type IMutationSubscribeOption = {
+    before: IMutationSubscribe,
+    after: IMutationSubscribe
+};
 
 export abstract class Service implements IService {
 
@@ -95,7 +103,6 @@ export abstract class Service implements IService {
             get: () => child
         });
         appendServiceChild(this, key, child, identifier);
-        // this.__.$root && this.__.$root.getProvider().push(identifier, child);
         this.__.$root && this.__.$root.getProvider().register(new ValueInjector(identifier, child));
     }
 
@@ -108,13 +115,13 @@ export abstract class Service implements IService {
         return (this.__.$root as IService).__.provider as Provider;
     }
 
-    subscribe(option: ISubscribeOption) {
+    subscribe(option: IMutationSubscribeOption) {
         this.__.middleware.subscribe(option);
     }
 
     useStrict(isStrict = true) {
         if (isStrict && process.env.NODE_ENV !== 'production') {
-            this.__.$vm && this.__.$vm.$watch<any>(function () {
+            this.__.$vm && this.__.$vm.$watch<any>(function() {
                 return this.$data;
             }, (val) => {
                 assert(this.__.isCommitting,
