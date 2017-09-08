@@ -3,10 +3,22 @@ import { assert, def } from '../util';
 import { IIdentifier } from '../service/helper';
 import { IService } from '../service/service';
 
+export type IProxyState = {
+    [key: string]: IService
+};
+
 export class Provider {
     private injectorMap: Map<IIdentifier, IInjector<IService>> = new Map();
+
+    /**
+     * for vue provide option
+     */
     public proxy: {} = {};
 
+    /**
+     * get service instance
+     * @param identifier
+     */
     public get(identifier: IIdentifier): IService {
         const injector = this.injectorMap.get(identifier);
         if (process.env.NODE_ENV !== 'production') {
@@ -16,10 +28,18 @@ export class Provider {
         return (injector as IInjector<IService>).resolve();
     }
 
+    /**
+     * get service instance array
+     * @param deps
+     */
     public getAll(deps: IDeps): IService[] {
         return deps.map(identifier => this.get(identifier));
     }
 
+    /**
+     * register a injector in the provider
+     * @param injector
+     */
     public register(injector: IInjector<IService>) {
         this.checkIdentifier(injector.identifier);
         injector.provider = this;
@@ -34,6 +54,20 @@ export class Provider {
         }
     }
 
+    /**
+     * replaceState for SSR
+     * @param proxyState
+     */
+    public replaceState(proxyState: IProxyState) {
+        for (const key in proxyState) {
+            (this.proxy[key] as IService).replaceState(proxyState[key], false);
+        }
+    }
+
+    /**
+     * for vue provide option
+     * @param injector
+     */
     private defProxy(injector: IInjector<IService>) {
         def(this.proxy, injector.identifier, {
             get: () => {
@@ -48,4 +82,5 @@ export class Provider {
             configurable: true
         });
     }
+
 }

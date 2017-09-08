@@ -1,4 +1,4 @@
-import { IService } from './service';
+import { IService, GlobalHelper } from './service';
 import { Middleware } from './middleware';
 
 export interface IMutation {
@@ -15,18 +15,18 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
         };
         const hasRoot = !!this.__.$root;
         const root = (hasRoot ? this.__.$root : this) as IService;
-        const rootMiddleware = hasRoot ? root.__.middleware : null;
+        const globalMiddleware = hasRoot ? (root.__.global as GlobalHelper).middleware : null;
         const middleware = this.__.middleware;
 
         const temp = root.__.isCommitting;
         root.__.isCommitting = true;
         let result;
         try {
-            rootMiddleware && rootMiddleware.dispatchBefore(this, vubxMutation, this);
-            middleware.dispatchBefore(this, vubxMutation, this);
+            globalMiddleware && globalMiddleware.dispatchBefore(this, vubxMutation, this);
+            !hasRoot && middleware.dispatchBefore(this, vubxMutation, this);
             result = mutationFn.apply(this, arg);
-            middleware.dispatchAfter(this, vubxMutation, this);
-            rootMiddleware && rootMiddleware.dispatchAfter(this, vubxMutation, this);
+            !hasRoot && middleware.dispatchAfter(this, vubxMutation, this);
+            globalMiddleware && globalMiddleware.dispatchAfter(this, vubxMutation, this);
             // arguments is different
             // res =  middleware.createTask(mutationFn, this)(...arg);
         } finally {

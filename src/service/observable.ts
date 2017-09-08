@@ -4,6 +4,7 @@ import { ValueInjector, IInjector } from '../di/injector';
 import { IConstructor, IPlugin, IIdentifier, proxyState, getPropertyGetters, proxyMethod, proxyGetters } from './helper';
 import { IService, IVubxHelper } from './service';
 import { def, assert } from '../util';
+import { Middleware } from './middleware';
 
 export type IDecoratorOption = {
     identifier?: IIdentifier;
@@ -46,6 +47,10 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         if (root) {
                             __.$root = this as any;
                             __.provider = new Provider();
+                            __.global = {
+                                middleware: new Middleware(),
+                                plugins: []
+                            }
                             providers.forEach(injector => {
                                 (__.provider as Provider).register(injector);
                             });

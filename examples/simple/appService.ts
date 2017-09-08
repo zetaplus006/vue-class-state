@@ -28,7 +28,6 @@ let n = 1;
 
 @obverable()
 export class Children extends Service implements IChildren {
-
     text = 'child service ';
     index: number;
     get msg() {

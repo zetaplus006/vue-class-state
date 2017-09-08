@@ -21,6 +21,11 @@ export class Middleware {
         }
     }
 
+    /**
+     * get a aop function
+     * @param fn
+     * @param ctx
+     */
     public createTask(fn: ISub, ctx: any | null = null): Function {
         // fn maybe array
         const self = this;

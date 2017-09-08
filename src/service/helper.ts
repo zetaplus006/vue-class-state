@@ -4,7 +4,7 @@ import { IService, Service } from './service';
 
 export type IConstructor = { new(...args: any[]): {}; };
 
-export type IServiceClass<T extends IService> = { new(...args: any[]): T; }
+export type IServiceClass<T extends IService> = { new(...args: any[]): T; };
 
 export type IIdentifier = string | symbol;
 
@@ -50,8 +50,15 @@ const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete',
 export function proxyMethod(ctx: any, vm: Vue) {
     for (const key of vmMethods) {
         def(ctx, key, {
-            get: () => vm[key].bind(vm),
-            enumerable: false
+            get() {
+                const method = vm[key].bind(vm);
+                def(this, key, {
+                    value: method
+                });
+                return method;
+            },
+            enumerable: false,
+            configurable: true
         });
     }
 }

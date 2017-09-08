@@ -9,7 +9,7 @@
 import Vue from 'vue';
 import { AppService } from './appService';
 const appService = new AppService().useStrict(false).useDevtool(true);
-
+console.log(appService)
 export default {
     computed: {
         appService () {

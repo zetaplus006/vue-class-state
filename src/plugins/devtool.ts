@@ -1,6 +1,6 @@
-import { Service } from '../service/service';
+import { IService, GlobalHelper } from '../service/service';
 
-export function devtool(service: Service) {
+export function devtool(service: IService) {
 
     const devtoolHook =
         typeof window !== 'undefined' &&
@@ -18,7 +18,7 @@ export function devtool(service: Service) {
         service.replaceState(targetState);
     });
 
-    service.__.middleware.subscribe({
+    ((service.__.$root as IService).__.global as GlobalHelper).middleware.subscribe({
         after: (mutation: any, state: any) => {
             devtoolHook.emit('vuex:mutation', mutation, state);
         }
@@ -32,7 +32,7 @@ interface IStore {
     // subscribe(fn: (mutation: string, state: any) => void): any
 }
 
-function simulationStore(service: Service): IStore {
+function simulationStore(service: IService): IStore {
     const store = {
         state: service.__.$state,
         getters: service.__.$getters,

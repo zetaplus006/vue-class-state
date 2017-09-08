@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { Middleware, ISubscribeOption } from './middleware';
 import { Provider } from '../di/provider';
-import { IIdentifier, appendServiceChild } from './helper';
+import { IIdentifier, appendServiceChild, IPlugin } from './helper';
 import { def, assert } from '../util';
 import { devtool } from '../plugins/devtool';
 import { ValueInjector } from '../di/injector';
@@ -16,8 +16,15 @@ export interface IVubxHelper {
     $children: IService[];
     isCommitting: boolean;
     middleware: Middleware;
+    globalMiddlewate: Middleware | null;
     provider: Provider | null;
     identifier: IIdentifier;
+    global: GlobalHelper | null;
+}
+
+export interface GlobalHelper {
+    middleware: Middleware;
+    plugins: IPlugin[];
 }
 
 export interface IService {
@@ -34,7 +41,7 @@ export interface IService {
 
     created?(): void;
 
-    replaceState(state: IService): void;
+    replaceState(state: IService, replaceChildState?: boolean): void;
 
     appendChild(child: IService, childName: keyof this, identifier: IIdentifier): void;
 
@@ -74,8 +81,10 @@ export abstract class Service implements IService {
         $children: [],
         isCommitting: false,
         middleware: new Middleware(),
+        globalMiddlewate: null,
         provider: null,
-        identifier: '__vubx__'
+        identifier: '__vubx__',
+        global: null
     };
 
     /**
@@ -83,12 +92,14 @@ export abstract class Service implements IService {
      */
     created?(): void;
 
-    replaceState(state: IService): void {
+    replaceState(state: IService, replaceChildState = true): void {
         const temp = this.__.isCommitting;
         this.__.isCommitting = true;
         for (const key in state) {
             if (this[key] instanceof Service) {
-                (this[key] as IService).replaceState(state[key]);
+                if (replaceChildState) {
+                    (this[key] as IService).replaceState(state[key]);
+                }
             } else {
                 this[key] = state[key];
             }
@@ -121,7 +132,7 @@ export abstract class Service implements IService {
 
     useStrict(isStrict = true) {
         if (isStrict && process.env.NODE_ENV !== 'production') {
-            this.__.$vm && this.__.$vm.$watch<any>(function() {
+            this.__.$vm && this.__.$vm.$watch<any>(function () {
                 return this.$data;
             }, (val) => {
                 assert(this.__.isCommitting,
