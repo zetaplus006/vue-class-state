@@ -1,6 +1,8 @@
 import { def, assert } from '../util';
 import Vue from 'vue';
 import { IService, Service } from './service';
+import { Middleware } from './middleware';
+import { Provider } from '../di/provider';
 
 export type IConstructor = { new(...args: any[]): {}; };
 
@@ -14,6 +16,57 @@ const defaultConfig = {
     enumerable: true,
     configurable: true
 };
+
+export class VubxHelper {
+    $vm: Vue;
+    $getters: any = {};
+    $state: any = {};
+    $parent: IService[] = [];
+    $children: IService[] = [];
+    isCommitting: boolean = false;
+    middleware: Middleware = new Middleware();
+    identifier: IIdentifier;
+    isRoot: boolean;
+
+    _root: IService;
+    get $root(): IService {
+        assert(this._root, 'There must be a root Service and please check your decorator option');
+        return this._root;
+    }
+    set $root(value: IService) {
+        this._root = value;
+    }
+
+    private _provider: Provider;
+    get provider(): Provider {
+        return this.$root.__._provider;
+    }
+
+    private _globalPlugins: IPlugin[];
+    get globalPlugins(): IPlugin[] {
+        return this.$root.__._globalPlugins;
+    }
+
+    set globalPlugins(value: IPlugin[]) {
+        this.$root.__._globalPlugins = value;
+    }
+
+    private _globalMiddllewate: Middleware;
+    get globalMiddlewate(): Middleware {
+        return this.$root.__._globalMiddllewate;
+    }
+
+    constructor(isRoot: boolean, service: IService, identifier: IIdentifier) {
+        this.isRoot = !!isRoot;
+        if (isRoot) {
+            this._root = service;
+            this._provider = new Provider();
+            this._globalMiddllewate = new Middleware();
+            this._globalPlugins = [];
+        }
+        this.identifier = identifier;
+    }
+}
 
 export function proxyState(ctx: any, getterKeys: string[]) {
     const $state = (ctx as IService).__.$state;
@@ -90,7 +143,7 @@ export function appendServiceChild<P extends Service, C extends Service>
             'Make sure to have a root service, ' +
             'Please check the root options in the decorator configuration');
     }
-    child.__.$root = parent.__.$root;
+    child.__._root = parent.__.$root;
     child.__.identifier = identifier;
     def(parent.__.$state, childName, {
         get: () => child.__.$state,

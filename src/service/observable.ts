@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { Provider } from '../di/provider';
 import { ValueInjector, IInjector } from '../di/injector';
-import { IConstructor, IPlugin, IIdentifier, proxyState, getPropertyGetters, proxyMethod, proxyGetters } from './helper';
+import { IConstructor, IPlugin, IIdentifier, proxyState, getPropertyGetters, proxyMethod, proxyGetters, VubxHelper } from './helper';
 import { IService, IVubxHelper } from './service';
 import { def, assert } from '../util';
 import { Middleware } from './middleware';
@@ -12,6 +12,16 @@ export type IDecoratorOption = {
     vueMethods?: boolean,
     providers?: IInjector<IService>[];
     plugins?: IPlugin[];
+    globalPlugin?: IPlugin[];
+};
+
+type IDefalutOption = {
+    identifier: IIdentifier;
+    root: boolean;
+    vueMethods: boolean,
+    providers: IInjector<IService>[];
+    plugins: IPlugin[];
+    globalPlugin: IPlugin[];
 };
 
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
@@ -21,12 +31,12 @@ export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConst
  * @param _Vue
  */
 export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
-    return function decorator(option?: IDecoratorOption) {
+    return function decorator(decoratorOption?: IDecoratorOption) {
         return function (constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
-                    def(this, '__', { enumerable: false });
+
                     const getters = getPropertyGetters(constructor.prototype, this),
                         { created } = constructor.prototype,
                         getterKeys = Object.keys(getters);
@@ -35,36 +45,32 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         computed: getters
                     });
 
+                    const option: IDefalutOption = {
+                        identifier: '__vubx__',
+                        root: false,
+                        vueMethods: false,
+                        providers: [],
+                        plugins: [],
+                        globalPlugin: [],
+                        ...decoratorOption
+                    };
+                    const helper = new VubxHelper(option.root, this as any, option.identifier);
+                    def(this, '__', { value: helper, enumerable: false });
+                    helper.$vm = vm;
+                    vm.$service = this as any;
                     proxyState(this, getterKeys);
                     proxyGetters(this, vm, getterKeys);
-
-                    let __ = this['__'] as IVubxHelper;
-                    __.$vm = vm;
-                    vm.$service = this as any;
-                    if (option) {
-                        const { root, identifier, providers = [], plugins = [], vueMethods } = option;
-                        __.identifier = identifier || '__vubx';
-                        if (root) {
-                            __.$root = this as any;
-                            __.provider = new Provider();
-                            __.global = {
-                                middleware: new Middleware(),
-                                plugins: []
-                            }
-                            providers.forEach(injector => {
-                                (__.provider as Provider).register(injector);
-                            });
-                            assert(identifier, 'A root Service must has a identifier and please check your decorator option');
-                            if (identifier) {
-                                __.provider.register(new ValueInjector(identifier, this as any));
-                            }
-                        }
-                        if (vueMethods) {
-                            proxyMethod(this, vm);
-                        }
-                        initPlugins(this, plugins);
+                    if (option.vueMethods) {
+                        proxyMethod(this, vm);
                     }
-
+                    option.providers.forEach(injector => helper.provider.register(injector));
+                    if (decoratorOption && decoratorOption.root) {
+                        assert(decoratorOption.identifier,
+                            'A root Service must has a identifier and please check your decorator option');
+                        // helper.globalPlugins = option.globalPlugin; is not get this $root , Service static 
+                        helper.provider.register(new ValueInjector(option.identifier, this as any));
+                    }
+                    initPlugins(this, option.plugins);
                     created && created.call(this);
                 }
             };

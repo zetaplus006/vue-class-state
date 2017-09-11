@@ -9,9 +9,10 @@ import {
 } from 'vubx';
 
 import * as vubx from 'vubx';
+import { IMutation } from '../../src/service/mutation';
 console.log(Object.keys(vubx).sort());
 
-const obverable = createDecorator(Vue);
+const observable = createDecorator(Vue);
 
 const key = Symbol('child');
 const factoryKey = Symbol('factory');
@@ -26,7 +27,7 @@ export interface IChildren extends IService {
 
 let n = 1;
 
-@obverable()
+@observable()
 export class Children extends Service implements IChildren {
     text = 'child service ';
     index: number;
@@ -40,7 +41,7 @@ export class Children extends Service implements IChildren {
     }
 }
 
-@obverable({
+@observable({
     identifier: Symbol('appService'),
     root: true,
     vueMethods: true,
@@ -109,3 +110,44 @@ export class AppService extends Service {
         this.num2++;
     }
 }
+
+/* const key2 = 'store';
+const plugin = (service: IService) => {
+    service.subscribe({
+        before: (m: IMutation, state: Test) => {
+            m.payload[0].a = 10;
+        },
+        after: (m: IMutation, state: Test) => {
+            state.count = 20;
+        }
+    });
+};
+
+@observable({
+    root: true,
+    identifier: key2,
+    plugins: [
+        plugin
+    ]
+})
+class Test extends Service {
+
+    data = {
+        a: 1,
+        b: 2
+    };
+
+    count = 0;
+
+    @mutation
+    change(data: any, count: any) {
+        Object.assign(this.data, data);
+        this.count = count;
+    }
+}
+
+let t = new Test();
+t.change({
+    a: 5,
+    b: 6
+}, 1); */

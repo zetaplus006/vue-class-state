@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { Middleware, ISubscribeOption } from './middleware';
 import { Provider } from '../di/provider';
-import { IIdentifier, appendServiceChild, IPlugin } from './helper';
+import { IIdentifier, appendServiceChild, IPlugin, VubxHelper } from './helper';
 import { def, assert } from '../util';
 import { devtool } from '../plugins/devtool';
 import { ValueInjector } from '../di/injector';
@@ -37,7 +37,7 @@ export interface IService {
     $delete: typeof Vue.prototype.$delete;
     $destroy: typeof Vue.prototype.$destroy;
 
-    __: IVubxHelper;
+    __: VubxHelper;
 
     created?(): void;
 
@@ -72,20 +72,7 @@ export abstract class Service implements IService {
     $delete: typeof Vue.prototype.$delete;
     $destroy: typeof Vue.prototype.$destroy;
 
-    __: IVubxHelper = {
-        $vm: null,
-        $getters: {},
-        $state: {},
-        $root: null,
-        $parent: [],
-        $children: [],
-        isCommitting: false,
-        middleware: new Middleware(),
-        globalMiddlewate: null,
-        provider: null,
-        identifier: '__vubx__',
-        global: null
-    };
+    __: VubxHelper;
 
     /**
      * After initialization has been completed

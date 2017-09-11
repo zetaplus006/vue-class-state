@@ -13,25 +13,24 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
             type: this.__.identifier.toString() + ': ' + mutationyKey,
             payload: arg
         };
-        const hasRoot = !!this.__.$root;
-        const root = (hasRoot ? this.__.$root : this) as IService;
-        const globalMiddleware = hasRoot ? (root.__.global as GlobalHelper).middleware : null;
+
+        const root = this.__.$root;
+        const globalMiddleware = root.__.globalMiddlewate;
         const middleware = this.__.middleware;
 
         const temp = root.__.isCommitting;
         root.__.isCommitting = true;
         let result;
-        try {
-            globalMiddleware && globalMiddleware.dispatchBefore(this, vubxMutation, this);
-            !hasRoot && middleware.dispatchBefore(this, vubxMutation, this);
-            result = mutationFn.apply(this, arg);
-            !hasRoot && middleware.dispatchAfter(this, vubxMutation, this);
-            globalMiddleware && globalMiddleware.dispatchAfter(this, vubxMutation, this);
-            // arguments is different
-            // res =  middleware.createTask(mutationFn, this)(...arg);
-        } finally {
-            root.__.isCommitting = temp;
-        }
+
+        globalMiddleware.dispatchBefore(this, vubxMutation, this);
+        middleware.dispatchBefore(this, vubxMutation, this);
+        result = mutationFn.apply(this, arg);
+        middleware.dispatchAfter(this, vubxMutation, this);
+        globalMiddleware.dispatchAfter(this, vubxMutation, this);
+        // arguments is different
+        // res =  middleware.createTask(mutationFn, this)(...arg);
+
+        root.__.isCommitting = temp;
         return result;
     };
     return descriptor;
