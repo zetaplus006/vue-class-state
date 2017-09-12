@@ -72,17 +72,13 @@ describe('global middleware, global plugin', () => {
     const globalPlugin = (service: IService) => {
         service.subscribe({
             before: (m: IMutation, state: any) => {
-                console.log(m.methodName);
                 if (m.methodName === 'change2') {
-                    console.log(m.methodName);
                     m.payload[0].a = 20;
                 }
 
             },
             after: (m: IMutation, state: any) => {
-                console.log(m.methodName);
                 if (m.methodName === 'change2') {
-                    console.log(m.methodName);
                     state.count2 = 30;
                 }
             }
