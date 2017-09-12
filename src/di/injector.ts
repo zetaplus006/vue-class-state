@@ -99,7 +99,7 @@ export class FactoryInjector<T extends IService> extends BaseInjector<T> impleme
     }
 
     resolve(): T {
-        if (this.inSingletonScope) {
+        if (this.isSingleton) {
             if (!this.instance) {
                 this.instance = this.getInstance();
             }

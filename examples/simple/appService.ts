@@ -121,43 +121,44 @@ export class AppService extends Service {
     }
 }
 
-/* const key2 = 'store';
-const plugin = (service: IService) => {
-    service.subscribe({
-        before: (m: IMutation, state: Test) => {
-            m.payload[0].a = 10;
-        },
-        after: (m: IMutation, state: Test) => {
-            state.count = 20;
-        }
-    });
+const moduleKeys = {
+    A: 'ModuleA',
+    B: 'ModuleB'
 };
+
+interface IModule extends IService {
+    text: string;
+}
+
+let i = 0;
+@observable()
+class ModuleA extends Service implements IModule {
+    text = 'A' + i++;
+}
 
 @observable({
     root: true,
-    identifier: key2,
-    plugins: [
-        plugin
+    identifier: 'root',
+    providers: [
+        bind<IModule>(moduleKeys.A).toClass(ModuleA).inTransientScope(),
+        bind<IModule>(moduleKeys.B).toFactory(() => new ModuleA()).inTransientScope()
     ]
 })
-class Test extends Service {
+class Root extends Service {
 
-    data = {
-        a: 1,
-        b: 2
-    };
+    @lazyInject(moduleKeys.A)
+    public moduleA1: IModule;
 
-    count = 0;
+    @lazyInject(moduleKeys.A)
+    public moduleA2: IModule;
 
-    @mutation
-    change(data: any, count: any) {
-        Object.assign(this.data, data);
-        this.count = count;
-    }
+    @lazyInject(moduleKeys.B)
+    public moduleB1: IModule;
+
+    @lazyInject(moduleKeys.B)
+    public moduleB2: IModule;
+
 }
 
-let t = new Test();
-t.change({
-    a: 5,
-    b: 6
-}, 1); */
+const rootModule = new Root();
+console.log(rootModule);
