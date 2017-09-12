@@ -16,6 +16,14 @@ export class Provider {
     public proxy: {} = {};
 
     /**
+     *
+     * @param rootService all service in provider is dependent this root service
+     */
+    constructor(
+        public rootService: IService
+    ) { }
+
+    /**
      * get service instance
      * @param identifier
      */
@@ -43,6 +51,7 @@ export class Provider {
     public register(injector: IInjector<IService>) {
         this.checkIdentifier(injector.identifier);
         injector.provider = this;
+        injector.dependentRoot = this.rootService;
         this.injectorMap.set(injector.identifier, injector);
         this.defProxy(injector);
     }

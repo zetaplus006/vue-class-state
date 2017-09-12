@@ -7,7 +7,7 @@
 export { IConstructor, IServiceClass, IIdentifier, IPlugin } from './service/helper';
 export { ISub, ISubs, ISubscribeOption } from './service/middleware';
 export { IMutation } from './service/mutation';
-export { IService, IVubxHelper } from './service/service';
+export { IService } from './service/service';
 export { IDecoratorOption, IVubxDecorator } from './service/observable';
 
 /* di */

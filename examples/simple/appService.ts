@@ -5,11 +5,11 @@ import {
     mutation,
     lazyInject,
     bind,
-    IService
+    IService,
+    IMutation
 } from 'vubx';
 
 import * as vubx from 'vubx';
-import { IMutation } from '../../src/service/mutation';
 console.log(Object.keys(vubx).sort());
 
 const observable = createDecorator(Vue);
@@ -34,6 +34,7 @@ export class Children extends Service implements IChildren {
     get msg() {
         return this.text + this.index + '  is loading...';
     }
+
     constructor() {
         super();
         this.index = n++;
@@ -50,6 +51,15 @@ export class Children extends Service implements IChildren {
         bind<IChildren>(factoryKey).toFactory(() => new Children()),
         bind<IChildren>(valueKey).toValue(new Children()),
         bind<IChildren>(factoryDepKey).toFactory((c: IChildren) => c, [key])
+    ],
+    plugins: [
+        (s: IService) => {
+            s.subscribeGlobal({
+                before: (m: IMutation, service: IService) => {
+                    console.log(service);
+                }
+            });
+        }
     ]
 })
 export class AppService extends Service {
@@ -80,7 +90,7 @@ export class AppService extends Service {
 
     // vubx hook
     created() {
-        this.appendChild(new Children(), 'child1', Symbol('appChild'));
+        this.appendChild(new Children(), 'child1', Symbol('appendChild'));
         this.$on('close', () => {
             clearInterval(this.closer);
         });

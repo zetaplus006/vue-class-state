@@ -59,12 +59,32 @@ describe('global middleware, global plugin', () => {
 
     const key = 'store';
     const plugin = (service: IService) => {
-        service.subscribe({
+        service.subscribeGlobal({
             before: (m: IMutation, state: any) => {
                 m.payload[0].a = 10;
             },
             after: (m: IMutation, state: any) => {
                 state.count = 20;
+            }
+        });
+    };
+
+    const globalPlugin = (service: IService) => {
+        service.subscribe({
+            before: (m: IMutation, state: any) => {
+                console.log(m.methodName);
+                if (m.methodName === 'change2') {
+                    console.log(m.methodName);
+                    m.payload[0].a = 20;
+                }
+
+            },
+            after: (m: IMutation, state: any) => {
+                console.log(m.methodName);
+                if (m.methodName === 'change2') {
+                    console.log(m.methodName);
+                    state.count2 = 30;
+                }
             }
         });
     };
@@ -76,11 +96,24 @@ describe('global middleware, global plugin', () => {
             b: 2
         };
 
+        data2 = {
+            a: 1,
+            b: 2
+        };
+
         count = 0;
+
+        count2 = 0;
 
         @mutation
         change(data, count) {
             Object.assign(this.data, data);
+            this.count = count;
+        }
+
+        @mutation
+        change2(data, count) {
+            Object.assign(this.data2, data);
             this.count = count;
         }
     }
@@ -90,6 +123,9 @@ describe('global middleware, global plugin', () => {
         identifier: key,
         plugins: [
             plugin
+        ],
+        globalPlugins: [
+            globalPlugin
         ],
         providers: [
             bind<ChildrenTest>('children').toClass(ChildrenTest)
@@ -105,11 +141,22 @@ describe('global middleware, global plugin', () => {
         a: 5,
         b: 6
     }, 1);
-    it('before run', () => {
+    t.chilren.change2({
+        a: 5,
+        b: 6
+    }, 2);
+    it('1. global middleware before run', () => {
         expect(t.chilren.data).to.deep.equal({ a: 10, b: 6 });
     });
-    it('after run', () => {
+    it('2. global middleware after run', () => {
         expect(t.chilren.count).to.equal(20);
+    });
+
+    it('3. globalPlugin, middleware before run', () => {
+        expect(t.chilren.data2).to.deep.equal({ a: 20, b: 6 });
+    });
+    it('4. globalPlugin, middleware after run', () => {
+        expect(t.chilren.count2).to.equal(30);
     });
 
 });

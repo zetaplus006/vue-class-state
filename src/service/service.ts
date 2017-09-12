@@ -7,21 +7,6 @@ import { devtool } from '../plugins/devtool';
 import { ValueInjector } from '../di/injector';
 import { IMutation } from './mutation';
 
-export interface IVubxHelper {
-    $vm: Vue | null;
-    $getters: any;
-    $state: any;
-    $root: IService | null;
-    $parent: IService[];
-    $children: IService[];
-    isCommitting: boolean;
-    middleware: Middleware;
-    globalMiddlewate: Middleware | null;
-    provider: Provider | null;
-    identifier: IIdentifier;
-    global: GlobalHelper | null;
-}
-
 export interface GlobalHelper {
     middleware: Middleware;
     plugins: IPlugin[];
@@ -49,6 +34,8 @@ export interface IService {
 
     subscribe(option: IMutationSubscribeOption): void;
 
+    subscribeGlobal(option: IMutationSubscribeOption): void;
+
     useStrict(): this;
 
     useDevtool(): this;
@@ -57,8 +44,8 @@ export interface IService {
 export type IMutationSubscribe = (mutation: IMutation, service: IService) => any;
 
 export type IMutationSubscribeOption = {
-    before: IMutationSubscribe,
-    after: IMutationSubscribe
+    before?: IMutationSubscribe,
+    after?: IMutationSubscribe
 };
 
 export abstract class Service implements IService {
@@ -95,26 +82,26 @@ export abstract class Service implements IService {
     }
 
     appendChild(child: IService, key: keyof this, identifier: IIdentifier): void {
-        this.getProvider().checkIdentifier(identifier);
+        this.__.provider.checkIdentifier(identifier);
+        this.__.provider.register(new ValueInjector(identifier, child));
+        appendServiceChild(this, key, this.__.provider.get(identifier), identifier, this.__.$root);
         def(this, key, {
             enumerable: true,
-            get: () => child
+            value: child
         });
-        appendServiceChild(this, key, child, identifier);
-        this.__.$root && this.__.$root.getProvider().register(new ValueInjector(identifier, child));
     }
 
     getProvider(): Provider {
-        if (process.env.NODE_ENV !== 'production') {
-            assert(this.__.$root,
-                'Make sure to have a root service, ' +
-                'Please check the root options in the decorator configuration');
-        }
-        return (this.__.$root as IService).__.provider as Provider;
+        return this.__.provider;
     }
 
     subscribe(option: IMutationSubscribeOption) {
         this.__.middleware.subscribe(option);
+    }
+
+    subscribeGlobal(option: IMutationSubscribeOption) {
+        assert(this.__.$root === this, 'Only root service has subscribeGlobal methods');
+        this.__.globalMiddlewate.subscribe(option);
     }
 
     useStrict(isStrict = true) {
@@ -129,6 +116,10 @@ export abstract class Service implements IService {
         return this;
     }
 
+    /**
+     * use vuex devtool
+     * @param useDevtool defalut true
+     */
     useDevtool(useDevtool = true) {
         useDevtool && devtool(this);
         return this;

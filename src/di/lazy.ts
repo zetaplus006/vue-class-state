@@ -6,7 +6,7 @@ export function lazyInject(identifier: IIdentifier): PropertyDecorator {
     return function (target: any, propertyKey: PropertyKey): any {
         return {
             get: function (this: IService) {
-                const service = this.getProvider().get(identifier);
+                const service = this.__.provider.get(identifier);
                 appendServiceChild(this, propertyKey as any, service, identifier);
                 def(this, propertyKey, {
                     value: service

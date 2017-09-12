@@ -3,6 +3,7 @@ import Vue from 'vue';
 import { IService, Service } from './service';
 import { Middleware } from './middleware';
 import { Provider } from '../di/provider';
+import { IVubxOption } from './observable';
 
 export type IConstructor = { new(...args: any[]): {}; };
 
@@ -27,8 +28,9 @@ export class VubxHelper {
     middleware: Middleware = new Middleware();
     identifier: IIdentifier;
     isRoot: boolean;
+    vubxOption: IVubxOption;
 
-    _root: IService;
+    private _root: IService;
     get $root(): IService {
         assert(this._root, 'There must be a root Service and please check your decorator option');
         return this._root;
@@ -56,15 +58,18 @@ export class VubxHelper {
         return this.$root.__._globalMiddllewate;
     }
 
-    constructor(isRoot: boolean, service: IService, identifier: IIdentifier) {
-        this.isRoot = !!isRoot;
-        if (isRoot) {
+    constructor(service: IService, vubxOption: IVubxOption) {
+        this.isRoot = !!vubxOption.root;
+        if (this.isRoot) {
             this._root = service;
-            this._provider = new Provider();
+            this._provider = new Provider(service);
             this._globalMiddllewate = new Middleware();
-            this._globalPlugins = [];
+            this._globalPlugins = vubxOption.globalPlugins || [];
+        } else if (vubxOption.globalPlugins.length > 0) {
+            assert(false, 'The globalPlugins option only to be used in root service');
         }
-        this.identifier = identifier;
+        this.identifier = vubxOption.identifier;
+        this.vubxOption = vubxOption;
     }
 }
 
@@ -133,7 +138,7 @@ export function getPropertyGetters(target: any, ctx: any): { [key: string]: { ge
 }
 
 export function appendServiceChild<P extends Service, C extends Service>
-    (parent: P, childName: keyof P, child: C, identifier: IIdentifier) {
+    (parent: P, childName: keyof P, child: C, identifier: IIdentifier, root?: Service) {
     parent.__.$children.push(child);
     if (child.__.$parent.indexOf(parent) <= -1) {
         child.__.$parent.push(parent);
@@ -143,7 +148,10 @@ export function appendServiceChild<P extends Service, C extends Service>
             'Make sure to have a root service, ' +
             'Please check the root options in the decorator configuration');
     }
-    child.__._root = parent.__.$root;
+    // child.__.$root = parent.__.$root;
+    if (root) {
+        child.__.$root = root;
+    }
     child.__.identifier = identifier;
     def(parent.__.$state, childName, {
         get: () => child.__.$state,

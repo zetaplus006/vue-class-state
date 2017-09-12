@@ -54,7 +54,7 @@ describe('service root', function () {
 
     }
     const state = new State();
-    const provider = state.getProvider();
+    const provider = state.__.provider;
     it('root service should has a provider', function () {
         expect(provider).to.be.ok;
         expect(provider).to.equal(state.__.provider);
