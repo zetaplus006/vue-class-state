@@ -1,7 +1,7 @@
 {
   "name": "vubx",
-  "version": "0.0.5",
-  "description": "A simple state management for Vue(in dev)",
+  "version": "0.0.6",
+  "description": "A object-oriented style state management for Vue(in dev)",
   "main": "lib/vubx.common.js",
   "module": "lib/vubx.esm.js",
   "unpkg": "lib/vubx.js",
@@ -18,7 +18,8 @@
     "move-dts": "ncp lib/src/ lib/ && rimraf lib/src",
     "test": "npm run build-unit && npm run test-unit",
     "test-unit": "./node_modules/.bin/mocha test/unit-build/**/*.spec.js",
-    "build-unit": "rimraf test/unit-build && tsc -p test/unit"
+    "build-unit": "rimraf test/unit-build && tsc -p test/unit",
+    "pre-publish": "npm run build && npm run test"
   },
   "keywords": [
     "vue",
