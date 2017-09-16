@@ -1,7 +1,7 @@
 import { Provider } from './provider';
 import { IIdentifier, IServiceClass } from '../service/helper';
 import { Service, IService } from '../service/service';
-import { assert } from '../util';
+import { assert, hasSymbol } from '../util';
 import { createdHook } from '../service/observable';
 
 export interface IInjector<T> {
@@ -34,9 +34,13 @@ export class BaseInjector<T extends Service> {
     }
 
     protected setDep(instance: T, identifier: IIdentifier) {
+        if (instance.__.hasBeenInjected) {
+            return;
+        }
         instance.__.identifier = identifier;
         instance.__.$root = this.dependentRoot;
         createdHook(instance, instance.__.vubxOption);
+        instance.__.hasBeenInjected = true;
     }
 }
 
@@ -65,7 +69,6 @@ export class ClassInjector<T extends IService> extends BaseInjector<T> implement
         this.setDep(instance, this.identifier);
         return instance;
     }
-
 }
 
 export class ValueInjector<T extends IService> extends BaseInjector<T> implements IInjector<T> {
@@ -78,6 +81,13 @@ export class ValueInjector<T extends IService> extends BaseInjector<T> implement
     }
 
     resolve(): T {
+        if (!this.instance) {
+            this.instance = this.getInstance();
+        }
+        return this.instance;
+    }
+
+    getInstance() {
         this.setDep(this.service, this.identifier);
         return this.service;
     }

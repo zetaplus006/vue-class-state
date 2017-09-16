@@ -26,6 +26,7 @@ export class VubxHelper {
     $children: IService[] = [];
     isCommitting: boolean = false;
     middleware: Middleware = new Middleware();
+    hasBeenInjected: boolean = false;
     identifier: IIdentifier;
     isRoot: boolean;
     vubxOption: IVubxOption;

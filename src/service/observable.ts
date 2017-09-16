@@ -69,17 +69,16 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     if (decoratorOption && decoratorOption.root) {
                         assert(decoratorOption.identifier,
                             'A root Service must has a identifier and please check your decorator option');
-                        // helper.globalPlugins = option.globalPlugin; is not get this $root , Service static
                         helper.provider.register(new ValueInjector(option.identifier, this as any));
                         option.providers.forEach(injector => helper.provider.register(injector));
+                        helper.identifier = option.identifier;
+                        helper.$root = this as any;
                         createdHook(this as any, option);
+                        helper.hasBeenInjected = true;
                     }
-
-
                     /**
                      * Children services execute createdHook in injector
                      */
-
                 }
             };
         };

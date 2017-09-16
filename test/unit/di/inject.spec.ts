@@ -335,4 +335,284 @@ describe('di', () => {
         expect(rootModule.moduleC.moduleB === rootModule.moduleB).eql(true);
     });
 
+    it('created hook should run once in class injector', () => {
+        const moduleKeys = {
+            A: 'ModuleA',
+            B: 'ModuleB',
+            C: 'ModuleC'
+        };
+
+        interface IModule extends IService {
+            text: string;
+            count: number;
+        }
+
+        @observable()
+        class ModuleA extends Service implements IModule {
+            text = 'A';
+            count = 0;
+            created() {
+                this.count++;
+            }
+        }
+
+        @observable()
+        class ModuleB extends Service implements IModule {
+            text = 'B';
+            count = 0;
+            created() {
+                this.count++;
+            }
+        }
+
+        @observable()
+        class ModuleC extends Service {
+
+            @lazyInject(moduleKeys.A)
+            moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            moduleB: IModule;
+
+            @lazyInject('root')
+            rootModule: Root;
+
+            count = 0;
+            created() {
+                this.count++;
+            }
+        }
+
+        @observable({
+            root: true,
+            identifier: 'root',
+            providers: [
+                bind<IModule>(moduleKeys.A).toClass(ModuleA),
+                bind<IModule>(moduleKeys.B).toClass(ModuleB),
+                bind<ModuleC>(moduleKeys.C).toClass(ModuleC)
+            ]
+        })
+        class Root extends Service {
+
+            @lazyInject(moduleKeys.A)
+            public moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            public moduleB: IModule;
+
+            @lazyInject(moduleKeys.C)
+            public moduleC: ModuleC;
+
+            count = 0;
+            created() {
+                this.count++;
+            }
+
+        }
+
+        const rootModule = new Root();
+        rootModule.moduleA;
+        rootModule.moduleA;
+        rootModule.moduleB;
+        rootModule.moduleB;
+        rootModule.moduleC;
+        rootModule.moduleC.moduleA;
+        rootModule.moduleC.moduleB;
+        rootModule.moduleC.rootModule;
+
+        expect(rootModule.count).eql(1);
+        expect(rootModule.moduleA.count).eql(1);
+        expect(rootModule.moduleB.count).eql(1);
+        expect(rootModule.moduleC.count).eql(1);
+
+    });
+
+    it('created hook should run once in value injector', () => {
+        const moduleKeys = {
+            A: 'ModuleA',
+            B: 'ModuleB',
+            C: 'ModuleC'
+        };
+
+        interface IModule extends IService {
+            text: string;
+            count: number;
+        }
+
+        @observable()
+        class ModuleA extends Service implements IModule {
+            text = 'A';
+            count = 0;
+            created() {
+                this.count++;
+            }
+        }
+
+        @observable()
+        class ModuleB extends Service implements IModule {
+            text = 'B';
+            count = 0;
+            created() {
+                this.count++;
+            }
+        }
+
+        @observable()
+        class ModuleC extends Service {
+
+            @lazyInject(moduleKeys.A)
+            moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            moduleB: IModule;
+
+            @lazyInject('root')
+            rootModule: Root;
+
+            count = 0;
+            created() {
+                this.count++;
+            }
+        }
+
+        const Value = new ModuleA();
+
+        @observable({
+            root: true,
+            identifier: 'root',
+            providers: [
+                bind<IModule>(moduleKeys.A).toValue(Value),
+                bind<IModule>(moduleKeys.B).toValue(Value),
+                bind<ModuleC>(moduleKeys.C).toClass(ModuleC)
+            ]
+        })
+        class Root extends Service {
+
+            @lazyInject(moduleKeys.A)
+            public moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            public moduleB: IModule;
+
+            @lazyInject(moduleKeys.C)
+            public moduleC: ModuleC;
+
+            count = 0;
+            created() {
+                this.count++;
+            }
+
+        }
+
+        const rootModule = new Root();
+        rootModule.moduleA;
+        rootModule.moduleA;
+        rootModule.moduleB;
+        rootModule.moduleB;
+        rootModule.moduleC;
+        rootModule.moduleC.moduleA;
+        rootModule.moduleC.moduleB;
+        rootModule.moduleC.rootModule;
+
+        expect(rootModule.count).eql(1);
+        expect(rootModule.moduleA.count).eql(1);
+        expect(rootModule.moduleB.count).eql(1);
+        expect(rootModule.moduleC.count).eql(1);
+
+    });
+
+    it('created hook should run once in factory injector', () => {
+        const moduleKeys = {
+            A: 'ModuleA',
+            B: 'ModuleB',
+            C: 'ModuleC'
+        };
+
+        interface IModule extends IService {
+            text: string;
+            count: number;
+        }
+
+        @observable()
+        class ModuleA extends Service implements IModule {
+            text = 'A';
+            count = 0;
+            created() {
+                this.count++;
+            }
+        }
+
+        @observable()
+        class ModuleB extends Service implements IModule {
+            text = 'B';
+            count = 0;
+            created() {
+                this.count++;
+            }
+        }
+
+        @observable()
+        class ModuleC extends Service {
+
+            @lazyInject(moduleKeys.A)
+            moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            moduleB: IModule;
+
+            @lazyInject('root')
+            rootModule: Root;
+
+            count = 0;
+            created() {
+                this.count++;
+            }
+        }
+
+        const Value = new ModuleA();
+
+        @observable({
+            root: true,
+            identifier: 'root',
+            providers: [
+                bind<IModule>(moduleKeys.A).toFactory(() => Value),
+                bind<IModule>(moduleKeys.B).toFactory((m: IModule) => m, [moduleKeys.A]),
+                bind<ModuleC>(moduleKeys.C).toClass(ModuleC)
+            ]
+        })
+        class Root extends Service {
+
+            @lazyInject(moduleKeys.A)
+            public moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            public moduleB: IModule;
+
+            @lazyInject(moduleKeys.C)
+            public moduleC: ModuleC;
+
+            count = 0;
+            created() {
+                this.count++;
+            }
+
+        }
+
+        const rootModule = new Root();
+        rootModule.moduleA;
+        rootModule.moduleA;
+        rootModule.moduleB;
+        rootModule.moduleB;
+        rootModule.moduleC;
+        rootModule.moduleC.moduleA;
+        rootModule.moduleC.moduleB;
+        rootModule.moduleC.rootModule;
+
+        expect(rootModule.count).eql(1);
+        expect(rootModule.moduleA.count).eql(1);
+        expect(rootModule.moduleB.count).eql(1);
+        expect(rootModule.moduleC.count).eql(1);
+
+    });
+
 });

@@ -10,7 +10,6 @@ import {
 } from 'vubx';
 
 import * as vubx from 'vubx';
-console.log(Object.keys(vubx).sort());
 
 const observable = createDecorator(Vue);
 
@@ -120,45 +119,3 @@ export class AppService extends Service {
         this.num2++;
     }
 }
-
-const moduleKeys = {
-    A: 'ModuleA',
-    B: 'ModuleB'
-};
-
-interface IModule extends IService {
-    text: string;
-}
-
-let i = 0;
-@observable()
-class ModuleA extends Service implements IModule {
-    text = 'A' + i++;
-}
-
-@observable({
-    root: true,
-    identifier: 'root',
-    providers: [
-        bind<IModule>(moduleKeys.A).toClass(ModuleA).inTransientScope(),
-        bind<IModule>(moduleKeys.B).toFactory(() => new ModuleA()).inTransientScope()
-    ]
-})
-class Root extends Service {
-
-    @lazyInject(moduleKeys.A)
-    public moduleA1: IModule;
-
-    @lazyInject(moduleKeys.A)
-    public moduleA2: IModule;
-
-    @lazyInject(moduleKeys.B)
-    public moduleB1: IModule;
-
-    @lazyInject(moduleKeys.B)
-    public moduleB2: IModule;
-
-}
-
-const rootModule = new Root();
-console.log(rootModule);

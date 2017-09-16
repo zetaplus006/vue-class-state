@@ -8,15 +8,15 @@
 <script lang="ts">
 import Vue from 'vue';
 import { AppService } from './appService';
-const appService = new AppService().useStrict(false).useDevtool(true);
+const appService = new AppService().useStrict(true).useDevtool(true);
 console.log(appService)
 export default {
     computed: {
-        appService () {
+        appService() {
             return appService;
         }
     },
-    mounted () {
+    mounted() {
         appService.start();
     }
 };
