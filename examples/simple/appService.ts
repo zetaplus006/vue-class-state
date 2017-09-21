@@ -9,6 +9,8 @@ import {
     IMutation
 } from 'vubx';
 
+console.log(Vue['options']);
+console.log(Object.keys(Vue));
 import * as vubx from 'vubx';
 
 const observable = createDecorator(Vue);

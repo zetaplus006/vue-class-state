@@ -184,6 +184,52 @@ describe('di', () => {
         expect(rootModule.moduleA === rootModule.moduleB).eql(true);
     });
 
+    it('lazyInject use propertyKey', () => {
+
+        const moduleKeys = {
+            A: 'moduleA',
+            B: 'moduleB'
+        };
+
+        interface IModule extends IService {
+            text: string;
+        }
+
+        @observable()
+        class ModuleA extends Service implements IModule {
+            text = 'A';
+        }
+
+        @observable()
+        class ModuleB extends Service implements IModule {
+            text = 'B';
+        }
+
+        @observable({
+            root: true,
+            identifier: 'root',
+            providers: [
+                bind<IModule>(moduleKeys.A).toClass(ModuleA),
+                bind<IModule>(moduleKeys.B).toClass(ModuleB)
+            ]
+        })
+        class Root extends Service {
+
+            @lazyInject()
+            public moduleA: IModule;
+
+            @lazyInject()
+            public moduleB: IModule;
+
+        }
+
+        const rootModule = new Root();
+        expect(rootModule.moduleA).to.be.ok;
+        expect(rootModule.moduleB).to.be.ok;
+        expect(rootModule.moduleA.text).eql('A');
+        expect(rootModule.moduleB.text).eql('B');
+    });
+
     it('inSingletonScope', () => {
 
         const moduleKeys = {
@@ -271,9 +317,10 @@ describe('di', () => {
         }
 
         const rootModule = new Root();
+        const proxy = rootModule.getProvider().proxy;
         expect(rootModule.moduleA1 === rootModule.moduleA2).eql(false);
         expect(rootModule.moduleB1 === rootModule.moduleB2).eql(false);
-
+        expect(proxy.moduleB1 === rootModule.moduleB1).eql(false);
     });
 
     it('inject in deep struct', () => {

@@ -13,7 +13,7 @@ export class Provider {
     /**
      * for vue provide option
      */
-    public proxy: {} = {};
+    public proxy: any = {};
 
     /**
      *
