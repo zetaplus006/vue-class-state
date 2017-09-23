@@ -70,4 +70,4 @@ export class ChatStore extends Service {
 
 const chatStore = new ChatStore().useStrict().useDevtool();
 
-export default chatStore.getProvider().proxy;
+export default chatStore.getProvide();

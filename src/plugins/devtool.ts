@@ -18,11 +18,6 @@ export function devtool(service: IService) {
         service.replaceState(targetState);
     });
 
-    // ((service.__.$root as IService).__.global as GlobalHelper).middleware.subscribe({
-    //     after: (mutation: any, state: any) => {
-    //         devtoolHook.emit('vuex:mutation', mutation, state);
-    //     }
-    // });
     service.__.globalMiddlewate.subscribe({
         after: (mutation: any, state: any) => {
             devtoolHook.emit('vuex:mutation', mutation, state);

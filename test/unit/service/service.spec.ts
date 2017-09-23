@@ -66,3 +66,87 @@ describe('service root', function () {
         expect(provider.get(key)).to.equal(state);
     });
 });
+
+describe('computed', () => {
+
+    it('getters proxy to vue computed', function () {
+        const key = Symbol();
+        let num = 0;
+        @observable({
+            root: true,
+            identifier: key
+        })
+        class State extends Service {
+            a = 1;
+            get t() {
+                num++;
+                return this.a;
+            }
+        }
+        const state = new State();
+
+        state.t;
+        state.t;
+        state.t;
+        state.a = 2;
+        state.t;
+        state.t;
+        state.t;
+
+        expect(num).eql(2);
+    });
+
+    it('get super getters', function () {
+
+        let num = 0;
+
+        const key = Symbol();
+        class Base extends Service {
+            get t() {
+                num++;
+                return '';
+            }
+        }
+
+        @observable({
+            root: true,
+            identifier: key
+        })
+        class State extends Base {
+
+        }
+        const state = new State();
+
+        state.t;
+        state.t;
+        state.t;
+        state.t;
+        state.t;
+
+        expect(num).eql(1);
+    });
+
+    it('override super getters', function () {
+
+        const key = Symbol();
+        class Base extends Service {
+            get t() {
+                return 'super';
+            }
+        }
+
+        @observable({
+            root: true,
+            identifier: key
+        })
+        class State extends Base {
+            get t() {
+                return 'child';
+            }
+        }
+        const state = new State();
+
+        expect(state.t).eql('child');
+    });
+
+});

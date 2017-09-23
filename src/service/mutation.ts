@@ -1,10 +1,12 @@
 import { IService, GlobalHelper } from './service';
 import { Middleware } from './middleware';
+import { IIdentifier } from './helper';
 
 export interface IMutation {
     type: string;
     payload: any;
     methodName: string;
+    identifier: IIdentifier;
 }
 
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
@@ -13,7 +15,8 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
         const vubxMutation: IMutation = {
             type: this.__.identifier.toString() + ': ' + mutationyKey,
             payload: arg,
-            methodName: mutationyKey
+            methodName: mutationyKey,
+            identifier: this.__.identifier
         };
 
         const root = this.__.$root;

@@ -13,6 +13,7 @@ export interface GlobalHelper {
 }
 
 export interface IService {
+
     $watch: typeof Vue.prototype.$watch;
     $on: typeof Vue.prototype.$on;
     $once: typeof Vue.prototype.$once;
@@ -30,7 +31,7 @@ export interface IService {
 
     appendChild(child: IService, childName: keyof this, identifier: IIdentifier): void;
 
-    getProvider(): Provider;
+    getProvide(): any;
 
     subscribe(option: IMutationSubscribeOption): void;
 
@@ -91,8 +92,8 @@ export abstract class Service implements IService {
         });
     }
 
-    getProvider(): Provider {
-        return this.__.provider;
+    getProvide() {
+        return this.__.provider.proxy;
     }
 
     subscribe(option: IMutationSubscribeOption) {

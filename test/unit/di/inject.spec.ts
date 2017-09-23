@@ -317,7 +317,7 @@ describe('di', () => {
         }
 
         const rootModule = new Root();
-        const proxy = rootModule.getProvider().proxy;
+        const proxy = rootModule.getProvide();
         expect(rootModule.moduleA1 === rootModule.moduleA2).eql(false);
         expect(rootModule.moduleB1 === rootModule.moduleB2).eql(false);
         expect(proxy.moduleB1 === rootModule.moduleB1).eql(false);
