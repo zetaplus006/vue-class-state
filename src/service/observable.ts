@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { Provider } from '../di/provider';
 import { ValueInjector, IInjector } from '../di/injector';
-import { IConstructor, IPlugin, IIdentifier, proxyState, getPropertyGetters, proxyMethod, proxyGetters, VubxHelper } from './helper';
+import { IConstructor, IPlugin, IIdentifier, proxyState, proxyMethod, proxyGetters, VubxHelper, getAllGetters } from './helper';
 import { IService } from './service';
 import { def, assert } from '../util';
 import { Middleware } from './middleware';
@@ -38,7 +38,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                 constructor(...arg: any[]) {
                     super(...arg);
 
-                    const getters = getPropertyGetters(constructor.prototype, this),
+                    const getters = getAllGetters(constructor.prototype, this),
                         { created } = constructor.prototype,
                         getterKeys = Object.keys(getters);
                     const vm: Vue = new _Vue({

@@ -4,6 +4,7 @@ import { IService, Service } from './service';
 import { Middleware } from './middleware';
 import { Provider } from '../di/provider';
 import { IVubxOption } from './observable';
+import { expect } from 'chai';
 
 export type IConstructor = { new(...args: any[]): {}; };
 
@@ -120,6 +121,22 @@ export function proxyMethod(ctx: any, vm: Vue) {
             configurable: true
         });
     }
+}
+
+export function getAllGetters(target: any, ctx: any) {
+    let getters = {};
+    let prototypeSuper = target;
+    while (
+        prototypeSuper !== Service.prototype
+        && prototypeSuper !== Object.prototype
+        && prototypeSuper !== null) {
+        getters = {
+            ...getPropertyGetters(prototypeSuper, ctx),
+            ...getters
+        };
+        prototypeSuper = Object.getPrototypeOf(prototypeSuper);
+    }
+    return getters;
 }
 
 export function getPropertyGetters(target: any, ctx: any): { [key: string]: { get(): any, set?(): void } } {

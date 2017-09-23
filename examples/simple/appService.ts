@@ -43,6 +43,14 @@ export class Children extends Service implements IChildren {
     }
 }
 
+export class Base extends Service {
+    test = 'sss';
+    get superGetter() {
+        console.log('super');
+        return this.test;
+    }
+}
+
 @observable({
     identifier: Symbol('appService'),
     root: true,
@@ -63,7 +71,7 @@ export class Children extends Service implements IChildren {
         }
     ]
 })
-export class AppService extends Service {
+export class AppService extends Base {
 
     // state
     private num1: number = 0;
@@ -86,6 +94,7 @@ export class AppService extends Service {
 
     // computed
     get sum() {
+        console.log('sum');
         return this.num1 + this.num2;
     }
 
@@ -101,6 +110,11 @@ export class AppService extends Service {
                 console.log(this.child2 === this.child3);
             }
         });
+        this.superGetter;
+        this.superGetter;
+        this.superGetter;
+        this.sum;
+        this.sum;
     }
 
     start() {
@@ -119,5 +133,9 @@ export class AppService extends Service {
     change() {
         this.num1++;
         this.num2++;
+    }
+
+    static get mmm() {
+        return 'static mmm';
     }
 }
