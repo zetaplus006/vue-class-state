@@ -3,13 +3,7 @@
 
 [![npm](https://img.shields.io/npm/dm/vubx.svg)](https://www.npmjs.com/package/vubx)
 
-<!-- TOC -->
 
-- [vubx](#vubx)
-- [vubx介绍](#vubx介绍)
-- [快速入门](#快速入门)
-
-<!-- /TOC -->
 
 ## vubx介绍
 `vubx`可以视为`vuex`的面向对象风格版本，提供以下功能：
@@ -28,5 +22,5 @@
 
 6.同时支持`Typescript`和`ECMAScript`，使用Typescript体验最佳,起初就是专门为Vue+Typescript设计的。
 
-## 快速入门
+
 
