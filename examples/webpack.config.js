@@ -48,7 +48,7 @@ module.exports = {
     extensions: ['.ts', '.js'],
     alias: {
       vubx: path.resolve(__dirname, '../src/vubx.ts'),
-      vue4vubx: "vue/dist/vue.esm.js"
+      vue: 'vue/dist/vue.common.js'
     }
   },
 
