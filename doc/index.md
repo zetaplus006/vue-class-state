@@ -3,7 +3,6 @@
 
 [![npm](https://img.shields.io/npm/dm/vubx.svg)](https://www.npmjs.com/package/vubx)
 
-
 ## vubx介绍
 `vubx`可以视为`vuex`的面向对象风格版本，提供以下功能：
 
@@ -24,12 +23,21 @@
 ## 安装
 
 ```bash
-npm install vubx 
+npm install vubx --save
 ```
+
+注意:
+
+1.TypeScript用户需要开启tsconfig.json中的`experimentalDecorators`的编译选项
+
+2.javaScript+Babel用户需要[babel-plugin-transform-decorators-legacy](babel-plugin-transform-decorators-legacy)插件,以支持[ECMAScript stage 1 decorators](https://github.com/wycats/javascript-decorators/blob/master/README.md)
+
+3.需要支持[Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)的运行环境
+
 
 ## 基本使用
 
-此例子`Typescript`和`javaScript`均可运行
+此例子`TypeScript`和`javaScript`均可运行
 
 ``` typescript
 import Vue from 'vue';
@@ -40,7 +48,7 @@ const observable = createDecorator(Vue);
 @observable({
     // 若使用严格模式及依赖注入则需要一个root节点，用于保存全局数据
     root: true,
-    // 服务标识，后面文档会详细介绍
+    // 注入标识，后面文档会详细介绍
     identifier: Symbol()
 })
 class Addition extends Service {
@@ -57,9 +65,8 @@ class Addition extends Service {
     // 突变方法，与vuex概念一致必须为同步函数
     @mutation
     change() {
-        const temp = this.a;
         this.a = this.b;
-        this.b = temp + this.b;
+        this.b = this.sum;
     }
 
 }
@@ -69,7 +76,7 @@ const addition = new Addition();
 // 开启严格模式，类实例中数据只能在打了@mutation注解的类方法中被修改
 addition.useStrict();
 
-// 使该实例能被vue的devtool观察到
+// 使该实例能被vuex的devtool观察到
 addition.useDevtool();
 
 new Vue({
@@ -88,5 +95,6 @@ new Vue({
 });
 ```
 
+## 依赖注入
 
-
+未完待续
