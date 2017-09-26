@@ -6,9 +6,9 @@
 ## vubx介绍
 `vubx`可以视为`vuex`的面向对象风格版本，提供以下功能：
 
-1.`state`、`getters`、`mutation`，其概念与`vuex`基本相通，区别是vubx是以class(类)和decorator(注解)的形式来实现的。
+1.`state`、`getters`、`mutation`，其概念与`vuex`基本相通，区别是vubx是以class(类)和decorator(装饰器)的形式来实现的。
 
-2.简单的依赖注入，用于解决子模块之间共享数据的问题，并支持懒加载。(此功能主要参考[InversifyJS](https://github.com/inversify/InversifyJS)的api设计)
+2.简单的依赖注入，用于解决子模块之间共享数据的问题，并支持懒加载,此功能不仅能在状态管理中使用，也可与Vue的[provide/inject](https://cn.vuejs.org/v2/api/#provide-inject)配合使用。(此功能主要参考[InversifyJS](https://github.com/inversify/InversifyJS)的api设计)
 
 3.插件化：模块插件及全局插件。
 
@@ -28,7 +28,7 @@ npm install vubx --save
 
 注意:
 
-1.TypeScript用户需要开启tsconfig.json中的`experimentalDecorators`的编译选项
+1.TypeScript用户需要开启tsconfig.json中的`experimentalDecorators`和`allowSyntheticDefaultImports`的编译选项
 
 2.javaScript+Babel用户需要[babel-plugin-transform-decorators-legacy](babel-plugin-transform-decorators-legacy)插件,以支持[ECMAScript stage 1 decorators](https://github.com/wycats/javascript-decorators/blob/master/README.md)
 
