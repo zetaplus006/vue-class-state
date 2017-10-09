@@ -65,8 +65,9 @@ class Addition extends Service {
     // 突变方法，与vuex概念一致必须为同步函数
     @mutation
     change() {
+        const temp = this.sum;
         this.a = this.b;
-        this.b = this.sum;
+        this.b = temp;
     }
 
 }
@@ -96,5 +97,84 @@ new Vue({
 ```
 
 ## 依赖注入
+
+``` typescript
+import Vue from 'vue';
+import { createDecorator, Service, mutation, lazyInject, bind, IService } from 'vubx';
+import component from 'vue-class-component';
+
+const observable = createDecorator(Vue);
+
+// 定义服务标识
+const moduleKeys = {
+    root: 'root',
+    A: 'moduleA',
+    B: 'moduleB'
+};
+
+// 定义接口
+interface IModule extends IService {
+    text: string;
+}
+
+@observable()
+class ModuleA extends Service implements IModule {
+    text = 'A';
+}
+
+@observable()
+class ModuleB extends Service implements IModule {
+    text = 'B';
+}
+
+@observable({
+    root: true,
+    identifier: moduleKeys.root,
+    providers: [
+        // 绑定服务注入规则，toClass 绑定一个实现IModule接口的类，默认为单例模式
+        bind<IModule>(moduleKeys.A).toClass(ModuleA),
+        bind<IModule>(moduleKeys.B).toClass(ModuleB)
+    ]
+})
+class Root extends Service {
+
+    // 通过注入标识异步注入模块，既当读取到此属性时才初始化该实例
+    // 注意devtool和严格模式也会触发实例化
+    @lazyInject(moduleKeys.A)
+    public moduleA: IModule;
+
+    @lazyInject(moduleKeys.B)
+    public moduleB: IModule;
+
+}
+
+const rootModule = new Root().useDevtool().useStrict();
+
+// 配合vue-class-component获取更完善的开发体验
+@component({
+    template: '<div>{{text}}</div>',
+    // 在组件内注入服务，也是支持懒加载的
+    inject: {
+        moduleA: moduleKeys.A,
+        moduleB: moduleKeys.B
+    }
+})
+class App extends Vue {
+
+    moduleA: IModule;
+    moduleB: IModule;
+
+    get text() {
+        return this.moduleA.text + this.moduleB.text;
+    }
+}
+
+new Vue({
+    el: '#app',
+    provide: rootModule.getProvide(),
+    render: h => h(App)
+});
+
+```
 
 未完待续

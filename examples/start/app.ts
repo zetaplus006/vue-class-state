@@ -21,9 +21,9 @@ class Addition extends Service {
     // 突变方法，与vuex一致必须为同步函数
     @mutation
     change() {
-        const temp = this.a;
+        const temp = this.sum;
         this.a = this.b;
-        this.b = temp + this.b;
+        this.b = temp;
     }
 
 }
