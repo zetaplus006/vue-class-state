@@ -184,7 +184,7 @@ new Vue({
 ### 注册模块
 
 #### 注册类
-```typescriptf
+```typescript
 bind<IModule>(moduleKeys.A).toClass(ModuleA)
 ```
 
@@ -215,7 +215,7 @@ bind<IModule>(moduleKeys.B).toFactory((moduleA: IModule, moduleB: IModule) => {
 
 #### 单例与多例
 默认为单例注册，支持多例但不建议使用，单一值注册（toValue）不支持多例
-```typescriptf
+```typescript
 // 注册为单例
 bind<IModule>(moduleKeys.A).toClass(ModuleA).inSingletonScope()
 
