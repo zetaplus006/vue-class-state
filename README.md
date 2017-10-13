@@ -3,6 +3,21 @@
 
 <!-- [![npm](https://img.shields.io/npm/dm/vubx.svg)](https://www.npmjs.com/package/vubx) -->
 
+## 索引
+- [vubx介绍](#vubx介绍)
+- [安装](#安装)
+- [基本使用](#基本使用)
+- [依赖注入](#依赖注入)
+    - [基本例子](#基本例子)
+    - [注册模块](#注册模块)
+        - [注册类](#注册类)
+        - [注册值](#注册值)
+        - [注册工厂](#注册工厂)
+        - [单例与多例](#单例与多例)
+    - [在模块中注入其他模块](#在模块中注入其他模块)
+    - [在Vue组件中注入模块](#在vue组件中注入模块)
+
+
 ## vubx介绍
 `vubx`可以视为`vuex`的面向对象风格版本，提供以下功能：
 
@@ -33,7 +48,6 @@ npm install vubx --save
 2.javaScript+Babel用户需要[babel-plugin-transform-decorators-legacy](babel-plugin-transform-decorators-legacy)插件,以支持[ECMAScript stage 1 decorators](https://github.com/wycats/javascript-decorators/blob/master/README.md)
 
 3.需要支持[Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)的运行环境
-
 
 ## 基本使用
 
@@ -238,7 +252,7 @@ class Module extends Service {
     @lazyInject(moduleKeys.A)
     public moduleA: IModule;
 
-    // 如果传入注入标识，则取属性名为标识，此例子同 @lazyInject('moduleB')，但不建议使用
+    // 如果没传入注入标识，则取属性名为标识，此例子同 @lazyInject('moduleB')，但不建议使用
     @lazyInject()
     public moduleB: IModule;
 
@@ -281,7 +295,7 @@ class App extends Vue {
 若使用[Vue Property Decorator](https://github.com/kaorun343/vue-property-decorator)或者使用自定义的装饰器，也可如下例所写，更加简洁
 ```typescript
 @component({
-    template: '<div>{{text}}</div>',
+    template: '<div>{{text}}</div>'
 })
 class App extends Vue {
 
