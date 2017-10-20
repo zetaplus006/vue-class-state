@@ -78,7 +78,7 @@ function getGetters(proxy: any) {
     }
     keys.forEach(key => {
         def(getters, key.toString(), {
-            value: proxy[key],
+            value: (proxy[key] as IService).__.$getters,
             enumerable: true,
             configurable: true
         });
