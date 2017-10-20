@@ -5,7 +5,7 @@ const observable = createDecorator(Vue);
 
 @observable({
     root: true,
-    identifier: Symbol()
+    identifier: Symbol('counter')
 })
 class Addition extends Service {
 

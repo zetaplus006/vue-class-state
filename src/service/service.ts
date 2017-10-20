@@ -135,7 +135,7 @@ export abstract class Service implements IService {
      * @param useDevtool defalut true
      */
     useDevtool(useDevtool = true) {
-        useDevtool && devtool(this);
+        useDevtool && devtool(this.__.provider);
         return this;
     }
 

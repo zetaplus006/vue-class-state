@@ -1,6 +1,9 @@
 import { IService, GlobalHelper } from '../service/service';
+import { Provider } from '../di/provider';
+import { def } from '../util';
+import { IIdentifier } from '../service/helper';
 
-export function devtool(service: IService) {
+/* export function devtool(service: IService) {
 
     const devtoolHook =
         typeof window !== 'undefined' &&
@@ -23,6 +26,31 @@ export function devtool(service: IService) {
             devtoolHook.emit('vuex:mutation', mutation, state);
         }
     });
+} */
+
+export function devtool(provider: Provider) {
+
+    const devtoolHook =
+        typeof window !== 'undefined' &&
+        window['__VUE_DEVTOOLS_GLOBAL_HOOK__'];
+
+    if (!devtoolHook) return;
+
+    const store = simulationStore(provider);
+
+    store._devtoolHook = devtoolHook;
+
+    devtoolHook.emit('vuex:init', store);
+
+    devtoolHook.on('vuex:travel-to-state', (targetState: any) => {
+        provider.replaceAllState(targetState);
+    });
+
+    provider.rootService.__.globalMiddlewate.subscribe({
+        after: (mutation: any, state: any) => {
+            devtoolHook.emit('vuex:mutation', mutation, state);
+        }
+    });
 }
 
 interface IStore {
@@ -32,12 +60,28 @@ interface IStore {
     // subscribe(fn: (mutation: string, state: any) => void): any
 }
 
-function simulationStore(service: IService): IStore {
+function simulationStore(provider: Provider): IStore {
     const store = {
-        state: service.__.$state,
-        getters: service.__.$getters,
+        state: provider.proxy,
+        getters: getGetters(provider.proxy),
         _devtoolHook: null
         // subscribe:
     };
     return store;
+}
+
+function getGetters(proxy: any) {
+    const getters = {};
+    let keys: IIdentifier[] = Object.keys(proxy);
+    if (Object.getOwnPropertySymbols) {
+        keys = keys.concat(Object.getOwnPropertySymbols(proxy));
+    }
+    keys.forEach(key => {
+        def(getters, key.toString(), {
+            value: proxy[key],
+            enumerable: true,
+            configurable: true
+        });
+    });
+    return getters;
 }
