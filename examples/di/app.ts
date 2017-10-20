@@ -18,6 +18,13 @@ interface IModule extends IService {
 @observable()
 class ModuleA extends Service implements IModule {
     text = 'A';
+
+    @lazyInject(moduleKeys.A)
+    public moduleA: IModule;
+
+    get AA() {
+        return 'Aa';
+    }
 }
 
 @observable()
@@ -35,11 +42,17 @@ class ModuleB extends Service implements IModule {
 })
 class Root extends Service {
 
+    aa = { ss: 's' };
+
     @lazyInject(moduleKeys.A)
     public moduleA: IModule;
 
     @lazyInject(moduleKeys.B)
     public moduleB: IModule;
+
+    get text() {
+        return this.moduleA.text + this.moduleB.text;
+    }
 
 }
 

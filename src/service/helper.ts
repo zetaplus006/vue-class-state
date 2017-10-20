@@ -95,7 +95,8 @@ export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
         def(ctx, key, {
             get: () => vm[key],
             set: value => vm[key] = value,
-            ...defaultConfig
+            enumerable: false,
+            configurable: true
         });
         def($getters, key, {
             get: () => ctx[key],
@@ -154,6 +155,7 @@ export function getPropertyGetters(target: any, ctx: any): { [key: string]: { ge
     });
     return getters;
 }
+
 
 export function appendServiceChild<P extends Service, C extends Service>
     (parent: P, childName: keyof P, child: C, identifier: IIdentifier, root?: Service) {

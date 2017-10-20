@@ -67,7 +67,7 @@ export class Provider {
      * replaceState for SSR
      * @param proxyState
      */
-    public replaceState(proxyState: IProxyState) {
+    public replaceAllState(proxyState: IProxyState) {
         for (const key in proxyState) {
             (this.proxy[key] as IService).replaceState(proxyState[key], false);
         }

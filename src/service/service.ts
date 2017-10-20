@@ -23,11 +23,15 @@ export interface IService {
     $delete: typeof Vue.prototype.$delete;
     $destroy: typeof Vue.prototype.$destroy;
 
+    $proxy: any;
+
     __: VubxHelper;
 
     created?(): void;
 
     replaceState(state: IService, replaceChildState?: boolean): void;
+
+    replaceAllState(proxyState: any): void;
 
     appendChild(child: IService, childName: keyof this, identifier: IIdentifier): void;
 
@@ -60,6 +64,10 @@ export abstract class Service implements IService {
     $delete: typeof Vue.prototype.$delete;
     $destroy: typeof Vue.prototype.$destroy;
 
+    get $proxy() {
+        return this.__.provider.proxy;
+    }
+
     __: VubxHelper;
 
     /**
@@ -81,6 +89,10 @@ export abstract class Service implements IService {
             }
         }
         root.__.isCommitting = temp;
+    }
+
+    get replaceAllState() {
+        return this.__.provider.replaceAllState.bind(this.__.provider);
     }
 
     appendChild(child: IService, key: keyof this, identifier: IIdentifier): void {
