@@ -68,8 +68,9 @@ export abstract class Service implements IService {
     created?(): void;
 
     replaceState(state: IService, replaceChildState = true): void {
-        const temp = this.__.isCommitting;
-        this.__.isCommitting = true;
+        const root = this.__.$root;
+        const temp = root.__.isCommitting;
+        root.__.isCommitting = true;
         for (const key in state) {
             if (this[key] instanceof Service) {
                 if (replaceChildState) {
@@ -79,7 +80,7 @@ export abstract class Service implements IService {
                 this[key] = state[key];
             }
         }
-        this.__.isCommitting = temp;
+        root.__.isCommitting = temp;
     }
 
     appendChild(child: IService, key: keyof this, identifier: IIdentifier): void {

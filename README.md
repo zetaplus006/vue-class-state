@@ -237,7 +237,7 @@ bind<IModule>(moduleKeys.A).toClass(ModuleA).inSingletonScope()
 bind<IModule>(moduleKeys.A).toClass(ModuleA).inTransientScope()
 
 // 工厂多例意味着每次注入该模块都会调用此工厂方法
-bind<IModule>(moduleKeys.B).toFactory(() => new ModuleA()).inTransientScope()
+bind<IModule>(moduleKeys.A).toFactory(() => new ModuleA()).inTransientScope()
 ```
 
 
