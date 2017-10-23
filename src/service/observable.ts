@@ -5,10 +5,13 @@ import { IConstructor, IPlugin, IIdentifier, proxyState, proxyMethod, proxyGette
 import { IService } from './service';
 import { def, assert } from '../util';
 import { Middleware } from './middleware';
+import { devtool } from '../plugins/devtool';
 
 export type IDecoratorOption = {
     identifier?: IIdentifier;
     root?: boolean;
+    strict?: boolean;
+    devtool?: boolean;
     vueMethods?: boolean,
     providers?: IInjector<IService>[];
     plugins?: IPlugin[];
@@ -18,6 +21,8 @@ export type IDecoratorOption = {
 export type IVubxOption = {
     identifier: IIdentifier;
     root: boolean;
+    strict: boolean;
+    devtool: boolean;
     vueMethods: boolean,
     providers: IInjector<IService>[];
     plugins: IPlugin[];
@@ -49,6 +54,8 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     const option: IVubxOption = {
                         identifier: '__vubx__',
                         root: false,
+                        strict: false,
+                        devtool: false,
                         vueMethods: false,
                         providers: [],
                         plugins: [],
@@ -75,6 +82,14 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         helper.$root = this as any;
                         createdHook(this as any, option);
                         helper.hasBeenInjected = true;
+                    }
+
+                    // in injector
+                    if (option.strict) {
+                        this['useStrict']();
+                    }
+                    if (option.devtool) {
+                        devtool(helper.provider);
                     }
                     /**
                      * Children services execute createdHook in injector

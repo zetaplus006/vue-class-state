@@ -6,6 +6,7 @@ import { createdHook } from '../service/observable';
 
 export interface IInjector<T> {
     identifier: IIdentifier;
+    isSingleton: Boolean;
     dependentRoot: IService;
     provider: Provider;
     resolve(): T;
@@ -19,8 +20,8 @@ export type IServiceFactory<T extends Service> = (...arg: IService[]) => T;
 
 export class BaseInjector<T extends Service> {
 
-    protected instance: T;
-    protected isSingleton: boolean = true;
+    public instance: T;
+    public isSingleton: boolean = true;
     public dependentRoot: IService;
     public provider: Provider;
 

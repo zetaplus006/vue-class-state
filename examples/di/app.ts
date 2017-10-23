@@ -19,12 +19,9 @@ interface IModule extends IService {
 class ModuleA extends Service implements IModule {
     text = 'A';
 
-    @lazyInject(moduleKeys.A)
-    public moduleA: IModule;
+    // @lazyInject(moduleKeys.A)
+    // public moduleA: IModule;
 
-    get AA() {
-        return 'Aa';
-    }
 }
 
 @observable()
@@ -38,11 +35,11 @@ class ModuleB extends Service implements IModule {
     providers: [
         bind<IModule>(moduleKeys.A).toClass(ModuleA),
         bind<IModule>(moduleKeys.B).toClass(ModuleB)
-    ]
+    ],
+    strict: true,
+    devtool: true
 })
 class Root extends Service {
-
-    aa = { ss: 's' };
 
     @lazyInject(moduleKeys.A)
     public moduleA: IModule;
@@ -56,7 +53,7 @@ class Root extends Service {
 
 }
 
-const rootModule = new Root().useDevtool().useStrict();
+const rootModule = new Root();
 
 @component({
     template: '<div>{{text}}</div>',

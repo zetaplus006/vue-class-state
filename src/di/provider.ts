@@ -64,7 +64,7 @@ export class Provider {
     }
 
     /**
-     * replaceState for SSR
+     * replaceState for SSR and devtool
      * @param proxyState
      */
     public replaceAllState(proxyState: IProxyState) {
@@ -78,18 +78,21 @@ export class Provider {
      * @param injector
      */
     private defProxy(injector: IInjector<IService>) {
-        def(this.proxy, injector.identifier, {
+        if (!injector.isSingleton) {
+            return;
+        }
+        const desc: PropertyDescriptor = {
             get: () => {
-                // const instance = injector.resolve();
-                // delete this[injector.identifier];
-                // this[injector.identifier] = instance;
-
-                // if isSingleton===fales
                 return injector.resolve();
             },
             enumerable: true,
             configurable: true
-        });
+        };
+        def(this.proxy, injector.identifier, desc);
+        // for devtool
+        if (typeof injector.identifier === 'symbol') {
+            def(this.proxy, String(injector.identifier), desc);
+        }
     }
 
 }

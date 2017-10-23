@@ -91,8 +91,8 @@ export abstract class Service implements IService {
         root.__.isCommitting = temp;
     }
 
-    get replaceAllState() {
-        return this.__.provider.replaceAllState.bind(this.__.provider);
+    replaceAllState(proxyState: any) {
+        this.__.provider.replaceAllState(proxyState);
     }
 
     appendChild(child: IService, key: keyof this, identifier: IIdentifier): void {
