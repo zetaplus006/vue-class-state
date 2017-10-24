@@ -2,6 +2,8 @@ import { store } from './decorator';
 import { Service, mutation } from 'vubx';
 import { getAllMessages } from '../api/index';
 import { IThreadsData, IThreads, IMessages, IMessage } from './type';
+import Vue from 'vue';
+import { devtool } from '../../../src/plugins/devtool'
 
 export const serviceKey = {
     CHAT: 'chatStore'
@@ -10,7 +12,9 @@ export const serviceKey = {
 @store({
     root: true,
     vueMethods: true,
-    identifier: serviceKey.CHAT
+    identifier: serviceKey.CHAT,
+    strict: true,
+    devtool: true
 })
 export class ChatStore extends Service {
     currentThreadID: string = '';
@@ -23,7 +27,7 @@ export class ChatStore extends Service {
 
     @mutation
     createThreads(id: string, name: string) {
-        this.$set(this.threads, id, {
+        Vue.set(this.threads, id, {
             id,
             name,
             messages: [],
@@ -46,7 +50,7 @@ export class ChatStore extends Service {
             thread.messages.push(message.id);
             thread.lastMessage = message;
         }
-        this.$set(this.messages, message.id, message);
+        Vue.set(this.messages, message.id, message);
     }
 
     init() {
@@ -68,6 +72,6 @@ export class ChatStore extends Service {
     }
 }
 
-const chatStore = new ChatStore().useStrict().useDevtool();
+const chatStore = new ChatStore();
 
 export default chatStore.getProvide();

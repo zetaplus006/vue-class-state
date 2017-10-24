@@ -4,7 +4,6 @@ import { IService, Service } from './service';
 import { Middleware } from './middleware';
 import { Provider } from '../di/provider';
 import { IVubxOption } from './observable';
-import { expect } from 'chai';
 
 export type IConstructor = { new(...args: any[]): {}; };
 
@@ -156,7 +155,6 @@ export function getPropertyGetters(target: any, ctx: any): { [key: string]: { ge
     return getters;
 }
 
-
 export function appendServiceChild<P extends Service, C extends Service>
     (parent: P, childName: keyof P, child: C, identifier: IIdentifier, root?: Service) {
     parent.__.$children.push(child);
@@ -168,7 +166,6 @@ export function appendServiceChild<P extends Service, C extends Service>
             'Make sure to have a root service, ' +
             'Please check the root options in the decorator configuration');
     }
-    // child.__.$root = parent.__.$root;
     if (root) {
         child.__.$root = root;
     }
@@ -179,6 +176,18 @@ export function appendServiceChild<P extends Service, C extends Service>
     });
     def(parent.__.$getters, childName, {
         get: () => child.__.$getters,
-        ...defaultConfig
+        enumerable: false,
+        configurable: true
     });
+}
+
+export function useStrict(service: IService) {
+    if (process.env.NODE_ENV !== 'production') {
+        service.__.$vm && service.__.$vm.$watch<any>(function () {
+            return this.$data;
+        }, (val) => {
+            assert(service.__.isCommitting,
+                `Do not mutate vubx service[${String(service.__.identifier)}] data outside mutation handlers.`);
+        }, { deep: true, sync: true });
+    }
 }

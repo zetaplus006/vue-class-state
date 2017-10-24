@@ -23,8 +23,8 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
         const globalMiddleware = root.__.globalMiddlewate;
         const middleware = this.__.middleware;
 
-        const temp = root.__.isCommitting;
-        root.__.isCommitting = true;
+        const temp = this.__.isCommitting;
+        this.__.isCommitting = true;
         let result;
 
         globalMiddleware.dispatchBefore(this, vubxMutation, this);
@@ -35,7 +35,7 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
         // arguments is different
         // res =  middleware.createTask(mutationFn, this)(...arg);
 
-        root.__.isCommitting = temp;
+        this.__.isCommitting = temp;
         return result;
     };
     return descriptor;

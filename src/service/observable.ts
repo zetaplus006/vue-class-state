@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { Provider } from '../di/provider';
 import { ValueInjector, IInjector } from '../di/injector';
-import { IConstructor, IPlugin, IIdentifier, proxyState, proxyMethod, proxyGetters, VubxHelper, getAllGetters } from './helper';
+import { IConstructor, IPlugin, IIdentifier, proxyState, proxyMethod, proxyGetters, VubxHelper, getAllGetters, useStrict } from './helper';
 import { IService } from './service';
 import { def, assert } from '../util';
 import { Middleware } from './middleware';
@@ -12,7 +12,7 @@ export type IDecoratorOption = {
     root?: boolean;
     strict?: boolean;
     devtool?: boolean;
-    vueMethods?: boolean,
+    vueMethods?: boolean;
     providers?: IInjector<IService>[];
     plugins?: IPlugin[];
     globalPlugins?: IPlugin[];
@@ -78,18 +78,15 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                             'A root Service must has a identifier and please check your decorator option');
                         helper.provider.register(new ValueInjector(option.identifier, this as any));
                         option.providers.forEach(injector => helper.provider.register(injector));
+
                         helper.identifier = option.identifier;
                         helper.$root = this as any;
                         createdHook(this as any, option);
                         helper.hasBeenInjected = true;
-                    }
 
-                    // in injector
-                    if (option.strict) {
-                        this['useStrict']();
-                    }
-                    if (option.devtool) {
-                        devtool(helper.provider);
+                        if (option.devtool) {
+                            devtool(helper.provider);
+                        }
                     }
                     /**
                      * Children services execute createdHook in injector
@@ -103,6 +100,10 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
 export function createdHook(service: IService, option: IVubxOption) {
     initPlugins(service, service.__.globalPlugins.concat(option.plugins));
     option.created && option.created.call(service);
+    const rootOption = service.__.$root.__.vubxOption;
+    if (rootOption.strict) {
+        useStrict(service);
+    }
 }
 
 function initPlugins(ctx: any, plugin: IPlugin[]) {

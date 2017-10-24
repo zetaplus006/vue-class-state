@@ -5,7 +5,9 @@ const observable = createDecorator(Vue);
 
 @observable({
     root: true,
-    identifier: Symbol('counter')
+    identifier: Symbol('counter'),
+    strict: true,
+    devtool: true
 })
 class Addition extends Service {
 
@@ -31,10 +33,8 @@ class Addition extends Service {
 const addition = new Addition();
 
 // 开启严格模式，类实例中数据只能在打了@mutation注解的类方法中修改
-addition.useStrict();
 
 // 使该实例能被vue的devtool观察到
-addition.useDevtool();
 
 new Vue({
     el: '#app',
