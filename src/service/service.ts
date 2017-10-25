@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { Middleware, ISubscribeOption } from './middleware';
 import { Provider } from '../di/provider';
-import { IIdentifier, appendServiceChild, IPlugin, VubxHelper } from './helper';
+import { IIdentifier, appendServiceChild, IPlugin, ScopeData } from './helper';
 import { def, assert } from '../util';
 import { devtool } from '../plugins/devtool';
 import { ValueInjector } from '../di/injector';
@@ -16,7 +16,7 @@ export interface IService {
 
     $proxy: any;
 
-    __: VubxHelper;
+    __scope__: ScopeData;
 
     replaceState(state: IService, replaceChildState?: boolean): void;
 
@@ -42,15 +42,15 @@ export type IMutationSubscribeOption = {
 export abstract class Service implements IService {
 
     get $proxy() {
-        return this.__.provider.proxy;
+        return this.__scope__.provider.proxy;
     }
 
-    __: VubxHelper;
+    __scope__: ScopeData;
 
     replaceState(state: IService, replaceChildState = true): void {
-        const root = this.__.$root;
-        const temp = root.__.isCommitting;
-        root.__.isCommitting = true;
+        const root = this.__scope__.$root;
+        const temp = root.__scope__.isCommitting;
+        root.__scope__.isCommitting = true;
         for (const key in state) {
             if (this[key] instanceof Service) {
                 if (replaceChildState) {
@@ -60,17 +60,17 @@ export abstract class Service implements IService {
                 this[key] = state[key];
             }
         }
-        root.__.isCommitting = temp;
+        root.__scope__.isCommitting = temp;
     }
 
     replaceAllState(proxyState: any) {
-        this.__.provider.replaceAllState(proxyState);
+        this.__scope__.provider.replaceAllState(proxyState);
     }
 
     appendChild(child: IService, key: keyof this, identifier: IIdentifier): void {
-        this.__.provider.checkIdentifier(identifier);
-        this.__.provider.register(new ValueInjector(identifier, child));
-        appendServiceChild(this, key, this.__.provider.get(identifier), identifier, this.__.$root);
+        this.__scope__.provider.checkIdentifier(identifier);
+        this.__scope__.provider.register(new ValueInjector(identifier, child));
+        appendServiceChild(this, key, this.__scope__.provider.get(identifier), identifier, this.__scope__.$root);
         def(this, key, {
             enumerable: false,
             value: child
@@ -78,16 +78,16 @@ export abstract class Service implements IService {
     }
 
     getProvide() {
-        return this.__.provider.proxy;
+        return this.__scope__.provider.proxy;
     }
 
     subscribe(option: IMutationSubscribeOption) {
-        this.__.middleware.subscribe(option);
+        this.__scope__.middleware.subscribe(option);
     }
 
     subscribeGlobal(option: IMutationSubscribeOption) {
-        assert(this.__.$root === this, 'Only root service has subscribeGlobal methods');
-        this.__.globalMiddlewate.subscribe(option);
+        assert(this.__scope__.$root === this, 'Only root service has subscribeGlobal methods');
+        this.__scope__.globalMiddlewate.subscribe(option);
     }
 
 }

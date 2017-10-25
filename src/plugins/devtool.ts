@@ -46,7 +46,7 @@ export function devtool(provider: Provider) {
         provider.replaceAllState(targetState);
     });
 
-    provider.rootService.__.globalMiddlewate.subscribe({
+    provider.rootService.__scope__.globalMiddlewate.subscribe({
         after: (mutation: any, state: any) => {
             devtoolHook.emit('vuex:mutation', mutation, state);
         }
@@ -78,7 +78,7 @@ function getGetters(proxy: any) {
     }
     keys.forEach(key => {
         def(getters, key.toString(), {
-            value: (proxy[key] as IService).__.$getters,
+            value: (proxy[key] as IService).__scope__.$getters,
             enumerable: true,
             configurable: true
         });

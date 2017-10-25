@@ -19,7 +19,7 @@ const defaultConfig = {
     configurable: true
 };
 
-export class VubxHelper {
+export class ScopeData {
     $vm: Vue;
     $getters: any = {};
     $state: any = {};
@@ -43,21 +43,21 @@ export class VubxHelper {
 
     private _provider: Provider;
     get provider(): Provider {
-        return this.$root.__._provider;
+        return this.$root.__scope__._provider;
     }
 
     private _globalPlugins: IPlugin[];
     get globalPlugins(): IPlugin[] {
-        return this.$root.__._globalPlugins;
+        return this.$root.__scope__._globalPlugins;
     }
 
     set globalPlugins(value: IPlugin[]) {
-        this.$root.__._globalPlugins = value;
+        this.$root.__scope__._globalPlugins = value;
     }
 
     private _globalMiddllewate: Middleware;
     get globalMiddlewate(): Middleware {
-        return this.$root.__._globalMiddllewate;
+        return this.$root.__scope__._globalMiddllewate;
     }
 
     constructor(service: IService, vubxOption: IVubxOption) {
@@ -76,7 +76,7 @@ export class VubxHelper {
 }
 
 export function proxyState(ctx: any, getterKeys: string[]) {
-    const $state = (ctx as IService).__.$state;
+    const $state = (ctx as IService).__scope__.$state;
     Object.keys(ctx).forEach(
         key => {
             if (getterKeys.indexOf(key) < 0) {
@@ -90,7 +90,7 @@ export function proxyState(ctx: any, getterKeys: string[]) {
 }
 
 export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
-    const $getters = (ctx as IService).__.$getters;
+    const $getters = (ctx as IService).__scope__.$getters;
     getterKeys.forEach(key => {
         def(ctx, key, {
             get: () => vm[key],
@@ -104,24 +104,6 @@ export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
             ...defaultConfig
         });
     });
-}
-
-const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete', '$destroy'];
-
-export function proxyMethod(ctx: any, vm: Vue) {
-    for (const key of vmMethods) {
-        def(ctx, key, {
-            get() {
-                const method = vm[key].bind(vm);
-                def(this, key, {
-                    value: method
-                });
-                return method;
-            },
-            enumerable: false,
-            configurable: true
-        });
-    }
 }
 
 export function getAllGetters(target: any, ctx: any) {
@@ -160,37 +142,27 @@ export function getPropertyGetters(target: any, ctx: any): { [key: string]: { ge
 
 export function appendServiceChild<P extends Service, C extends Service>
     (parent: P, childName: keyof P, child: C, identifier: IIdentifier, root?: Service) {
-    parent.__.$children.push(child);
-    if (child.__.$parent.indexOf(parent) <= -1) {
-        child.__.$parent.push(parent);
+    parent.__scope__.$children.push(child);
+    if (child.__scope__.$parent.indexOf(parent) <= -1) {
+        child.__scope__.$parent.push(parent);
     }
     if (process.env.NODE_ENV !== 'production') {
-        assert(parent.__.$root,
+        assert(parent.__scope__.$root,
             'Make sure to have a root service, ' +
             'Please check the root options in the decorator configuration');
     }
     if (root) {
-        child.__.$root = root;
+        child.__scope__.$root = root;
     }
-    child.__.identifier = identifier;
-    // def(parent.__.$state, childName, {
-    //     get: () => child.__.$state,
-    //     ...defaultConfig
-    // });
-    // def(parent.__.$getters, childName, {
-    //     get: () => child.__.$getters,
-    //     enumerable: false,
-    //     configurable: true
-    // });
 }
 
 export function useStrict(service: IService) {
     if (process.env.NODE_ENV !== 'production') {
-        service.__.$vm && service.__.$vm.$watch<any>(function () {
+        service.__scope__.$vm && service.__scope__.$vm.$watch<any>(function () {
             return this.$data;
         }, (val) => {
-            assert(service.__.isCommitting,
-                `Do not mutate vubx service[${String(service.__.identifier)}] data outside mutation handlers.`);
+            assert(service.__scope__.isCommitting,
+                `Do not mutate vubx service[${String(service.__scope__.identifier)}] data outside mutation handlers.`);
         }, { deep: true, sync: true });
     }
 }

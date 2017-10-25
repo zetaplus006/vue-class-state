@@ -12,7 +12,7 @@ export function lazyInject(identifier?: IIdentifier): PropertyDecorator {
         });
         return {
             get: function (this: IService) {
-                const service = this.__.provider.get(serviceKey);
+                const service = this.__scope__.provider.get(serviceKey);
                 appendServiceChild(this, propertyKey as any, service, serviceKey);
                 def(this, propertyKey, {
                     value: service,

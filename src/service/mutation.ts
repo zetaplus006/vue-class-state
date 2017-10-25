@@ -13,18 +13,18 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
     const mutationFn = descriptor.value;
     descriptor.value = function (this: IService, ...arg: any[]) {
         const vubxMutation: IMutation = {
-            type: this.__.identifier.toString() + ': ' + mutationyKey,
+            type: this.__scope__.identifier.toString() + ': ' + mutationyKey,
             payload: arg,
             methodName: mutationyKey,
-            identifier: this.__.identifier
+            identifier: this.__scope__.identifier
         };
 
-        const root = this.__.$root;
-        const globalMiddleware = root.__.globalMiddlewate;
-        const middleware = this.__.middleware;
+        const root = this.__scope__.$root;
+        const globalMiddleware = root.__scope__.globalMiddlewate;
+        const middleware = this.__scope__.middleware;
 
-        const temp = this.__.isCommitting;
-        this.__.isCommitting = true;
+        const temp = this.__scope__.isCommitting;
+        this.__scope__.isCommitting = true;
         let result;
 
         globalMiddleware.dispatchBefore(this, vubxMutation, this);
@@ -35,7 +35,7 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
         // arguments is different
         // res =  middleware.createTask(mutationFn, this)(...arg);
 
-        this.__.isCommitting = temp;
+        this.__scope__.isCommitting = temp;
         return result;
     };
     return descriptor;

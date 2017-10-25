@@ -54,6 +54,7 @@ class Root extends Service {
 }
 
 const rootModule = new Root();
+console.log(rootModule);
 
 @component({
     template: '<div>{{text}}</div>',

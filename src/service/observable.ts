@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { Provider } from '../di/provider';
 import { ValueInjector, IInjector } from '../di/injector';
-import { IConstructor, IPlugin, IIdentifier, proxyState, proxyMethod, proxyGetters, VubxHelper, getAllGetters, useStrict } from './helper';
+import { IConstructor, IPlugin, IIdentifier, proxyState, proxyGetters, ScopeData, getAllGetters, useStrict } from './helper';
 import { IService } from './service';
 import { def, assert } from '../util';
 import { Middleware } from './middleware';
@@ -61,15 +61,12 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         created,
                         ...decoratorOption
                     };
-                    const helper = new VubxHelper(this as any, option);
-                    def(this, '__', { value: helper, enumerable: false });
+                    const helper = new ScopeData(this as any, option);
+                    def(this, '__scope__', { value: helper, enumerable: false });
                     helper.$vm = vm;
                     vm.$service = this as any;
                     proxyState(this, getterKeys);
                     proxyGetters(this, vm, getterKeys);
-                    // if (option.vueMethods) {
-                    //     proxyMethod(this, vm);
-                    // }
 
                     if (decoratorOption && decoratorOption.root) {
                         assert(decoratorOption.identifier,
@@ -96,9 +93,9 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
 }
 
 export function createdHook(service: IService, option: IVubxOption) {
-    initPlugins(service, service.__.globalPlugins.concat(option.plugins));
+    initPlugins(service, service.__scope__.globalPlugins.concat(option.plugins));
     option.created && option.created.call(service);
-    const rootOption = service.__.$root.__.vubxOption;
+    const rootOption = service.__scope__.$root.__scope__.vubxOption;
     if (rootOption.strict) {
         useStrict(service);
     }

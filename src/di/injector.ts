@@ -35,13 +35,13 @@ export class BaseInjector<T extends Service> {
     }
 
     protected setDep(instance: T, identifier: IIdentifier) {
-        if (instance.__.hasBeenInjected) {
+        if (instance.__scope__.hasBeenInjected) {
             return;
         }
-        instance.__.identifier = identifier;
-        instance.__.$root = this.dependentRoot;
-        createdHook(instance, instance.__.vubxOption);
-        instance.__.hasBeenInjected = true;
+        instance.__scope__.identifier = identifier;
+        instance.__scope__.$root = this.dependentRoot;
+        createdHook(instance, instance.__scope__.vubxOption);
+        instance.__scope__.hasBeenInjected = true;
     }
 }
 
