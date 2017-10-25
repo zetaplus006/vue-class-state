@@ -17,7 +17,7 @@ export class Provider {
 
     /**
      *
-     * @param rootService all service in provider is dependent this root service
+     * @param rootService all service in provider depend on this root service
      */
     constructor(
         public rootService: IService

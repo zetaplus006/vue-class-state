@@ -63,7 +63,11 @@ const observable = createDecorator(Vue);
     // 若使用严格模式及依赖注入则需要一个root节点，用于保存全局数据
     root: true,
     // 注入标识，后面文档会详细介绍
-    identifier: Symbol()
+    identifier: 'root',
+    // 开启严格模式，类实例中数据只能在打了@mutation注解的类方法中修改
+    strict: true,
+    // 使该实例能被vue的devtool观察到
+    devtool: true
 })
 class Addition extends Service {
 
@@ -87,12 +91,6 @@ class Addition extends Service {
 }
 
 const addition = new Addition();
-
-// 开启严格模式，类实例中数据只能在打了@mutation注解的类方法中被修改
-addition.useStrict();
-
-// 使该实例能被vuex的devtool观察到
-addition.useDevtool();
 
 new Vue({
     el: '#app',
@@ -146,6 +144,8 @@ class ModuleB extends Service implements IModule {
 
 @observable({
     root: true,
+    strict: true,
+    devtool: true,
     identifier: moduleKeys.root,
     providers: [
         // 绑定服务注入规则，toClass 绑定一个实现IModule接口的类，默认为单例模式
