@@ -64,9 +64,9 @@ const observable = createDecorator(Vue);
     root: true,
     // 注入标识，后面文档会详细介绍
     identifier: 'root',
-    // 开启严格模式，类实例中数据只能在打了@mutation注解的类方法中修改
+    // 开启严格模式，类实例中数据只能在标记了@mutation装饰器的类方法中修改
     strict: true,
-    // 使该实例能被vue的devtool观察到
+    // 使该实例能被vue的devtool观察到了
     devtool: true
 })
 class Addition extends Service {
