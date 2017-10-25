@@ -18,8 +18,6 @@ export interface IService {
 
     __: VubxHelper;
 
-    created?(): void;
-
     replaceState(state: IService, replaceChildState?: boolean): void;
 
     replaceAllState(proxyState: any): void;
@@ -48,11 +46,6 @@ export abstract class Service implements IService {
     }
 
     __: VubxHelper;
-
-    /**
-     * After initialization has been completed
-     */
-    created?(): void;
 
     replaceState(state: IService, replaceChildState = true): void {
         const root = this.__.$root;

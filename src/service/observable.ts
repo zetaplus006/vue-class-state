@@ -6,13 +6,13 @@ import { IService } from './service';
 import { def, assert } from '../util';
 import { Middleware } from './middleware';
 import { devtool } from '../plugins/devtool';
+import { MetaData } from '../di/meta';
 
 export type IDecoratorOption = {
     identifier?: IIdentifier;
     root?: boolean;
     strict?: boolean;
     devtool?: boolean;
-    vueMethods?: boolean;
     providers?: IInjector<IService>[];
     plugins?: IPlugin[];
     globalPlugins?: IPlugin[];
@@ -23,7 +23,6 @@ export type IVubxOption = {
     root: boolean;
     strict: boolean;
     devtool: boolean;
-    vueMethods: boolean,
     providers: IInjector<IService>[];
     plugins: IPlugin[];
     globalPlugins: IPlugin[];
@@ -56,7 +55,6 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         root: false,
                         strict: false,
                         devtool: false,
-                        vueMethods: false,
                         providers: [],
                         plugins: [],
                         globalPlugins: [],
@@ -69,9 +67,9 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     vm.$service = this as any;
                     proxyState(this, getterKeys);
                     proxyGetters(this, vm, getterKeys);
-                    if (option.vueMethods) {
-                        proxyMethod(this, vm);
-                    }
+                    // if (option.vueMethods) {
+                    //     proxyMethod(this, vm);
+                    // }
 
                     if (decoratorOption && decoratorOption.root) {
                         assert(decoratorOption.identifier,

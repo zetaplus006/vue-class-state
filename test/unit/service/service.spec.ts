@@ -5,7 +5,7 @@ import { createDecorator, Service, IVubxDecorator } from '../../../lib/vubx';
 const Vue = require('Vue');
 const observable: IVubxDecorator = createDecorator(Vue);
 
-describe('service vue methods', function () {
+/* describe('service vue methods', function () {
     @observable({
         vueMethods: true
     })
@@ -19,7 +19,7 @@ describe('service vue methods', function () {
             expect(testObj).to.has.property(key);
         });
     });
-});
+}); */
 
 describe('service $state $getters', function () {
     @observable()

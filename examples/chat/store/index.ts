@@ -3,7 +3,7 @@ import { Service, mutation } from 'vubx';
 import { getAllMessages } from '../api/index';
 import { IThreadsData, IThreads, IMessages, IMessage } from './type';
 import Vue from 'vue';
-import { devtool } from '../../../src/plugins/devtool'
+import { devtool } from '../../../src/plugins/devtool';
 
 export const serviceKey = {
     CHAT: 'chatStore'
@@ -11,7 +11,6 @@ export const serviceKey = {
 
 @store({
     root: true,
-    vueMethods: true,
     identifier: serviceKey.CHAT,
     strict: true,
     devtool: true

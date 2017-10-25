@@ -4,6 +4,7 @@ import { IService, Service } from './service';
 import { Middleware } from './middleware';
 import { Provider } from '../di/provider';
 import { IVubxOption } from './observable';
+import { MetaData } from '../di/meta';
 
 export type IConstructor = { new(...args: any[]): {}; };
 
@@ -141,9 +142,11 @@ export function getAllGetters(target: any, ctx: any) {
 
 export function getPropertyGetters(target: any, ctx: any): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
+    const meta = MetaData.getMetaData(target);
     const keys: string[] = Object.getOwnPropertyNames(target);
     keys.forEach(key => {
-        if (key === 'constructor') { return; }
+        // skip @lazyInject
+        if (key === 'constructor' || meta.propertyMeta.has(key)) { return; }
         const descriptor = Object.getOwnPropertyDescriptor(target, key);
         if (descriptor.get) {
             getters[key] = {
@@ -170,15 +173,15 @@ export function appendServiceChild<P extends Service, C extends Service>
         child.__.$root = root;
     }
     child.__.identifier = identifier;
-    def(parent.__.$state, childName, {
-        get: () => child.__.$state,
-        ...defaultConfig
-    });
-    def(parent.__.$getters, childName, {
-        get: () => child.__.$getters,
-        enumerable: false,
-        configurable: true
-    });
+    // def(parent.__.$state, childName, {
+    //     get: () => child.__.$state,
+    //     ...defaultConfig
+    // });
+    // def(parent.__.$getters, childName, {
+    //     get: () => child.__.$getters,
+    //     enumerable: false,
+    //     configurable: true
+    // });
 }
 
 export function useStrict(service: IService) {

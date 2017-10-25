@@ -14,12 +14,9 @@
     "declaration": true,
     "declarationDir": "./lib",
     "strictNullChecks": true,
-    // "noUnusedLocals": true,
-    // "removeComments": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    // "rootDir": "src",
     "outDir": "lib",
     "baseUrl": ".",
     "paths": {
