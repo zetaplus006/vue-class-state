@@ -166,7 +166,7 @@ class Root extends Service {
 
 }
 
-const rootModule = new Root().useDevtool().useStrict();
+const rootModule = new Root();
 
 // 配合vue-class-component获取更完善的开发体验
 @component({
