@@ -1,27 +1,11 @@
 import { expect } from 'chai';
 
 // import Vue from 'vue/';
-import { createDecorator, Service, IVubxDecorator } from '../../../lib/vubx';
+import { createDecorator, Service, IVubxDecorator, lazyInject, bind, IService } from '../../../lib/vubx';
 const Vue = require('Vue');
 const observable: IVubxDecorator = createDecorator(Vue);
 
-/* describe('service vue methods', function () {
-    @observable({
-        vueMethods: true
-    })
-    class TestVueMethods extends Service {
-
-    }
-    const testObj = new TestVueMethods();
-    const vmMethods = ['$watch', '$on', '$once', '$emit', '$off', '$set', '$delete', '$destroy'];
-    vmMethods.forEach(key => {
-        it(key, function () {
-            expect(testObj).to.has.property(key);
-        });
-    });
-}); */
-
-describe('service $state $getters', function () {
+describe('service $state $getters', function() {
     @observable()
     class State extends Service {
         a = 1;
@@ -34,17 +18,17 @@ describe('service $state $getters', function () {
         }
     }
     const state = new State();
-    it('proxy $state', function () {
+    it('proxy $state', function() {
         expect(state.__scope__.$state).to.deep.equal({ a: 1, b: 2 });
     });
-    it('proxy $getters', function () {
+    it('proxy $getters', function() {
         expect(state.__scope__.$getters).to.have.all.keys('sum', 'diff');
         expect(state.__scope__.$getters.sum).to.equal(3);
         expect(state.__scope__.$getters.diff).to.equal(1);
     });
 });
 
-describe('service root', function () {
+describe('service root', function() {
     const key = Symbol();
     @observable({
         root: true,
@@ -55,21 +39,21 @@ describe('service root', function () {
     }
     const state = new State();
     const provider = state.__scope__.provider;
-    it('root service should has a provider', function () {
+    it('root service should has a provider', function() {
         expect(provider).to.be.ok;
         expect(provider).to.equal(state.__scope__.provider);
     });
-    it('provider proxy', function () {
+    it('provider proxy', function() {
         expect(provider.proxy[key]).to.equal(state);
     });
-    it('provider get', function () {
+    it('provider get', function() {
         expect(provider.get(key)).to.equal(state);
     });
 });
 
 describe('computed', () => {
 
-    it('getters proxy to vue computed', function () {
+    it('getters proxy to vue computed', function() {
         const key = Symbol();
         let num = 0;
         @observable({
@@ -96,7 +80,7 @@ describe('computed', () => {
         expect(num).eql(2);
     });
 
-    it('get super getters', function () {
+    it('get super getters', function() {
 
         let num = 0;
 
@@ -126,7 +110,7 @@ describe('computed', () => {
         expect(num).eql(1);
     });
 
-    it('override super getters', function () {
+    it('override super getters', function() {
 
         const key = Symbol();
         class Base extends Service {
@@ -147,6 +131,119 @@ describe('computed', () => {
         const state = new State();
 
         expect(state.t).eql('child');
+    });
+
+});
+
+describe('vubxMethods', () => {
+    it('replaceState', () => {
+        @observable()
+        class State extends Service {
+            a = 1;
+            b = 2;
+            obj = {};
+            get jsonString() {
+                return Object.assign({}, this, {
+                    a: 3,
+                    obj: {
+                        c: 4
+                    }
+                });
+            }
+        }
+        const state = new State();
+        state.replaceState(state.jsonString);
+        expect(state.__scope__.$state).to.deep.equal({
+            a: 3,
+            b: 2,
+            obj: {
+                c: 4
+            }
+        });
+    });
+
+    it('replaceAllState', () => {
+        const moduleKeys = {
+            A: 'ModuleA',
+            B: 'ModuleB',
+            C: 'ModuleC'
+        };
+
+        interface IModule extends IService {
+            text: string;
+        }
+
+        @observable()
+        class ModuleA extends Service implements IModule {
+            text = 'A';
+        }
+
+        @observable()
+        class ModuleB extends Service implements IModule {
+            text = 'B';
+        }
+
+        @observable()
+        class ModuleC extends Service {
+
+            @lazyInject(moduleKeys.A)
+            moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            moduleB: IModule;
+        }
+
+        @observable({
+            root: true,
+            identifier: 'root',
+            providers: [
+                bind<IModule>(moduleKeys.A).toClass(ModuleA),
+                bind<IModule>(moduleKeys.B).toClass(ModuleB),
+                bind<ModuleC>(moduleKeys.C).toClass(ModuleC)
+            ]
+        })
+        class Root extends Service {
+
+            obj = {
+                a: 'a',
+                b: 1
+            };
+
+            @lazyInject(moduleKeys.A)
+            public moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            public moduleB: IModule;
+
+            @lazyInject(moduleKeys.C)
+            public moduleC: ModuleC;
+
+        }
+
+        const rootModule = new Root();
+
+        const targetState = Object.keys(moduleKeys)
+            .reduce((state, key) => {
+                return (state[moduleKeys[key]] = {
+                    text: moduleKeys[key]
+                }) && state;
+            }, {});
+        targetState['root'] = {
+            obj: {
+                a: 'b',
+                b: 2
+            }
+        };
+        rootModule.replaceAllState(targetState);
+
+        expect(rootModule.moduleA.text).eql(moduleKeys.A);
+        expect(rootModule.moduleB.text).eql(moduleKeys.B);
+        expect(rootModule.obj).eql({
+            a: 'b',
+            b: 2
+        });
+        expect(rootModule.moduleC[moduleKeys.C]).eql(undefined);
+        // todo test Symbol
     });
 
 });

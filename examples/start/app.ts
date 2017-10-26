@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { createDecorator, Service, mutation } from 'vubx';
+import { createDecorator, Service, mutation, lazyInject, bind, IService } from 'vubx';
 
 const observable = createDecorator(Vue);
 
@@ -48,3 +48,78 @@ new Vue({
         }, 2000);
     }
 });
+
+const moduleKeys = {
+    A: 'ModuleA',
+    B: 'ModuleB',
+    C: 'ModuleC'
+};
+
+interface IModule extends IService {
+    text: string;
+}
+
+@observable()
+class ModuleA extends Service implements IModule {
+    text = 'A';
+}
+
+@observable()
+class ModuleB extends Service implements IModule {
+    text = 'B';
+}
+
+@observable()
+class ModuleC extends Service {
+
+    @lazyInject(moduleKeys.A)
+    moduleA: IModule;
+
+    @lazyInject(moduleKeys.B)
+    moduleB: IModule;
+}
+
+@observable({
+    root: true,
+    identifier: 'root',
+    providers: [
+        bind<IModule>(moduleKeys.A).toClass(ModuleA),
+        bind<IModule>(moduleKeys.B).toClass(ModuleB),
+        bind<ModuleC>(moduleKeys.C).toClass(ModuleC)
+    ]
+})
+class Root extends Service {
+
+    obj = {
+        a: 'a',
+        b: 1
+    };
+
+    @lazyInject(moduleKeys.A)
+    public moduleA: IModule;
+
+    @lazyInject(moduleKeys.B)
+    public moduleB: IModule;
+
+    @lazyInject(moduleKeys.C)
+    public moduleC: ModuleC;
+
+}
+
+const rootModule = new Root();
+
+const targetState = Object.keys(moduleKeys)
+    .reduce((state, key) => {
+        return (state[moduleKeys[key]] = {
+            text: moduleKeys[key]
+        }) && state;
+    }, {});
+console.log(targetState);
+targetState['root'] = {
+    obj: {
+        a: 'b',
+        b: 2
+    }
+};
+rootModule.replaceAllState(targetState);
+console.log(rootModule);

@@ -60,13 +60,13 @@ import { createDecorator, Service, mutation } from 'vubx';
 const observable = createDecorator(Vue);
 
 @observable({
-    // 若使用严格模式及依赖注入则需要一个root节点，用于保存全局数据
+    // 若使用严格模式及依赖注入则需要一个root模块，用于保存全局数据
     root: true,
     // 注入标识，后面文档会详细介绍
     identifier: 'root',
     // 开启严格模式，类实例中数据只能在标记了@mutation装饰器的类方法中修改
     strict: true,
-    // 使该实例能被vue的devtool观察到了
+    // 使该模块及其注册的其他模块能被vue的devtool观察到
     devtool: true
 })
 class Addition extends Service {

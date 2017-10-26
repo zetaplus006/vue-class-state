@@ -47,20 +47,21 @@ export abstract class Service implements IService {
 
     __scope__: ScopeData;
 
-    replaceState(state: IService, replaceChildState = true): void {
-        const root = this.__scope__.$root;
-        const temp = root.__scope__.isCommitting;
-        root.__scope__.isCommitting = true;
+    replaceState(state: IService, replaceChildState = false): void {
+        const temp = this.__scope__.isCommitting;
+        this.__scope__.isCommitting = true;
         for (const key in state) {
             if (this[key] instanceof Service) {
                 if (replaceChildState) {
                     (this[key] as IService).replaceState(state[key]);
                 }
             } else {
-                this[key] = state[key];
+                if (this.hasOwnProperty(key)) {
+                    this[key] = state[key];
+                }
             }
         }
-        root.__scope__.isCommitting = temp;
+        this.__scope__.isCommitting = temp;
     }
 
     replaceAllState(proxyState: any) {

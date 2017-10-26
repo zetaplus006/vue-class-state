@@ -11,31 +11,32 @@ export interface IMutation {
 
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
-    descriptor.value = function (this: IService, ...arg: any[]) {
+    descriptor.value = function(this: IService, ...arg: any[]) {
+        const rootScope = this.__scope__.$root.__scope__,
+            scope = this.__scope__;
+
         const vubxMutation: IMutation = {
-            type: this.__scope__.identifier.toString() + ': ' + mutationyKey,
+            type: scope.identifier.toString() + ': ' + mutationyKey,
             payload: arg,
             methodName: mutationyKey,
-            identifier: this.__scope__.identifier
+            identifier: scope.identifier
         };
 
-        const root = this.__scope__.$root;
-        const globalMiddleware = root.__scope__.globalMiddlewate;
-        const middleware = this.__scope__.middleware;
+        const globalMiddleware = rootScope.globalMiddlewate;
+        const middleware = scope.middleware;
 
-        const temp = this.__scope__.isCommitting;
-        this.__scope__.isCommitting = true;
-        let result;
+        const temp = scope.isCommitting;
+        scope.isCommitting = true;
 
         globalMiddleware.dispatchBefore(this, vubxMutation, this);
         middleware.dispatchBefore(this, vubxMutation, this);
-        result = mutationFn.apply(this, arg);
+        const result = mutationFn.apply(this, arg);
         middleware.dispatchAfter(this, vubxMutation, this);
         globalMiddleware.dispatchAfter(this, vubxMutation, this);
         // arguments is different
         // res =  middleware.createTask(mutationFn, this)(...arg);
 
-        this.__scope__.isCommitting = temp;
+        scope.isCommitting = temp;
         return result;
     };
     return descriptor;
