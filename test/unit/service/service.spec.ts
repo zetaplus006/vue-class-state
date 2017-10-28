@@ -19,12 +19,12 @@ describe('service $state $getters', function() {
     }
     const state = new State();
     it('proxy $state', function() {
-        expect(state.__scope__.$state).to.deep.equal({ a: 1, b: 2 });
+        expect(state.$state).to.deep.equal({ a: 1, b: 2 });
     });
     it('proxy $getters', function() {
-        expect(state.__scope__.$getters).to.have.all.keys('sum', 'diff');
-        expect(state.__scope__.$getters.sum).to.equal(3);
-        expect(state.__scope__.$getters.diff).to.equal(1);
+        expect(state.$getters).to.have.all.keys('sum', 'diff');
+        expect(state.$getters.sum).to.equal(3);
+        expect(state.$getters.diff).to.equal(1);
     });
 });
 
@@ -38,10 +38,9 @@ describe('service root', function() {
 
     }
     const state = new State();
-    const provider = state.__scope__.provider;
+    const provider = state['__scope__'].provider;
     it('root service should has a provider', function() {
         expect(provider).to.be.ok;
-        expect(provider).to.equal(state.__scope__.provider);
     });
     it('provider proxy', function() {
         expect(provider.proxy[key]).to.equal(state);
@@ -153,7 +152,7 @@ describe('vubxMethods', () => {
         }
         const state = new State();
         state.replaceState(state.jsonString);
-        expect(state.__scope__.$state).to.deep.equal({
+        expect(state.$state).to.deep.equal({
             a: 3,
             b: 2,
             obj: {

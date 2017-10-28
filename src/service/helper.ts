@@ -87,6 +87,10 @@ export function proxyState(ctx: any, getterKeys: string[]) {
             }
         }
     );
+    def(ctx, '$state', {
+        value: $state,
+        enumerable: false
+    });
 }
 
 export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
@@ -103,6 +107,10 @@ export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
             set: value => ctx[key] = value,
             ...defaultConfig
         });
+    });
+    def(ctx, '$getters', {
+        value: $getters,
+        enumerable: false
     });
 }
 

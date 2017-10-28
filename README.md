@@ -156,7 +156,7 @@ class ModuleB extends Service implements IModule {
 })
 class Root extends Service {
 
-    // 通过注入标识异步注入模块，既当读取到此属性时才初始化该实例
+    // 通过注入标识注入模块，当读取到此属性时才初始化该模块实例
     // 注意devtool和严格模式也会触发实例化
     @lazyInject(moduleKeys.A)
     public moduleA: IModule;
@@ -247,7 +247,7 @@ bind<IModule>(moduleKeys.A).toFactory(() => new ModuleA()).inTransientScope()
 @observable()
 class Module extends Service {
 
-    // 通过注入标识异步注入模块，既当读取到此属性时才初始化该实例
+    // 通过注入标识注入模块，当读取到此属性时才初始化该模块实例
     // 注意devtool和严格模式也会触发实例化
     @lazyInject(moduleKeys.A)
     public moduleA: IModule;

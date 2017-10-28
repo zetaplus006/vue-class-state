@@ -37,7 +37,7 @@ export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConst
  */
 export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     return function decorator(decoratorOption?: IDecoratorOption) {
-        return function (constructor: IConstructor) {
+        return function(constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
@@ -61,9 +61,9 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         created,
                         ...decoratorOption
                     };
-                    const helper = new ScopeData(this as any, option);
-                    def(this, '__scope__', { value: helper, enumerable: false });
-                    helper.$vm = vm;
+                    const scope = new ScopeData(this as any, option);
+                    def(this, '__scope__', { value: scope, enumerable: false });
+                    scope.$vm = vm;
                     vm.$service = this as any;
                     proxyState(this, getterKeys);
                     proxyGetters(this, vm, getterKeys);
@@ -71,16 +71,16 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     if (decoratorOption && decoratorOption.root) {
                         assert(decoratorOption.identifier,
                             'A root Service must has a identifier and please check your decorator option');
-                        helper.provider.register(new ValueInjector(option.identifier, this as any));
-                        option.providers.forEach(injector => helper.provider.register(injector));
+                        scope.provider.register(new ValueInjector(option.identifier, this as any));
+                        option.providers.forEach(injector => scope.provider.register(injector));
 
-                        helper.identifier = option.identifier;
-                        helper.$root = this as any;
+                        scope.identifier = option.identifier;
+                        scope.$root = this as any;
                         createdHook(this as any, option);
-                        helper.hasBeenInjected = true;
+                        scope.hasBeenInjected = true;
 
                         if (option.devtool) {
-                            devtool(helper.provider);
+                            devtool(scope.provider);
                         }
                     }
                     /**

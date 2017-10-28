@@ -14,9 +14,9 @@ export interface GlobalHelper {
 
 export interface IService {
 
-    $proxy: any;
+    $state: any;
 
-    __scope__: ScopeData;
+    $getters: any;
 
     replaceState(state: IService, replaceChildState?: boolean): void;
 
@@ -41,11 +41,9 @@ export type IMutationSubscribeOption = {
 
 export abstract class Service implements IService {
 
-    get $proxy() {
-        return this.__scope__.provider.proxy;
-    }
+    $state: any;
 
-    __scope__: ScopeData;
+    $getters: any;
 
     replaceState(state: IService, replaceChildState = false): void {
         const temp = this.__scope__.isCommitting;
