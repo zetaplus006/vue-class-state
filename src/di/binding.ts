@@ -2,7 +2,7 @@ import { ClassInjector, ValueInjector, FactoryInjector, IDeps, IServiceFactory }
 import { IIdentifier, IServiceClass } from '../service/helper';
 import { Service } from '../service/service';
 
-export class Binding<T extends Service> {
+export class Binding<T> {
 
     public identifier: IIdentifier;
 

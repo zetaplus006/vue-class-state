@@ -3,6 +3,7 @@ import { IIdentifier, IServiceClass } from '../service/helper';
 import { Service, IService } from '../service/service';
 import { assert, hasSymbol } from '../util';
 import { createdHook } from '../service/observable';
+import { DIMetaData } from './di_meta';
 
 export interface IInjector<T> {
     identifier: IIdentifier;
@@ -16,9 +17,9 @@ export interface IInjector<T> {
 
 export type IDeps = IIdentifier[];
 
-export type IServiceFactory<T extends Service> = (...arg: IService[]) => T;
+export type IServiceFactory<T> = (...arg: any[]) => T;
 
-export class BaseInjector<T extends Service> {
+export class BaseInjector<T> {
 
     public instance: T;
     public isSingleton: boolean = true;
@@ -34,18 +35,23 @@ export class BaseInjector<T extends Service> {
         return this;
     }
 
-    protected setDep(instance: T, identifier: IIdentifier) {
-        if (instance.__scope__.hasBeenInjected) {
+    public setDep(instance: T, identifier: IIdentifier) {
+        const meta = DIMetaData.get(instance);
+        if (meta.hasBeenInjected) {
             return;
         }
-        instance.__scope__.identifier = identifier;
-        instance.__scope__.$root = this.dependentRoot;
-        createdHook(instance, instance.__scope__.vubxOption);
-        instance.__scope__.hasBeenInjected = true;
+        meta.identifier = identifier;
+        meta.provider = this.provider;
+        // if (instance instanceof Service) {
+        //     instance.__scope__.$root = this.dependentRoot;
+        //     createdHook(instance, instance.__scope__.vubxOption);
+        // }
+        this.provider.hooks.forEach(fn => fn(instance, meta));
+        meta.hasBeenInjected = true;
     }
 }
 
-export class ClassInjector<T extends IService> extends BaseInjector<T> implements IInjector<T> {
+export class ClassInjector<T> extends BaseInjector<T> implements IInjector<T> {
 
     constructor(
         public identifier: IIdentifier,
@@ -72,7 +78,7 @@ export class ClassInjector<T extends IService> extends BaseInjector<T> implement
     }
 }
 
-export class ValueInjector<T extends IService> extends BaseInjector<T> implements IInjector<T> {
+export class ValueInjector<T> extends BaseInjector<T> implements IInjector<T> {
 
     constructor(
         public identifier: IIdentifier,
@@ -99,7 +105,7 @@ export class ValueInjector<T extends IService> extends BaseInjector<T> implement
     }
 }
 
-export class FactoryInjector<T extends IService> extends BaseInjector<T> implements IInjector<T> {
+export class FactoryInjector<T> extends BaseInjector<T> implements IInjector<T> {
 
     constructor(
         public identifier: IIdentifier,

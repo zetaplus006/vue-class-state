@@ -5,7 +5,7 @@ import { createDecorator, Service, IVubxDecorator, lazyInject, bind, IService } 
 const Vue = require('Vue');
 const observable: IVubxDecorator = createDecorator(Vue);
 
-describe('service $state $getters', function() {
+describe('service $state $getters', function () {
     @observable()
     class State extends Service {
         a = 1;
@@ -18,17 +18,17 @@ describe('service $state $getters', function() {
         }
     }
     const state = new State();
-    it('proxy $state', function() {
+    it('proxy $state', function () {
         expect(state.$state).to.deep.equal({ a: 1, b: 2 });
     });
-    it('proxy $getters', function() {
+    it('proxy $getters', function () {
         expect(state.$getters).to.have.all.keys('sum', 'diff');
         expect(state.$getters.sum).to.equal(3);
         expect(state.$getters.diff).to.equal(1);
     });
 });
 
-describe('service root', function() {
+describe('service root', function () {
     const key = Symbol();
     @observable({
         root: true,
@@ -38,21 +38,21 @@ describe('service root', function() {
 
     }
     const state = new State();
-    const provider = state['__scope__'].provider;
-    it('root service should has a provider', function() {
+    const provider = state['__meta__'].provider;
+    it('root service should has a provider', function () {
         expect(provider).to.be.ok;
     });
-    it('provider proxy', function() {
+    it('provider proxy', function () {
         expect(provider.proxy[key]).to.equal(state);
     });
-    it('provider get', function() {
+    it('provider get', function () {
         expect(provider.get(key)).to.equal(state);
     });
 });
 
 describe('computed', () => {
 
-    it('getters proxy to vue computed', function() {
+    it('getters proxy to vue computed', function () {
         const key = Symbol();
         let num = 0;
         @observable({
@@ -79,7 +79,7 @@ describe('computed', () => {
         expect(num).eql(2);
     });
 
-    it('get super getters', function() {
+    it('get super getters', function () {
 
         let num = 0;
 
@@ -109,7 +109,7 @@ describe('computed', () => {
         expect(num).eql(1);
     });
 
-    it('override super getters', function() {
+    it('override super getters', function () {
 
         const key = Symbol();
         class Base extends Service {

@@ -6,6 +6,8 @@ import { def, assert } from '../util';
 import { devtool } from '../plugins/devtool';
 import { ValueInjector } from '../di/injector';
 import { IMutation } from './mutation';
+import { ClassMetaData } from '../di/class_meta';
+import { DIMetaData } from '../di/di_meta';
 
 export interface GlobalHelper {
     middleware: Middleware;
@@ -22,13 +24,13 @@ export interface IService {
 
     replaceAllState(proxyState: any): void;
 
-    appendChild(child: IService, childName: keyof this, identifier: IIdentifier): void;
-
-    getProvide(): any;
-
     subscribe(option: IMutationSubscribeOption): void;
 
     subscribeGlobal(option: IMutationSubscribeOption): void;
+
+    injectService(instance: IService, key: keyof this, identifier: IIdentifier): void;
+
+    getProvide(): any;
 
 }
 
@@ -63,22 +65,18 @@ export abstract class Service implements IService {
     }
 
     replaceAllState(proxyState: any) {
-        this.__scope__.provider.replaceAllState(proxyState);
+        DIMetaData.get(this).provider.replaceAllState(proxyState);
     }
 
-    appendChild(child: IService, key: keyof this, identifier: IIdentifier): void {
-        this.__scope__.provider.checkIdentifier(identifier);
-        this.__scope__.provider.register(new ValueInjector(identifier, child));
-        // appendServiceChild(this, key, this.__scope__.provider.get(identifier), identifier, this.__scope__.$root);
+    injectService(instance: any, key: keyof this, identifier: IIdentifier): void {
+        const provider = DIMetaData.get(this).provider;
+        provider.checkIdentifier(identifier);
+        provider.register(new ValueInjector(identifier, instance));
         def(this, key, {
-            value: child,
+            value: instance,
             enumerable: false,
             configurable: true
         });
-    }
-
-    getProvide() {
-        return this.__scope__.provider.proxy;
     }
 
     subscribe(option: IMutationSubscribeOption) {
@@ -88,6 +86,10 @@ export abstract class Service implements IService {
     subscribeGlobal(option: IMutationSubscribeOption) {
         assert(this.__scope__.$root === this, 'Only root service has subscribeGlobal methods');
         this.__scope__.globalMiddlewate.subscribe(option);
+    }
+
+    getProvide() {
+        return DIMetaData.get(this).provider.proxy;
     }
 
 }

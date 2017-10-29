@@ -4,11 +4,11 @@ import { IService, Service } from './service';
 import { Middleware } from './middleware';
 import { Provider } from '../di/provider';
 import { IVubxOption } from './observable';
-import { MetaData } from '../di/meta';
+import { ClassMetaData } from '../di/class_meta';
 
 export type IConstructor = { new(...args: any[]): {}; };
 
-export type IServiceClass<T extends IService> = { new(...args: any[]): T; };
+export type IServiceClass<T> = { new(...args: any[]): T; };
 
 export type IIdentifier = string | symbol;
 
@@ -40,11 +40,6 @@ export class ScopeData {
         this._root = value;
     }
 
-    private _provider: Provider;
-    get provider(): Provider {
-        return this.$root.__scope__._provider;
-    }
-
     private _globalPlugins: IPlugin[];
     get globalPlugins(): IPlugin[] {
         return this.$root.__scope__._globalPlugins;
@@ -63,7 +58,6 @@ export class ScopeData {
         this.isRoot = !!vubxOption.root;
         if (this.isRoot) {
             this._root = service;
-            this._provider = new Provider(service);
             this._globalMiddllewate = new Middleware();
             this._globalPlugins = vubxOption.globalPlugins || [];
         } else if (vubxOption.globalPlugins.length > 0) {
@@ -131,7 +125,7 @@ export function getAllGetters(target: any, ctx: any) {
 
 export function getPropertyGetters(target: any, ctx: any): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
-    const meta = MetaData.getMetaData(target);
+    const meta = ClassMetaData.get(target);
     const keys: string[] = Object.getOwnPropertyNames(target);
     keys.forEach(key => {
         // skip @lazyInject
@@ -147,25 +141,9 @@ export function getPropertyGetters(target: any, ctx: any): { [key: string]: { ge
     return getters;
 }
 
-/* export function appendServiceChild<P extends Service, C extends Service>
-    (parent: P, childName: keyof P, child: C, identifier: IIdentifier, root?: Service) {
-    parent.__scope__.$children.push(child);
-    if (child.__scope__.$parent.indexOf(parent) <= -1) {
-        child.__scope__.$parent.push(parent);
-    }
-    if (process.env.NODE_ENV !== 'production') {
-        assert(parent.__scope__.$root,
-            'Make sure to have a root service, ' +
-            'Please check the root options in the decorator configuration');
-    }
-    if (root) {
-        child.__scope__.$root = root;
-    }
-} */
-
 export function useStrict(service: IService) {
     if (process.env.NODE_ENV !== 'production') {
-        service.__scope__.$vm && service.__scope__.$vm.$watch<any>(function () {
+        service.__scope__.$vm && service.__scope__.$vm.$watch<any>(function() {
             return this.$data;
         }, (val) => {
             assert(service.__scope__.isCommitting,

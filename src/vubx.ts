@@ -18,4 +18,4 @@ export { IInjector, IDeps, IServiceFactory } from './di/injector';
  */
 export { Service } from './service/service';
 export { bind } from './di/binding';
-export { createDecorator, mutation, lazyInject } from './decorator';
+export { createDecorator, mutation, lazyInject, created } from './decorator';

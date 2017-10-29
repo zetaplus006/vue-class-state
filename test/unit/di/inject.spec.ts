@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createDecorator, Service, IService, bind, lazyInject, IVubxDecorator } from '../../../lib/vubx';
+import { createDecorator, Service, IService, bind, lazyInject, IVubxDecorator, created } from '../../../lib/vubx';
 const Vue = require('Vue');
 
 const observable: IVubxDecorator = createDecorator(Vue);
@@ -398,6 +398,8 @@ describe('di', () => {
         class ModuleA extends Service implements IModule {
             text = 'A';
             count = 0;
+
+            @created()
             created() {
                 this.count++;
             }
@@ -407,6 +409,7 @@ describe('di', () => {
         class ModuleB extends Service implements IModule {
             text = 'B';
             count = 0;
+            @created()
             created() {
                 this.count++;
             }
@@ -425,6 +428,8 @@ describe('di', () => {
             rootModule: Root;
 
             count = 0;
+
+            @created()
             created() {
                 this.count++;
             }
@@ -451,6 +456,7 @@ describe('di', () => {
             public moduleC: ModuleC;
 
             count = 0;
+            @created()
             created() {
                 this.count++;
             }
@@ -490,6 +496,7 @@ describe('di', () => {
         class ModuleA extends Service implements IModule {
             text = 'A';
             count = 0;
+            @created()
             created() {
                 this.count++;
             }
@@ -517,6 +524,7 @@ describe('di', () => {
             rootModule: Root;
 
             count = 0;
+            @created()
             created() {
                 this.count++;
             }
@@ -545,6 +553,8 @@ describe('di', () => {
             public moduleC: ModuleC;
 
             count = 0;
+
+            @created()
             created() {
                 this.count++;
             }
@@ -584,6 +594,8 @@ describe('di', () => {
         class ModuleA extends Service implements IModule {
             text = 'A';
             count = 0;
+
+            @created()
             created() {
                 this.count++;
             }
@@ -593,6 +605,8 @@ describe('di', () => {
         class ModuleB extends Service implements IModule {
             text = 'B';
             count = 0;
+
+            @created()
             created() {
                 this.count++;
             }
@@ -611,6 +625,8 @@ describe('di', () => {
             rootModule: Root;
 
             count = 0;
+
+            @created()
             created() {
                 this.count++;
             }
@@ -639,6 +655,8 @@ describe('di', () => {
             public moduleC: ModuleC;
 
             count = 0;
+
+            @created()
             created() {
                 this.count++;
             }
