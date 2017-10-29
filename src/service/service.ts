@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { Middleware, ISubscribeOption } from './middleware';
 import { Provider } from '../di/provider';
-import { IIdentifier, appendServiceChild, IPlugin, ScopeData } from './helper';
+import { IIdentifier, IPlugin, ScopeData } from './helper';
 import { def, assert } from '../util';
 import { devtool } from '../plugins/devtool';
 import { ValueInjector } from '../di/injector';
@@ -69,10 +69,11 @@ export abstract class Service implements IService {
     appendChild(child: IService, key: keyof this, identifier: IIdentifier): void {
         this.__scope__.provider.checkIdentifier(identifier);
         this.__scope__.provider.register(new ValueInjector(identifier, child));
-        appendServiceChild(this, key, this.__scope__.provider.get(identifier), identifier, this.__scope__.$root);
+        // appendServiceChild(this, key, this.__scope__.provider.get(identifier), identifier, this.__scope__.$root);
         def(this, key, {
+            value: child,
             enumerable: false,
-            value: child
+            configurable: true
         });
     }
 

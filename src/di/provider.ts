@@ -78,9 +78,9 @@ export class Provider {
      * @param injector
      */
     private defProxy(injector: IInjector<IService>) {
-        if (!injector.isSingleton) {
+        /* if (!injector.isSingleton) {
             return;
-        }
+        } */
         const desc: PropertyDescriptor = {
             get: () => {
                 return injector.resolve();

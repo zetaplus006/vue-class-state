@@ -23,14 +23,13 @@ export class ScopeData {
     $vm: Vue;
     $getters: any = {};
     $state: any = {};
-    $parent: IService[] = [];
-    $children: IService[] = [];
+    isRoot: boolean;
     isCommitting: boolean = false;
     middleware: Middleware = new Middleware();
+    vubxOption: IVubxOption;
+
     hasBeenInjected: boolean = false;
     identifier: IIdentifier;
-    isRoot: boolean;
-    vubxOption: IVubxOption;
 
     private _root: IService;
     get $root(): IService {
@@ -148,7 +147,7 @@ export function getPropertyGetters(target: any, ctx: any): { [key: string]: { ge
     return getters;
 }
 
-export function appendServiceChild<P extends Service, C extends Service>
+/* export function appendServiceChild<P extends Service, C extends Service>
     (parent: P, childName: keyof P, child: C, identifier: IIdentifier, root?: Service) {
     parent.__scope__.$children.push(child);
     if (child.__scope__.$parent.indexOf(parent) <= -1) {
@@ -162,7 +161,7 @@ export function appendServiceChild<P extends Service, C extends Service>
     if (root) {
         child.__scope__.$root = root;
     }
-}
+} */
 
 export function useStrict(service: IService) {
     if (process.env.NODE_ENV !== 'production') {

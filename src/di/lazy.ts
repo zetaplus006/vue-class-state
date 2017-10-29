@@ -1,5 +1,5 @@
 import { def } from '../util';
-import { IIdentifier, appendServiceChild } from '../service/helper';
+import { IIdentifier } from '../service/helper';
 import { IService } from '../service/service';
 import { MetaData } from './meta';
 
@@ -13,7 +13,7 @@ export function lazyInject(identifier?: IIdentifier): PropertyDecorator {
         return {
             get: function (this: IService) {
                 const service = this.__scope__.provider.get(serviceKey);
-                appendServiceChild(this, propertyKey as any, service, serviceKey);
+                // appendServiceChild(this, propertyKey as any, service, serviceKey);
                 def(this, propertyKey, {
                     value: service,
                     enumerable: false,
