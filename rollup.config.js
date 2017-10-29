@@ -4,7 +4,8 @@ import typescript from 'rollup-plugin-typescript2';
 import replace from 'rollup-plugin-post-replace';
 import filesize from 'rollup-plugin-filesize';
 const version = process.env.VERSION || require('./package.json').version;
-const banner = `/**
+const banner =
+`/**
  * vubx v${version}
  * (c) ${new Date().getFullYear()} zetaplus006
  * @license MIT

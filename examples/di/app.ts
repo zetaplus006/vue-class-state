@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { createDecorator, Service, mutation, lazyInject, bind, IService } from 'vubx';
+import { createDecorator, Service, mutation, lazyInject, bind, IService, created } from 'vubx';
 import component from 'vue-class-component';
 import { Inject } from 'vue-property-decorator';
 
@@ -35,7 +35,7 @@ class ModuleB extends Service implements IModule {
     providers: [
         bind<IModule>(moduleKeys.A).toClass(ModuleA),
         bind<IModule>(moduleKeys.B).toClass(ModuleB),
-        bind<any>('tool').toValue({ a: 111 })
+        bind<any>('tool').toValue({ num: 111 })
     ],
     strict: true,
     devtool: true
@@ -57,8 +57,10 @@ class Root extends Service {
         return this.moduleA.text + this.moduleB.text;
     }
 
-    created() {
-        this.injectService(new ModuleA(), 'child', 'child');
+    @created([moduleKeys.A])
+    created(moduleA: IModule) {
+        this.injectService(moduleA, 'child', 'child');
+        console.log(this.child === this.moduleA);
     }
 
 }
