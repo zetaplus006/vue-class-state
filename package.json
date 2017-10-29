@@ -19,7 +19,8 @@
     "test": "npm run build-unit && npm run test-unit",
     "test-unit": "./node_modules/.bin/mocha test/unit-build/**/*.spec.js",
     "build-unit": "rimraf test/unit-build && tsc -p test/unit",
-    "pre-publish": "npm run build && npm run test"
+    "pre-publish": "npm run build && npm run test",
+    "release": "bash release.sh"
   },
   "keywords": [
     "vue",
