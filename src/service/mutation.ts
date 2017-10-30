@@ -1,6 +1,7 @@
 import { IService, GlobalHelper } from './service';
 import { Middleware } from './middleware';
 import { IIdentifier } from './helper';
+import { DIMetaData } from '../di/di_meta';
 
 export interface IMutation {
     type: string;
@@ -11,12 +12,13 @@ export interface IMutation {
 
 export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
-    descriptor.value = function(this: IService, ...arg: any[]) {
+    descriptor.value = function (this: IService, ...arg: any[]) {
         const rootScope = this.__scope__.$root.__scope__,
-            scope = this.__scope__;
+            scope = this.__scope__,
+            mete = DIMetaData.get(this);
 
         const vubxMutation: IMutation = {
-            type: scope.identifier.toString() + ': ' + mutationyKey,
+            type: mete.identifier.toString() + ': ' + mutationyKey,
             payload: arg,
             methodName: mutationyKey,
             identifier: scope.identifier

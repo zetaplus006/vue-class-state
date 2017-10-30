@@ -1,15 +1,15 @@
 import { IInjector, IDeps } from './injector';
 import { assert, def } from '../util';
 import { IIdentifier } from '../service/helper';
-import { IService } from '../service/service';
+import { IService, Service } from '../service/service';
 import { DIMetaData } from './di_meta';
 
 export type IProxyState = {
-    [key: string]: IService
+    [key: string]: any
 };
 
 export class Provider {
-    private injectorMap: Map<IIdentifier, IInjector<IService>> = new Map();
+    private injectorMap: Map<IIdentifier, IInjector<any>> = new Map();
 
     /**
      * for vue provide option
@@ -17,7 +17,6 @@ export class Provider {
     public proxy: any = {};
 
     public hooks: ((instance: any, meta: DIMetaData) => void)[] = [];
-
 
     /**
      * get service instance
@@ -64,7 +63,10 @@ export class Provider {
      */
     public replaceAllState(proxyState: IProxyState) {
         for (const key in proxyState) {
-            (this.proxy[key] as IService).replaceState(proxyState[key], false);
+            const instance = this.proxy[key];
+            if (instance instanceof Service) {
+                instance.replaceState(proxyState[key], false);
+            }
         }
     }
 
