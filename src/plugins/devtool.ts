@@ -2,8 +2,11 @@ import { IService, GlobalHelper, Service } from '../service/service';
 import { Provider } from '../di/provider';
 import { def } from '../util';
 import { IIdentifier, proxyGetters } from '../service/helper';
+import { DIMetaData } from '../di/di_meta';
 
-export function devtool(provider: Provider) {
+export function devtool(service: IService) {
+
+    const provider = DIMetaData.get(service).provider;
 
     const devtoolHook =
         typeof window !== 'undefined' &&
@@ -21,7 +24,7 @@ export function devtool(provider: Provider) {
         provider.replaceAllState(targetState);
     });
 
-    provider.rootService.__scope__.globalMiddlewate.subscribe({
+    service.__scope__.globalMiddlewate.subscribe({
         after: (mutation: any, state: any) => {
             devtoolHook.emit('vuex:mutation', mutation, state);
         }
@@ -40,7 +43,6 @@ function simulationStore(provider: Provider): IStore {
         state,
         getters,
         _devtoolHook: null
-        // subscribe:
     };
     return store;
 }

@@ -71,7 +71,7 @@ export abstract class Service implements IService {
     injectService(instance: any, key: keyof this, identifier: IIdentifier): void {
         const provider = DIMetaData.get(this).provider;
         provider.checkIdentifier(identifier);
-        provider.register(new ValueInjector(identifier, instance));
+        provider.register(new ValueInjector(identifier, true, instance));
         def(this, key, {
             value: instance,
             enumerable: false,

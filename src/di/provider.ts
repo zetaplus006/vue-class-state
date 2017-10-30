@@ -18,13 +18,6 @@ export class Provider {
 
     public hooks: ((instance: any, meta: DIMetaData) => void)[] = [];
 
-    /**
-     *
-     * @param rootService all service in provider depend on this root service
-     */
-    constructor(
-        public rootService: IService
-    ) { }
 
     /**
      * get service instance
@@ -54,7 +47,6 @@ export class Provider {
     public register(injector: IInjector<any>) {
         this.checkIdentifier(injector.identifier);
         injector.provider = this;
-        injector.dependentRoot = this.rootService;
         this.injectorMap.set(injector.identifier, injector);
         this.defProxy(injector);
     }

@@ -272,8 +272,12 @@ describe('di', () => {
 
         const rootModule = new Root();
 
+        const rootModule2 = new Root();
+
         expect(rootModule.moduleA1 === rootModule.moduleA2).eql(true);
         expect(rootModule.moduleB1 === rootModule.moduleB2).eql(true);
+
+        expect(rootModule.moduleA1 === rootModule2.moduleA1).eql(false);
 
     });
 

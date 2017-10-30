@@ -9,13 +9,14 @@ import { devtool } from '../plugins/devtool';
 import { ClassMetaData } from '../di/class_meta';
 import { DIMetaData } from '../di/di_meta';
 import { ICreatedHook, created } from './hook';
+import { Binding } from '../di/binding';
 
 export type IDecoratorOption = {
     identifier?: IIdentifier;
     root?: boolean;
     strict?: boolean;
     devtool?: boolean;
-    providers?: IInjector<IService>[];
+    providers?: Binding<any>[];
     plugins?: IPlugin[];
     globalPlugins?: IPlugin[];
 };
@@ -25,7 +26,7 @@ export type IVubxOption = {
     root: boolean;
     strict: boolean;
     devtool: boolean;
-    providers: IInjector<IService>[];
+    providers: Binding<any>[];
     plugins: IPlugin[];
     globalPlugins: IPlugin[];
     createdHook: ICreatedHook;
@@ -39,7 +40,7 @@ export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConst
  */
 export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     return function decorator(decoratorOption?: IDecoratorOption) {
-        return function(constructor: IConstructor) {
+        return function (constructor: IConstructor) {
             return class Vubx extends constructor {
                 constructor(...arg: any[]) {
                     super(...arg);
@@ -74,15 +75,15 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                             'A root Service must has a identifier and please check your decorator option');
                         scope.$root = this as any;
 
-                        const provider = new Provider(this as any);
+                        const provider = new Provider();
                         provider.registerInjectedHook((instance: IService, diMeta: DIMetaData) => {
                             if (instance instanceof Service) {
                                 instance.__scope__.$root = this as any;
                                 createdHook(instance, instance.__scope__.vubxOption, diMeta);
                             }
                         });
-                        provider.register(new ValueInjector(option.identifier, this as any));
-                        option.providers.forEach(injector => provider.register(injector));
+                        provider.register(new ValueInjector(option.identifier, true, this as any));
+                        option.providers.forEach(binding => provider.register(binding.injectorFactory()));
 
                         const meta = DIMetaData.get(this);
                         meta.identifier = option.identifier;
@@ -91,7 +92,7 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                         meta.hasBeenInjected = true;
 
                         if (option.devtool) {
-                            devtool(provider);
+                            devtool(this as any);
                         }
                     }
                 }

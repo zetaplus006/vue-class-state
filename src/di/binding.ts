@@ -1,26 +1,41 @@
-import { ClassInjector, ValueInjector, FactoryInjector, IDeps, IServiceFactory } from './injector';
+import { ClassInjector, ValueInjector, FactoryInjector, IDeps, IServiceFactory, IInjector } from './injector';
 import { IIdentifier, IServiceClass } from '../service/helper';
 import { Service } from '../service/service';
 
 export class Binding<T> {
 
     public identifier: IIdentifier;
+    private isSingleton: boolean = true;
+    public injectorFactory: () => IInjector<T>;
 
     constructor(identifier: IIdentifier) {
         this.identifier = identifier;
     }
 
     public toClass(serviceClass: IServiceClass<T>) {
-        return new ClassInjector(this.identifier, serviceClass);
+        this.injectorFactory = () => new ClassInjector(this.identifier, this.isSingleton, serviceClass);
+        return this;
     }
 
     public toValue(service: T) {
-        return new ValueInjector(this.identifier, service);
+        this.injectorFactory = () => new ValueInjector(this.identifier, this.isSingleton, service);
+        return this;
     }
 
     public toFactory(factory: IServiceFactory<T>, deps: IDeps = []) {
-        return new FactoryInjector(this.identifier, factory, deps);
+        this.injectorFactory = () => new FactoryInjector(this.identifier, this.isSingleton, factory, deps);
+        return this;
     }
+
+    public inSingletonScope(): this {
+        this.isSingleton = true;
+        return this;
+    }
+    public inTransientScope(): this {
+        this.isSingleton = false;
+        return this;
+    }
+
 }
 
 export function bind<T extends Service>(identifier: IIdentifier) {
