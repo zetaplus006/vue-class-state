@@ -5,6 +5,7 @@ import { Middleware } from './middleware';
 import { Provider } from '../di/provider';
 import { IVubxOption } from './observable';
 import { ClassMetaData } from '../di/class_meta';
+import { DIMetaData } from '../di/di_meta';
 
 export type IConstructor = { new(...args: any[]): {}; };
 
@@ -27,9 +28,6 @@ export class ScopeData {
     isCommitting: boolean = false;
     middleware: Middleware = new Middleware();
     vubxOption: IVubxOption;
-
-    hasBeenInjected: boolean = false;
-    identifier: IIdentifier;
 
     private _root: IService;
     get $root(): IService {
@@ -63,7 +61,6 @@ export class ScopeData {
         } else if (vubxOption.globalPlugins.length > 0) {
             assert(false, 'The globalPlugins option only to be used in root service');
         }
-        this.identifier = vubxOption.identifier;
         this.vubxOption = vubxOption;
     }
 }
@@ -142,12 +139,13 @@ export function getPropertyGetters(target: any, ctx: any): { [key: string]: { ge
 }
 
 export function useStrict(service: IService) {
+    const identifier = DIMetaData.get(service).identifier;
     if (process.env.NODE_ENV !== 'production') {
-        service.__scope__.$vm && service.__scope__.$vm.$watch<any>(function() {
+        service.__scope__.$vm && service.__scope__.$vm.$watch<any>(function () {
             return this.$data;
         }, (val) => {
             assert(service.__scope__.isCommitting,
-                `Do not mutate vubx service[${String(service.__scope__.identifier)}] data outside mutation handlers.`);
+                `Do not mutate vubx service[${String(identifier)}] data outside mutation handlers.`);
         }, { deep: true, sync: true });
     }
 }

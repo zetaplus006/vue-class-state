@@ -15,13 +15,13 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
     descriptor.value = function (this: IService, ...arg: any[]) {
         const rootScope = this.__scope__.$root.__scope__,
             scope = this.__scope__,
-            mete = DIMetaData.get(this);
+            meta = DIMetaData.get(this);
 
         const vubxMutation: IMutation = {
-            type: mete.identifier.toString() + ': ' + mutationyKey,
+            type: meta.identifier.toString() + ': ' + mutationyKey,
             payload: arg,
             methodName: mutationyKey,
-            identifier: scope.identifier
+            identifier: meta.identifier
         };
 
         const globalMiddleware = rootScope.globalMiddlewate;

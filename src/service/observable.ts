@@ -66,7 +66,6 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     const scope = new ScopeData(this as any, option);
                     def(this, '__scope__', { value: scope, enumerable: false });
                     scope.$vm = vm;
-                    vm.$service = this as any;
                     proxyState(this, getterKeys);
                     proxyGetters(this, vm, getterKeys);
 
