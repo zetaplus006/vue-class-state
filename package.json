@@ -1,6 +1,6 @@
 {
   "name": "vubx",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A object-oriented style State Management for Vue",
   "main": "lib/vubx.common.js",
   "module": "lib/vubx.esm.js",
