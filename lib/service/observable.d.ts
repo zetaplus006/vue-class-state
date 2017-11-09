@@ -16,7 +16,7 @@ export declare type IDecoratorOption = {
 export declare type IVubxOption = {
     identifier: IIdentifier;
     root: boolean;
-    strict: boolean;
+    strict?: boolean;
     devtool: boolean;
     providers: Binding<any>[];
     plugins: IPlugin[];
@@ -24,9 +24,5 @@ export declare type IVubxOption = {
     createdHook: ICreatedHook;
 };
 export declare type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
-/**
- * createObserveDecorator
- * @param _Vue
- */
 export declare function createDecorator(_Vue: typeof Vue): IVubxDecorator;
 export declare function createdHook(service: IService, option: IVubxOption, diMeta: DIMetaData): void;
