@@ -1,7 +1,6 @@
 ## vubx
 > Vue状态管理，采用面向对象风格的api设计，灵感来自[mobx](https://github.com/mobxjs/mobx)
 
-<!-- [![npm](https://img.shields.io/npm/dm/vubx.svg)](https://www.npmjs.com/package/vubx) -->
 
 ## 索引
 - [vubx介绍](#vubx介绍)
@@ -64,7 +63,7 @@ const observable = createDecorator(Vue);
     root: true,
     // 注入标识，后面文档会详细介绍
     identifier: 'root',
-    // 开启严格模式，类实例中数据只能在标记了@mutation装饰器的类方法中修改
+    // 开启严格模式，类实例中数据只能在添加了@mutation装饰器的方法中修改
     strict: true,
     // 使该模块及其注册的其他模块能被vue的devtool观察到
     devtool: true
@@ -80,7 +79,7 @@ class Addition extends Service {
         return this.a + this.b;
     }
 
-    // 突变方法，与vuex概念一致必须为同步函数
+    // 突变方法，与vuex概念一致必须为同步方法
     @mutation
     change() {
         const temp = this.sum;

@@ -3,7 +3,7 @@ import { Provider } from '../di/provider';
 import { ValueInjector, IInjector, BaseInjector } from '../di/injector';
 import { IConstructor, IPlugin, IIdentifier, proxyState, proxyGetters, ScopeData, getAllGetters, useStrict } from './helper';
 import { IService, Service } from './service';
-import { def, assert } from '../util';
+import { def, assert, hasSymbol } from '../util';
 import { Middleware } from './middleware';
 import { devtool } from '../plugins/devtool';
 import { ClassMetaData } from '../di/class_meta';
@@ -24,7 +24,7 @@ export type IDecoratorOption = {
 export type IVubxOption = {
     identifier: IIdentifier;
     root: boolean;
-    strict: boolean;
+    strict?: boolean;
     devtool: boolean;
     providers: Binding<any>[];
     plugins: IPlugin[];
@@ -34,10 +34,6 @@ export type IVubxOption = {
 
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
 
-/**
- * createObserveDecorator
- * @param _Vue
- */
 export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
     return function decorator(decoratorOption?: IDecoratorOption) {
         return function (constructor: IConstructor) {
@@ -55,7 +51,6 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
                     const option: IVubxOption = {
                         identifier: '__vubx__',
                         root: false,
-                        strict: false,
                         devtool: false,
                         providers: [],
                         plugins: [],
@@ -102,15 +97,15 @@ export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
 
 export function createdHook(service: IService, option: IVubxOption, diMeta: DIMetaData) {
     initPlugins(service, service.__scope__.globalPlugins.concat(option.plugins));
-    // option.created && option.created.call(service);
+    const rootOption = service.__scope__.$root.__scope__.vubxOption;
+    const strict = option.hasOwnProperty('strict') ? option.strict : rootOption.strict;
+    if (strict) {
+        useStrict(service);
+    }
     const hook = option.createdHook;
     if (hook) {
         const deps = diMeta.provider.getAll(hook.deps);
         hook.method.apply(service, deps);
-    }
-    const rootOption = service.__scope__.$root.__scope__.vubxOption;
-    if (rootOption.strict) {
-        useStrict(service);
     }
 }
 

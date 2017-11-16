@@ -6,5 +6,4 @@ examples/**/build.js
 explorations
 *.log
 .rpt2_cache
-lib
 test/unit-build
