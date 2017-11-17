@@ -3,6 +3,8 @@
 
 
 ## 索引
+
+- [索引](#索引)
 - [vubx介绍](#vubx介绍)
 - [安装](#安装)
 - [基本使用](#基本使用)
@@ -15,6 +17,9 @@
         - [单例与多例](#单例与多例)
     - [在模块中注入其他模块](#在模块中注入其他模块)
     - [在Vue组件中注入模块](#在vue组件中注入模块)
+- [插件与中间件](#插件与中间件)
+    - [基本使用](#基本使用-1)
+
 
 
 ## vubx介绍
@@ -310,4 +315,105 @@ class App extends Vue {
 }
 ```
 
+## 插件与中间件
+
+### 基本例子
+
+以下是简单的缓存例子
+
+```typescript
+import Vue from 'vue';
+import { createDecorator, Service, mutation } from 'vubx';
+
+const observable = createDecorator(Vue);
+
+const cacheKey = 'cache-key';
+
+const plugin = (store: Counter) => {
+    // subscribe方法用于订阅mutation中间件，
+    store.subscribe({
+        // after选项代表在mutation执行后执行的方法，相对的也提供before选项，用于在mutation执行前进行操作
+        after: () => {
+            // store中所有被Vue观察到的数据都会被代理到$state对象中
+            sessionStorage.setItem(cacheKey, JSON.stringify(store.$state));
+        }
+    });
+};
+
+@observable({
+    root: true,
+    identifier: 'counter',
+    strict: true,
+    devtool: true,
+    // 注册插件，插件在此类实例化后执行
+    plugins: [
+        plugin
+    ]
+})
+class Counter extends Service {
+
+    num = 0;
+
+    @mutation
+    add() {
+        this.num++;
+    }
+
+    init() {
+        const cacheStr = sessionStorage.getItem(cacheKey);
+        if (cacheStr) {
+            const cache = JSON.parse(cacheStr);
+            this.replaceState(cache);
+        }
+        setInterval(() => {
+            this.add();
+        }, 1000);
+    }
+}
+
+const addition = new Counter();
+
+new Vue({
+    el: '#app',
+    template: `<div>{{addition.num}}</div>`,
+    computed: {
+        addition() {
+            return addition;
+        }
+    },
+    mounted() {
+        addition.init();
+    }
+});
+
+```
+
+### 插件详解
+
+`vubx`的插件分为`模块插件`与`全局插件`，上述的缓存例子便是一个简单的`模块插件`，只会在注册的本模块初始化时执行，当项目有很多模块时，可以选择性的给某些模块加入缓存机制。而`全局插件`一般用于打印记录mutation日志之类的开发环境工具，一般不建议用于实际业务处理。
+
+如下注册`全局插件`，注意globalPlugins选项只在`root模块`中有效，并且`全局插件`会在providers选项下注册的所有模块被第一次注入时执行，对于`root模块`只会在初始化时执行，`模块插件`的执行时机也与其一致。
+```typescript
+@observable({
+    root: true,
+    identifier: 'counter',
+    strict: true,
+    devtool: true,
+    // 在此注册模块插件
+    plugins: [
+        plugin
+    ],
+    // 在此注册全局插件
+    globalPlugins: [
+        createLoggerPlugin()
+    ]
+})
+class Counter extends Service {
+    // ....
+}
+```
+
+<!-- ### 中间件详解
+### 生命周期
+### 局限性 -->
 未完待续
