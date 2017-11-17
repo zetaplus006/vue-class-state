@@ -5,7 +5,7 @@ import { DIMetaData } from '../di/di_meta';
 
 export interface IMutation {
     type: string;
-    payload: any;
+    payload: any[];
     methodName: string;
     identifier: IIdentifier;
 }

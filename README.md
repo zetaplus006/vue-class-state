@@ -4,6 +4,7 @@
 
 ## 索引
 
+- [vubx](#vubx)
 - [索引](#索引)
 - [vubx介绍](#vubx介绍)
 - [安装](#安装)
@@ -18,9 +19,10 @@
     - [在模块中注入其他模块](#在模块中注入其他模块)
     - [在Vue组件中注入模块](#在vue组件中注入模块)
 - [插件与中间件](#插件与中间件)
-    - [基本使用](#基本使用-1)
-
-
+    - [基本例子](#基本例子-1)
+    - [插件详解](#插件详解)
+    - [mutation中间件详解](#mutation中间件详解)
+- [生命周期](#生命周期)
 
 ## vubx介绍
 `vubx`可以视为`vuex`的面向对象风格版本，提供以下功能：
@@ -335,7 +337,7 @@ const plugin = (store: Counter) => {
         // after选项代表在mutation执行后执行的方法，相对的也提供before选项，用于在mutation执行前进行操作
         after: () => {
             // store中所有被Vue观察到的数据都会被代理到$state对象中
-            sessionStorage.setItem(cacheKey, JSON.stringify(store.$state));
+            localStorage.setItem(cacheKey, JSON.stringify(store.$state));
         }
     });
 };
@@ -360,7 +362,7 @@ class Counter extends Service {
     }
 
     init() {
-        const cacheStr = sessionStorage.getItem(cacheKey);
+        const cacheStr = localStorage.getItem(cacheKey);
         if (cacheStr) {
             const cache = JSON.parse(cacheStr);
             this.replaceState(cache);
@@ -390,7 +392,7 @@ new Vue({
 
 ### 插件详解
 
-`vubx`的插件分为`模块插件`与`全局插件`，上述的缓存例子便是一个简单的`模块插件`，只会在注册的本模块初始化时执行，当项目有很多模块时，可以选择性的给某些模块加入缓存机制。而`全局插件`一般用于打印记录mutation日志之类的开发环境工具，一般不建议用于实际业务处理。
+`vubx`的插件分为`模块插件`与`全局插件`，上述的缓存例子便是一个简单的`模块插件`，只会在注册的本模块初始化时执行，当项目有很多模块时，可以选择性的给某些模块加入缓存机制。
 
 如下注册`全局插件`，注意globalPlugins选项只在`root模块`中有效，并且`全局插件`会在providers选项下注册的所有模块被第一次注入时执行，对于`root模块`只会在初始化时执行，`模块插件`的执行时机也与其一致。
 ```typescript
@@ -413,7 +415,56 @@ class Counter extends Service {
 }
 ```
 
-<!-- ### 中间件详解
-### 生命周期
-### 局限性 -->
-未完待续
+### mutation中间件详解
+
+在严格模式下，`vubx`中的`state`只能通过mutation方法改变，mutation中间件的功能就是可以在`mutation`方法执行前和执行后进行一系列统一的业务操作，其实也可以说是实现了`AOP`的模式。
+
+这是一个简单的例子：在`mutation`方法执行前打印`mutation`信息，在其执行后缓存模块的状态到localStorage
+```typescript
+store.subscribe({
+    before: (mutation: IMutation, service: IService) => {
+        console.log(`
+            type: ${mutation.type}
+            payload: ${JSON.stringify(mutation.payload)}
+            methodName: ${mutation.methodName}
+            identifier: ${mutation.identifier}
+        `);
+    },
+    after: (mutation: IMutation, service: IService) => {
+        localStorage.setItem(cacheKey, JSON.stringify(service.$state));
+    }
+});
+```
+vubx的mutation定义如下
+```typescript
+interface IMutation {
+    // 为适配vuex的devtool而设置的字段，一般不会用于业务
+    type: string;
+    // 传入mutation方法的参数数组
+    payload: any[];
+    // 调用的方法名
+    methodName: string;
+    // 调用的模块注入标识,在全局中间件中可以用来判断是哪个模块调用的
+    identifier: IIdentifier;
+}
+```
+
+全局中间件的订阅使用`subscribeGlobal`方法，使用方式和`subscribe`一致，但只要`root模块`可以调用,作用于在`root模块`注册的所有模块。
+
+## 生命周期
+
+由于vubx的实现机制是创建个子类代替父类的引用，并在子类中做代理Vue数据和依赖注入信息的初始化，因此在父类的构造函数中是无法读取注入进来的模块，但vubx提供了个初始化成功的调用钩子用于替代构造函数。
+
+```typescript
+@created()
+init() {
+   // 可以在此初始化
+}
+
+// 传入注入标识数组，会依次注入在钩子方法的参数中
+@created(['moduleA','moduleB'])
+init(moduleA , moduleA) {
+   // 可以在此初始化
+}
+```
+
