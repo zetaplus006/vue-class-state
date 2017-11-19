@@ -684,4 +684,95 @@ describe('di', () => {
 
     });
 
+    it('created hook with deps', () => {
+        const moduleKeys = {
+            A: 'ModuleA',
+            B: 'ModuleB',
+            C: 'ModuleC'
+        };
+
+        interface IModule extends IService {
+            text: string;
+            count: number;
+        }
+
+        @observable()
+        class ModuleA extends Service implements IModule {
+            text = 'A';
+            count = 0;
+
+            @created()
+            created() {
+                this.count++;
+            }
+        }
+
+        @observable()
+        class ModuleB extends Service implements IModule {
+            text = 'B';
+            count = 0;
+
+            @created()
+            created() {
+                this.count++;
+            }
+        }
+
+        @observable()
+        class ModuleC extends Service {
+
+            @lazyInject(moduleKeys.A)
+            moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            moduleB: IModule;
+
+            @lazyInject('root')
+            rootModule: Root;
+
+            count = 0;
+
+            @created()
+            created() {
+                this.count++;
+            }
+        }
+
+        const Value = new ModuleA();
+
+        @observable({
+            root: true,
+            identifier: 'root',
+            providers: [
+                bind<IModule>(moduleKeys.A).toFactory(() => Value),
+                bind<IModule>(moduleKeys.B).toFactory((m: IModule) => m, [moduleKeys.A]),
+                bind<ModuleC>(moduleKeys.C).toClass(ModuleC)
+            ]
+        })
+        class Root extends Service {
+
+            @lazyInject(moduleKeys.A)
+            public moduleA: IModule;
+
+            @lazyInject(moduleKeys.B)
+            public moduleB: IModule;
+
+            @lazyInject(moduleKeys.C)
+            public moduleC: ModuleC;
+
+            public moduleA2: IModule;
+
+            public moduleB2: IModule;
+
+            @created([moduleKeys.A, moduleKeys.B])
+            created(moduleA, moduleB) {
+                this.moduleA2 = moduleA;
+                this.moduleB2 = moduleB;
+            }
+        }
+
+        const rootModule = new Root();
+        expect(rootModule.moduleA === rootModule.moduleA2).eql(true);
+        expect(rootModule.moduleB === rootModule.moduleB2).eql(true);
+    });
 });

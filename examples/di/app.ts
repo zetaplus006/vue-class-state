@@ -34,8 +34,7 @@ class ModuleB extends Service implements IModule {
     identifier: moduleKeys.root,
     providers: [
         bind<IModule>(moduleKeys.A).toClass(ModuleA),
-        bind<IModule>(moduleKeys.B).toClass(ModuleB),
-        bind<any>('tool').toValue({ num: 111 })
+        bind<IModule>(moduleKeys.B).toClass(ModuleB)
     ],
     strict: true,
     devtool: true
@@ -47,9 +46,6 @@ class Root extends Service {
 
     @lazyInject(moduleKeys.B)
     public moduleB: IModule;
-
-    @lazyInject()
-    public tool: any;
 
     child: IModule;
 
@@ -72,8 +68,7 @@ console.log(rootModule);
     template: '<div>{{text}}</div>',
     inject: {
         moduleA: moduleKeys.A,
-        moduleB: moduleKeys.B,
-        tool: 'tool'
+        moduleB: moduleKeys.B
     }
 })
 class App extends Vue {

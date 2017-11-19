@@ -1,7 +1,7 @@
 import { IIdentifier } from './helper';
 export interface IMutation {
     type: string;
-    payload: any;
+    payload: any[];
     methodName: string;
     identifier: IIdentifier;
 }

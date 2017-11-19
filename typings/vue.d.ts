@@ -5,9 +5,3 @@ declare module 'vue/types/options' {
         sync?: boolean;
     }
 }
-
-declare module 'vue/types/vue' {
-    interface Vue {
-        $service: IService;
-    }
-}

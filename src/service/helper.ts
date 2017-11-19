@@ -128,7 +128,7 @@ export function getPropertyGetters(target: any, ctx: any): { [key: string]: { ge
         // skip @lazyInject
         if (key === 'constructor' || meta.propertyMeta.has(key)) { return; }
         const descriptor = Object.getOwnPropertyDescriptor(target, key);
-        if (descriptor.get) {
+        if (descriptor && descriptor.get) {
             getters[key] = {
                 get: descriptor.get.bind(ctx),
                 set: descriptor.set && descriptor.set.bind(ctx)
