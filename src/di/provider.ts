@@ -3,13 +3,14 @@ import { assert, def } from '../util';
 import { IIdentifier } from '../service/helper';
 import { IService, Service } from '../service/service';
 import { DIMetaData } from './di_meta';
+import { IMap, UseMap } from '../di/map';
 
 export type IProxyState = {
     [key: string]: any
 };
 
 export class Provider {
-    private injectorMap: Map<IIdentifier, IInjector<any>> = new Map();
+    private injectorMap: IMap<IIdentifier, IInjector<any>> = new UseMap();
 
     /**
      * for vue provide option
