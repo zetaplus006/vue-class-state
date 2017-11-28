@@ -215,10 +215,10 @@ describe('di', () => {
         })
         class Root extends Service {
 
-            @lazyInject()
+            @lazyInject
             public moduleA: IModule;
 
-            @lazyInject()
+            @lazyInject
             public moduleB: IModule;
 
         }

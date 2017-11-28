@@ -19,7 +19,7 @@ interface IModule extends IService {
 class ModuleA extends Service implements IModule {
     text = 'A';
 
-    @lazyInject(moduleKeys.A)
+    @lazyInject
     public moduleA: IModule;
 
 }

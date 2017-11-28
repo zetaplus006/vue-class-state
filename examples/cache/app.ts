@@ -1,7 +1,7 @@
 import Vue from 'vue';
-import { createDecorator, Service, mutation, IMutation, IService, created } from 'vubx';
+import { createDecorator, Service, mutation, IMutation, IService, created, IVubxDecorator } from 'vubx';
 
-const observable = createDecorator(Vue);
+const observable: IVubxDecorator = createDecorator(Vue);
 
 const cacheKey = 'cache-key';
 

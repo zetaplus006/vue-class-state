@@ -31,7 +31,7 @@ export class ScopeData {
 
     private _root: IService;
     get $root(): IService {
-        assert(this._root, 'There must be a root Service and please check your decorator option');
+        assert(this._root, 'There must be a root Service and please check your decorator option , or confirm your class has extends Service class');
         return this._root;
     }
     set $root(value: IService) {
