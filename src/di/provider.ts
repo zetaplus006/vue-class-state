@@ -26,7 +26,7 @@ export class Provider {
         const injector = this.injectorMap.get(identifier);
         if (process.env.NODE_ENV !== 'production') {
             assert(injector,
-                `${identifier.toString()} not find in provider`);
+                `${String(identifier)} not find in provider`);
         }
         return (injector as IInjector<any>).resolve();
     }
@@ -53,7 +53,7 @@ export class Provider {
     public checkIdentifier(identifier: IIdentifier) {
         if (process.env.NODE_ENV !== 'production') {
             assert(!this.injectorMap.has(identifier),
-                `The identifier ${identifier.toString()} has been repeated`);
+                `The identifier ${String(identifier)} has been repeated`);
         }
     }
 

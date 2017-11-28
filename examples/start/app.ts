@@ -44,7 +44,7 @@ new Vue({
     },
     mounted() {
         setInterval(() => {
-            addition.change();
+            this.addition.change();
         }, 2000);
     }
 });

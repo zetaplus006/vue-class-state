@@ -14,7 +14,7 @@ export function devtool(service: IService) {
 
     if (!devtoolHook) return;
 
-    const store = simulationStore(provider);
+    const store: IStore = simulationStore(provider);
 
     store._devtoolHook = devtoolHook;
 
@@ -57,12 +57,12 @@ function getStateAndGetters(proxy: any) {
     keys.forEach(key => {
         const instance = proxy[key];
         if (instance instanceof Service) {
-            def(getters, key.toString(), {
+            def(getters, String(key), {
                 value: instance.__scope__.$getters,
                 enumerable: true,
                 configurable: true
             });
-            def(state, key.toString(), {
+            def(state, String(key), {
                 value: instance.__scope__.$state,
                 enumerable: true,
                 configurable: true

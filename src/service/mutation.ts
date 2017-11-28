@@ -18,7 +18,7 @@ export function mutation(target: any, mutationyKey: string, descriptor: Property
             meta = DIMetaData.get(this);
 
         const vubxMutation: IMutation = {
-            type: meta.identifier.toString() + ': ' + mutationyKey,
+            type: String(meta.identifier) + ': ' + mutationyKey,
             payload: arg,
             methodName: mutationyKey,
             identifier: meta.identifier

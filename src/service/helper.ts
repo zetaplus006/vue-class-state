@@ -100,7 +100,8 @@ export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
     });
     def(ctx, '$getters', {
         value: $getters,
-        enumerable: false
+        enumerable: false,
+        configurable: false
     });
 }
 
@@ -122,11 +123,11 @@ export function getAllGetters(target: any, ctx: any) {
 
 export function getPropertyGetters(target: any, ctx: any): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
-    const meta = ClassMetaData.get(target);
+    const propertyMeta = ClassMetaData.get(target).propertyMeta;
     const keys: string[] = Object.getOwnPropertyNames(target);
     keys.forEach(key => {
         // skip @lazyInject
-        if (key === 'constructor' || meta.propertyMeta.has(key)) { return; }
+        if (key === 'constructor' || propertyMeta.has(key)) { return; }
         const descriptor = Object.getOwnPropertyDescriptor(target, key);
         if (descriptor && descriptor.get) {
             getters[key] = {
@@ -142,7 +143,7 @@ export function useStrict(service: IService) {
     const identifier = DIMetaData.get(service).identifier;
     if (process.env.NODE_ENV !== 'production') {
         service.__scope__.$vm && service.__scope__.$vm.$watch<any>(function () {
-            return this.$data;
+            return service.$state;
         }, (val) => {
             assert(service.__scope__.isCommitting,
                 `Do not mutate vubx service[${String(identifier)}] data outside mutation handlers.`);
