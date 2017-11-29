@@ -53,7 +53,7 @@ npm install vubx --save
 
 2.javaScript+Babel用户需要[babel-plugin-transform-decorators-legacy](babel-plugin-transform-decorators-legacy)插件,以支持[ECMAScript stage 1 decorators](https://github.com/wycats/javascript-decorators/blob/master/README.md)
 
-3.需要支持[Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)的运行环境
+<!-- 3.需要支持[Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)的运行环境 -->
 
 ## 基本使用
 
@@ -108,8 +108,8 @@ new Vue({
     },
     mounted() {
         setInterval(() => {
-            addition.change();
-        }, 2000);
+            this.addition.change();
+        }, 1000);
     }
 });
 ```
@@ -121,10 +121,11 @@ new Vue({
 
 ``` typescript
 import Vue from 'vue';
-import { createDecorator, Service, mutation, lazyInject, bind, IService } from 'vubx';
+import { createDecorator, Service, mutation, lazyInject, bind, IService, created, IVubxDecorator } from 'vubx';
 import component from 'vue-class-component';
+import { Inject } from 'vue-property-decorator';
 
-const observable = createDecorator(Vue);
+const observable: IVubxDecorator = createDecorator(Vue);
 
 // 定义服务标识
 const moduleKeys = {
@@ -259,7 +260,7 @@ class Module extends Service {
     public moduleA: IModule;
 
     // 如果没传入注入标识，则取属性名为标识，此例子同 @lazyInject('moduleB')，但不建议使用
-    @lazyInject()
+    @lazyInject
     public moduleB: IModule;
 
 }

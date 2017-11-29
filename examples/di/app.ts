@@ -1,9 +1,9 @@
 import Vue from 'vue';
-import { createDecorator, Service, mutation, lazyInject, bind, IService, created } from 'vubx';
+import { createDecorator, Service, mutation, lazyInject, bind, IService, created, IVubxDecorator } from 'vubx';
 import component from 'vue-class-component';
 import { Inject } from 'vue-property-decorator';
 
-const observable = createDecorator(Vue);
+const observable: IVubxDecorator = createDecorator(Vue);
 
 const moduleKeys = {
     root: 'root',
