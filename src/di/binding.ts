@@ -31,6 +31,7 @@ export class Binding<T> {
         this.isSingleton = true;
         return this;
     }
+
     public inTransientScope(): this {
         this.isSingleton = false;
         return this;
@@ -38,6 +39,6 @@ export class Binding<T> {
 
 }
 
-export function bind<T extends Service>(identifier: IIdentifier) {
+export function bind<T>(identifier: IIdentifier) {
     return new Binding<T>(identifier);
 }

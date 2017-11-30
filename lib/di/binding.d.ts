@@ -1,6 +1,5 @@
 import { IDeps, IServiceFactory, IInjector } from './injector';
 import { IIdentifier, IServiceClass } from '../service/helper';
-import { Service } from '../service/service';
 export declare class Binding<T> {
     identifier: IIdentifier;
     private isSingleton;
@@ -12,4 +11,4 @@ export declare class Binding<T> {
     inSingletonScope(): this;
     inTransientScope(): this;
 }
-export declare function bind<T extends Service>(identifier: IIdentifier): Binding<T>;
+export declare function bind<T>(identifier: IIdentifier): Binding<T>;

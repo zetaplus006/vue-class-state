@@ -52,6 +52,58 @@ describe('di', () => {
         expect(rootModule.moduleB.text).eql('B');
     });
 
+    it('simple class inject', () => {
+
+        const moduleKeys = {
+            A: 'ModuleA',
+            B: 'ModuleB',
+            C: 'ModuleC'
+        };
+
+        class ModuleA {
+            text = 'A';
+        }
+
+        @observable()
+        class ModuleC extends Service {
+            text= 'C';
+        }
+
+        class ModuleB {
+            text = 'B';
+
+            @lazyInject(moduleKeys.C)
+            public moduleC: ModuleC;
+        }
+
+        @observable({
+            root: true,
+            identifier: 'root',
+            providers: [
+                bind<ModuleA>(moduleKeys.A).toClass(ModuleA),
+                bind<ModuleB>(moduleKeys.B).toClass(ModuleB),
+                bind<ModuleC>(moduleKeys.C).toClass(ModuleC)
+            ]
+        })
+        class Root extends Service {
+
+            @lazyInject(moduleKeys.A)
+            public moduleA: ModuleA;
+
+            @lazyInject(moduleKeys.B)
+            public moduleB: ModuleB;
+
+        }
+
+        const rootModule = new Root();
+        expect(rootModule.moduleA).to.be.ok;
+        expect(rootModule.moduleB).to.be.ok;
+        expect(rootModule.moduleB.moduleC).to.be.ok;
+        expect(rootModule.moduleA.text).eql('A');
+        expect(rootModule.moduleB.text).eql('B');
+        expect(rootModule.moduleB.moduleC.text).eql('C');
+    });
+
     it('value inject', () => {
         const moduleKeys = {
             A: 'ModuleA',
