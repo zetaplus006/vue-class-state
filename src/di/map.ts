@@ -19,7 +19,7 @@ export class SimpleMap<K, V> implements IMap<K, V> {
     }
 
     public has(key: K): boolean {
-        return this.dictionary[key as any] === undefined;
+        return this.dictionary[key as any] !== undefined;
     }
 }
 
