@@ -25,4 +25,7 @@ export declare type IVubxOption = {
 };
 export declare type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
 export declare function createDecorator(_Vue: typeof Vue): IVubxDecorator;
+export declare function createVubxClass(_Vue: typeof Vue, constructor: IConstructor, decoratorOption?: IDecoratorOption): {
+    new (...arg: any[]): {};
+};
 export declare function createdHook(service: IService, option: IVubxOption, diMeta: DIMetaData): void;

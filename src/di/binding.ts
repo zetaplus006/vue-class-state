@@ -4,9 +4,10 @@ import { Service } from '../service/service';
 
 export class Binding<T> {
 
-    public identifier: IIdentifier;
-    private isSingleton: boolean = true;
     public injectorFactory: () => IInjector<T>;
+
+    private identifier: IIdentifier;
+    private isSingleton: boolean = true;
 
     constructor(identifier: IIdentifier) {
         this.identifier = identifier;
