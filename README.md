@@ -123,7 +123,6 @@ new Vue({
 import Vue from 'vue';
 import { createDecorator, Service, mutation, lazyInject, bind, IService, created, IVubxDecorator } from 'vubx';
 import component from 'vue-class-component';
-import { Inject } from 'vue-property-decorator';
 
 const observable: IVubxDecorator = createDecorator(Vue);
 
