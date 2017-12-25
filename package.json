@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "node examples/server.js",
     "build": "rimraf lib && rollup -c && npm run move-dts",
-    "move-dts": "ncp lib/src/ lib/ && rimraf lib/src",
+    "move-dts": "rimraf lib/examples && ncp lib/src/ lib/ && rimraf lib/src",
     "test": "npm run build-unit && npm run test-unit",
     "test-unit": "./node_modules/.bin/mocha test/unit-build/*.spec.js test/unit-build/**/*.spec.js",
     "build-unit": "rimraf test/unit-build && tsc -p test/unit",
