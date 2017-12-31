@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import Vue, { VueConstructor } from 'vue';
 import { Provider } from '../di/provider';
 import { ValueInjector, IInjector, BaseInjector } from '../di/injector';
 import { IConstructor, IPlugin, IIdentifier, proxyState, proxyGetters, ScopeData, getAllGetters, useStrict } from './helper';
@@ -34,22 +34,22 @@ export type IVubxOption = {
 
 export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
 
-export function createDecorator(_Vue: typeof Vue): IVubxDecorator {
+export function createDecorator(vueConstructor: VueConstructor): IVubxDecorator {
     return function decorator(option: IDecoratorOption) {
         return function (constructor: IConstructor) {
-            return createVubxClass(_Vue, constructor, option);
+            return createVubxClass(vueConstructor, constructor, option);
         };
     };
 }
 
-export function createVubxClass(_Vue: typeof Vue, constructor: IConstructor, decoratorOption?: IDecoratorOption) {
+export function createVubxClass(vueConstructor: VueConstructor, constructor: IConstructor, decoratorOption?: IDecoratorOption) {
     return class Vubx extends constructor {
         constructor(...arg: any[]) {
             super(...arg);
 
             const getters = getAllGetters(constructor.prototype, this),
                 getterKeys = Object.keys(getters);
-            const vm: Vue = new _Vue({
+            const vm: Vue = new vueConstructor({
                 data: this,
                 computed: getters
             });

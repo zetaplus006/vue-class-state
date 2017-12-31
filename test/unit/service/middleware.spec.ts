@@ -35,7 +35,7 @@ describe('middleware plugin', () => {
         count = 0;
 
         @mutation
-        change(data, count) {
+        change(data: any, count: number) {
             Object.assign(this.data, data);
             this.count = count;
         }
@@ -72,13 +72,13 @@ describe('global middleware, global plugin', () => {
     const globalPlugin = (service: IService) => {
         service.subscribe({
             before: (m: IMutation, state: any) => {
-                if (m.methodName === 'change2') {
+                if (m.mutationType === 'change2') {
                     m.payload[0].a = 20;
                 }
 
             },
             after: (m: IMutation, state: any) => {
-                if (m.methodName === 'change2') {
+                if (m.mutationType === 'change2') {
                     state.count2 = 30;
                 }
             }
@@ -102,16 +102,17 @@ describe('global middleware, global plugin', () => {
         count2 = 0;
 
         @mutation
-        change(data, count) {
+        change(data: any, count: number) {
             Object.assign(this.data, data);
             this.count = count;
         }
 
         @mutation
-        change2(data, count) {
+        change2(data: any, count: number) {
             Object.assign(this.data2, data);
             this.count = count;
         }
+
     }
 
     @observable({

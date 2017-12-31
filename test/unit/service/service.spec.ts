@@ -135,6 +135,31 @@ describe('computed', () => {
 });
 
 describe('vubxMethods', () => {
+
+    it('mutation', () => {
+        @observable({
+            root: true,
+            identifier: 'root'
+        })
+        class State extends Service {
+            a = 1;
+            b = 2;
+
+            change() {
+                this.mutation(() => {
+                    this.a = 2;
+                    this.b = 4;
+                });
+            }
+        }
+        const state = new State();
+        state.change();
+        expect(state.$state).to.deep.equal({
+            a: 2,
+            b: 4
+        });
+    });
+
     it('replaceState', () => {
         @observable()
         class State extends Service {

@@ -8,12 +8,13 @@ const cacheKey = 'cache-key';
 const plugin = (store: Counter) => {
     // subscribe方法用于订阅mutation中间件，
     store.subscribe({
+        // tslint:disable-next-line:no-shadowed-variable
         before: (mutation: IMutation, service: IService) => {
             console.log(`
                 mutation类型，给devtool使用: ${mutation.type}
                 传入mutation方法的参数数组: ${JSON.stringify(mutation.payload)}
                 调用的模块注入标识: ${mutation.identifier}
-                调用的方法名: ${mutation.methodName}
+                调用的方法名: ${mutation.mutationType}
             `);
         },
         // after选项代表在mutation执行后执行的方法，相对的也提供before选项，用于在mutation执行前进行操作
@@ -51,7 +52,8 @@ class Counter extends Service {
             this.replaceState(cache);
         }
         setInterval(() => {
-            this.add();
+            // this.add();
+            this.mutation(() => this.num++, 'add');
         }, 1000);
     }
 }

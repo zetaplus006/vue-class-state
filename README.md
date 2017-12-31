@@ -426,7 +426,7 @@ store.subscribe({
         console.log(`
             type: ${mutation.type}
             payload: ${JSON.stringify(mutation.payload)}
-            methodName: ${mutation.methodName}
+            mutationType: ${mutation.mutationType}
             identifier: ${mutation.identifier}
         `);
     },
@@ -443,7 +443,7 @@ interface IMutation {
     // 传入mutation方法的参数数组
     payload: any[];
     // 调用的方法名
-    methodName: string;
+    mutationType: string;
     // 调用的模块注入标识,在全局中间件中可以用来判断是由哪个模块调用的
     identifier: IIdentifier;
 }

@@ -8,6 +8,7 @@ export interface GlobalHelper {
 export interface IService {
     $state: any;
     $getters: any;
+    mutation(fn: Function, mutationType: string): any;
     replaceState(state: IService, replaceChildState?: boolean): void;
     replaceAllState(proxyState: any): void;
     subscribe(option: IMutationSubscribeOption): void;
@@ -23,6 +24,7 @@ export declare type IMutationSubscribeOption = {
 export declare abstract class Service implements IService {
     $state: any;
     $getters: any;
+    mutation(fn: Function, mutationType?: string): any;
     replaceState(state: IService, replaceChildState?: boolean): void;
     replaceAllState(proxyState: any): void;
     injectService(instance: any, key: keyof this, identifier: IIdentifier): void;

@@ -6,40 +6,51 @@ import { DIMetaData } from '../di/di_meta';
 export interface IMutation {
     type: string;
     payload: any[];
-    methodName: string;
+    mutationType: string;
     identifier: IIdentifier;
 }
 
-export function mutation(target: any, mutationyKey: string, descriptor: PropertyDescriptor) {
+export function mutation(target: any, methodName: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
     descriptor.value = function (this: IService, ...arg: any[]) {
-        const rootScope = this.__scope__.$root.__scope__,
-            scope = this.__scope__,
-            meta = DIMetaData.get(this);
-
-        const vubxMutation: IMutation = {
-            type: String(meta.identifier) + ': ' + mutationyKey,
-            payload: arg,
-            methodName: mutationyKey,
-            identifier: meta.identifier
-        };
-
-        const globalMiddleware = rootScope.globalMiddlewate;
-        const middleware = scope.middleware;
-
-        const temp = scope.isCommitting;
-        scope.isCommitting = true;
-
-        globalMiddleware.dispatchBefore(this, vubxMutation, this);
-        middleware.dispatchBefore(this, vubxMutation, this);
-        const result = mutationFn.apply(this, arg);
-        middleware.dispatchAfter(this, vubxMutation, this);
-        globalMiddleware.dispatchAfter(this, vubxMutation, this);
-        // arguments is different
-        // res =  middleware.createTask(mutationFn, this)(...arg);
-
-        scope.isCommitting = temp;
-        return result;
+        return runInMutaion(this, mutationFn, arg, methodName);
     };
     return descriptor;
+}
+
+const unnamedName = '<unnamed mutation>';
+
+export function runInMutaion(
+    ctx: IService,
+    func: Function,
+    payload: any,
+    mutationType?: string) {
+    const rootScope = ctx.__scope__.$root.__scope__,
+        scope = ctx.__scope__,
+        meta = DIMetaData.get(ctx),
+        mType = mutationType || unnamedName;
+
+    const vubxMutation: IMutation = {
+        type: String(meta.identifier) + ': ' + mType,
+        payload,
+        mutationType: mType,
+        identifier: meta.identifier
+    };
+
+    const globalMiddleware = rootScope.globalMiddlewate;
+    const middleware = scope.middleware;
+
+    const temp = scope.isCommitting;
+    scope.isCommitting = true;
+
+    globalMiddleware.dispatchBefore(ctx, vubxMutation, ctx);
+    middleware.dispatchBefore(ctx, vubxMutation, ctx);
+    const result = func.apply(ctx, payload);
+    middleware.dispatchAfter(ctx, vubxMutation, ctx);
+    globalMiddleware.dispatchAfter(ctx, vubxMutation, ctx);
+    // arguments is different
+    // res =  middleware.createTask(mutationFn, this)(...payload);
+
+    scope.isCommitting = temp;
+    return result;
 }

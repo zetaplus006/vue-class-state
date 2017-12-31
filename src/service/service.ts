@@ -5,7 +5,7 @@ import { IIdentifier, IPlugin, ScopeData } from './helper';
 import { def, assert } from '../util';
 import { devtool } from '../plugins/devtool';
 import { ValueInjector } from '../di/injector';
-import { IMutation } from './mutation';
+import { IMutation, runInMutaion } from './mutation';
 import { ClassMetaData } from '../di/class_meta';
 import { DIMetaData } from '../di/di_meta';
 
@@ -19,6 +19,8 @@ export interface IService {
     $state: any;
 
     $getters: any;
+
+    mutation(fn: Function, mutationType: string): any;
 
     replaceState(state: IService, replaceChildState?: boolean): void;
 
@@ -46,6 +48,10 @@ export abstract class Service implements IService {
     $state: any;
 
     $getters: any;
+
+    mutation(fn: Function, mutationType?: string): any {
+        return runInMutaion(this, fn, null, mutationType);
+    }
 
     replaceState(state: IService, replaceChildState = false): void {
         const temp = this.__scope__.isCommitting;

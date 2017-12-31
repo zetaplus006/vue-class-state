@@ -4,8 +4,7 @@
         "target": "es5",
         "lib": [
             "dom",
-            "es2015",
-            "es2015.symbol"
+            "es2015"
         ],
         "noImplicitAny": false,
         "sourceMap": false,
@@ -14,6 +13,7 @@
         "outDir": "../unit-build/"
     },
     "include": [
+        "../../lib/**/*.ts",
         "./**/*.ts",
         "../src/service/*.type.ts"
     ]

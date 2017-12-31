@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { VueConstructor } from 'vue';
 import { IConstructor, IPlugin, IIdentifier } from './helper';
 import { IService } from './service';
 import { DIMetaData } from '../di/di_meta';
@@ -24,8 +24,8 @@ export declare type IVubxOption = {
     createdHook: ICreatedHook;
 };
 export declare type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
-export declare function createDecorator(_Vue: typeof Vue): IVubxDecorator;
-export declare function createVubxClass(_Vue: typeof Vue, constructor: IConstructor, decoratorOption?: IDecoratorOption): {
+export declare function createDecorator(vueConstructor: VueConstructor): IVubxDecorator;
+export declare function createVubxClass(vueConstructor: VueConstructor, constructor: IConstructor, decoratorOption?: IDecoratorOption): {
     new (...arg: any[]): {};
 };
 export declare function createdHook(service: IService, option: IVubxOption, diMeta: DIMetaData): void;
