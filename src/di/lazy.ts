@@ -3,9 +3,9 @@ import { IIdentifier } from '../service/helper';
 import { ClassMetaData } from './class_meta';
 import { DIMetaData } from './di_meta';
 
-export function lazyInject(identifier?: IIdentifier): any;
-export function lazyInject(target: any, propertyKey: string): any;
-export function lazyInject(option: any, propertyKey?: string): any {
+export function lazyInject (identifier?: IIdentifier): any;
+export function lazyInject (target: any, propertyKey: string): any;
+export function lazyInject (option: any, propertyKey?: string): any {
     if (typeof option === 'object' && propertyKey) {
         return createLazyDecorator(option, propertyKey);
     } else {
@@ -15,10 +15,10 @@ export function lazyInject(option: any, propertyKey?: string): any {
     }
 }
 
-function createLazyDecorator(target: any, propertyKey: string, identifier?: IIdentifier) {
+function createLazyDecorator (target: any, propertyKey: string, identifier?: IIdentifier) {
     const serviceKey: IIdentifier = identifier || propertyKey;
     const meta = ClassMetaData.get(target);
-    meta.propertyMeta.set(propertyKey, {
+    meta.injectMeta.set(propertyKey, {
         identifier
     });
     return {

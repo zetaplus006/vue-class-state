@@ -66,7 +66,7 @@ describe('di', () => {
 
         @observable()
         class ModuleC extends Service {
-            text= 'C';
+            text = 'C';
         }
 
         class ModuleB {
@@ -456,7 +456,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -466,7 +466,7 @@ describe('di', () => {
             text = 'B';
             count = 0;
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -486,7 +486,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -513,7 +513,7 @@ describe('di', () => {
 
             count = 0;
             @created()
-            created() {
+            created () {
                 this.count++;
             }
 
@@ -553,7 +553,7 @@ describe('di', () => {
             text = 'A';
             count = 0;
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -562,7 +562,7 @@ describe('di', () => {
         class ModuleB extends Service implements IModule {
             text = 'B';
             count = 0;
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -581,7 +581,7 @@ describe('di', () => {
 
             count = 0;
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -611,7 +611,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
 
@@ -652,7 +652,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -663,7 +663,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -683,7 +683,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -713,7 +713,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
 
@@ -754,7 +754,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -765,7 +765,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -785,7 +785,7 @@ describe('di', () => {
             count = 0;
 
             @created()
-            created() {
+            created () {
                 this.count++;
             }
         }
@@ -817,7 +817,7 @@ describe('di', () => {
             public moduleB2: IModule;
 
             @created([moduleKeys.A, moduleKeys.B])
-            created(moduleA, moduleB) {
+            created (moduleA: any, moduleB: any) {
                 this.moduleA2 = moduleA;
                 this.moduleB2 = moduleB;
             }

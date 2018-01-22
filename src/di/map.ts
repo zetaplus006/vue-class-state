@@ -1,25 +1,25 @@
 
 export interface IMap<K, V> {
-    get(key: K): V | undefined;
-    has(key: K): boolean;
-    set(key: K, value: V): this;
+    get (key: K): V | undefined;
+    has (key: K): boolean;
+    set (key: K, value: V): this;
 }
 
-export class SimpleMap<K, V> implements IMap<K, V> {
+class SimpleMap<K, V> implements IMap<K, V> {
 
-    private dictionary = {};
+    private dictionary: Object = {};
 
-    public get(key: K): V | undefined {
+    public get (key: K): V | undefined {
         return this.dictionary[key as any] || undefined;
     }
 
-    public set(key: K, value: V): this {
+    public set (key: K, value: V): this {
         this.dictionary[key as any] = value;
         return this;
     }
 
-    public has(key: K): boolean {
-        return this.dictionary[key as any] !== undefined;
+    public has (key: K): boolean {
+        return this.dictionary.hasOwnProperty(key as any);
     }
 }
 

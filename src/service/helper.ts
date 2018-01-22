@@ -30,29 +30,29 @@ export class ScopeData {
     vubxOption: IVubxOption;
 
     private _root: IService;
-    get $root(): IService {
+    get $root (): IService {
         assert(this._root, 'There must be a root Service and please check your decorator option , or confirm your class has extends Service class');
         return this._root;
     }
-    set $root(value: IService) {
+    set $root (value: IService) {
         this._root = value;
     }
 
     private _globalPlugins: IPlugin[];
-    get globalPlugins(): IPlugin[] {
+    get globalPlugins (): IPlugin[] {
         return this.$root.__scope__._globalPlugins;
     }
 
-    set globalPlugins(value: IPlugin[]) {
+    set globalPlugins (value: IPlugin[]) {
         this.$root.__scope__._globalPlugins = value;
     }
 
     private _globalMiddllewate: Middleware;
-    get globalMiddlewate(): Middleware {
+    get globalMiddlewate (): Middleware {
         return this.$root.__scope__._globalMiddllewate;
     }
 
-    constructor(service: IService, vubxOption: IVubxOption) {
+    constructor (service: IService, vubxOption: IVubxOption) {
         this.isRoot = !!vubxOption.root;
         if (this.isRoot) {
             this._root = service;
@@ -65,7 +65,7 @@ export class ScopeData {
     }
 }
 
-export function proxyState(ctx: any, getterKeys: string[]) {
+export function proxyState (ctx: any, getterKeys: string[]) {
     const $state = (ctx as IService).__scope__.$state;
     Object.keys(ctx).forEach(
         key => {
@@ -83,15 +83,15 @@ export function proxyState(ctx: any, getterKeys: string[]) {
     });
 }
 
-export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
+export function proxyGetters (ctx: any, vm: Vue, getterKeys: string[]) {
     const $getters = (ctx as IService).__scope__.$getters;
     getterKeys.forEach(key => {
-        def(ctx, key, {
-            get: () => vm[key],
-            set: value => vm[key] = value,
-            enumerable: false,
-            configurable: true
-        });
+        // def(ctx, key, {
+        //     get: () => vm[key],
+        //     set: value => vm[key] = value,
+        //     enumerable: false,
+        //     configurable: true
+        // });
         def($getters, key, {
             get: () => ctx[key],
             set: value => ctx[key] = value,
@@ -105,7 +105,20 @@ export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
     });
 }
 
-export function getAllGetters(target: any, ctx: any) {
+export function definedComputed (proto: Object, getterKeys: string[]) {
+    const $getters = {};
+    getterKeys.forEach(key => {
+        def(proto, key, {
+            get (this: IService) {
+                return this.__scope__.$vm[key];
+            },
+            enumerable: false,
+            configurable: true
+        });
+    });
+}
+
+export function getAllGetters (target: any) {
     let getters = {};
     let prototypeSuper = target;
     while (
@@ -113,7 +126,7 @@ export function getAllGetters(target: any, ctx: any) {
         && prototypeSuper !== Object.prototype
         && prototypeSuper !== null) {
         getters = {
-            ...getPropertyGetters(prototypeSuper, ctx),
+            ...getPropertyGetters(prototypeSuper),
             ...getters
         };
         prototypeSuper = Object.getPrototypeOf(prototypeSuper);
@@ -121,25 +134,25 @@ export function getAllGetters(target: any, ctx: any) {
     return getters;
 }
 
-export function getPropertyGetters(target: any, ctx: any): { [key: string]: { get(): any, set?(): void } } {
+export function getPropertyGetters (target: any): { [key: string]: { get (): any, set?(): void } } {
     const getters = {};
-    const propertyMeta = ClassMetaData.get(target).propertyMeta;
+    const injectMeta = ClassMetaData.get(target).injectMeta;
     const keys: string[] = Object.getOwnPropertyNames(target);
     keys.forEach(key => {
         // skip @lazyInject
-        if (key === 'constructor' || propertyMeta.has(key)) { return; }
+        if (key === 'constructor' || injectMeta.has(key)) { return; }
         const descriptor = Object.getOwnPropertyDescriptor(target, key);
         if (descriptor && descriptor.get) {
             getters[key] = {
-                get: descriptor.get.bind(ctx),
-                set: descriptor.set && descriptor.set.bind(ctx)
+                get: descriptor.get,
+                set: descriptor.set && descriptor.set
             };
         }
     });
     return getters;
 }
 
-export function useStrict(service: IService) {
+export function useStrict (service: IService) {
     const identifier = DIMetaData.get(service).identifier;
     if (process.env.NODE_ENV !== 'production') {
         service.__scope__.$vm && service.__scope__.$vm.$watch<any>(function () {

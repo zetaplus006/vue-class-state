@@ -28,8 +28,9 @@ export declare class ScopeData {
 }
 export declare function proxyState(ctx: any, getterKeys: string[]): void;
 export declare function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]): void;
-export declare function getAllGetters(target: any, ctx: any): {};
-export declare function getPropertyGetters(target: any, ctx: any): {
+export declare function definedComputed(proto: Object, getterKeys: string[]): void;
+export declare function getAllGetters(target: any): {};
+export declare function getPropertyGetters(target: any): {
     [key: string]: {
         get(): any;
         set?(): void;
