@@ -3,16 +3,10 @@ import { Middleware, ISubscribeOption } from './middleware';
 import { Provider } from '../di/provider';
 import { IIdentifier, IPlugin, ScopeData } from './helper';
 import { def, assert } from '../util';
-import { devtool } from '../plugins/devtool';
 import { ValueInjector } from '../di/injector';
 import { IMutation, runInMutaion } from './mutation';
 import { ClassMetaData } from '../di/class_meta';
 import { DIMetaData } from '../di/di_meta';
-
-export interface GlobalHelper {
-    middleware: Middleware;
-    plugins: IPlugin[];
-}
 
 export interface IService {
 
@@ -87,11 +81,6 @@ export abstract class Service implements IService {
 
     subscribe(option: IMutationSubscribeOption) {
         this.__scope__.middleware.subscribe(option);
-    }
-
-    subscribeGlobal(option: IMutationSubscribeOption) {
-        assert(this.__scope__.$root === this, 'Only root service has subscribeGlobal methods');
-        this.__scope__.globalMiddlewate.subscribe(option);
     }
 
     getProvide() {

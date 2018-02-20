@@ -27,16 +27,16 @@ export class Binding<T> {
         this.injectorFactory = () => new FactoryInjector(this.identifier, this.isSingleton, factory, deps);
         return this;
     }
+    /*
+        public inSingletonScope(): this {
+            this.isSingleton = true;
+            return this;
+        }
 
-    public inSingletonScope(): this {
-        this.isSingleton = true;
-        return this;
-    }
-
-    public inTransientScope(): this {
-        this.isSingleton = false;
-        return this;
-    }
+        public inTransientScope(): this {
+            this.isSingleton = false;
+            return this;
+        } */
 
 }
 

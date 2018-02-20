@@ -1,12 +1,12 @@
 import Vue from 'vue';
-import { createDecorator, Service, mutation, lazyInject, bind, IService, created, IVubxDecorator } from 'vubx';
+import { createDecorator, Service, mutation, lazyInject, bind, IService, created, IVubxDecorator, StateModule } from 'vubx';
 import component from 'vue-class-component';
 import { Inject } from 'vue-property-decorator';
+import { devtool } from '../../src/plugins/devtool';
 
 const observable: IVubxDecorator = createDecorator(Vue);
 
 const moduleKeys = {
-    root: 'root',
     A: 'moduleA',
     B: 'moduleB'
 };
@@ -19,8 +19,10 @@ interface IModule extends IService {
 class ModuleA extends Service implements IModule {
     text = 'A';
 
-    @lazyInject
-    public moduleA: IModule;
+    @mutation
+    change() {
+        this.text = '';
+    }
 
 }
 
@@ -29,40 +31,14 @@ class ModuleB extends Service implements IModule {
     text = 'B';
 }
 
-@observable({
-    root: true,
-    identifier: moduleKeys.root,
+const rootModule = new StateModule({
     providers: [
         bind<IModule>(moduleKeys.A).toClass(ModuleA),
         bind<IModule>(moduleKeys.B).toClass(ModuleB)
     ],
-    strict: true,
-    devtool: true
-})
-class Root extends Service {
-
-    @lazyInject(moduleKeys.A)
-    public moduleA: IModule;
-
-    @lazyInject(moduleKeys.B)
-    public moduleB: IModule;
-
-    child: IModule;
-
-    get text() {
-        return this.moduleA.text + this.moduleB.text;
-    }
-
-    @created([moduleKeys.A])
-    created(moduleA: IModule) {
-        this.injectService(moduleA, 'child', 'child');
-        console.log(this.child === this.moduleA);
-    }
-
-}
-
-const rootModule = new Root();
-console.log(rootModule);
+    devtool: [moduleKeys.A, moduleKeys.B],
+    strict: [moduleKeys.A, moduleKeys.B]
+});
 
 @component({
     template: '<div>{{text}}</div>',
@@ -73,16 +49,28 @@ console.log(rootModule);
 })
 class App extends Vue {
 
-    moduleA: IModule;
+    moduleA: ModuleA;
     moduleB: IModule;
 
     get text() {
         return this.moduleA.text + this.moduleB.text;
     }
+
+    get a() {
+        return this.moduleA;
+    }
+
+    mounted() {
+        console.log(this.moduleA);
+        setTimeout(() => {
+            this.moduleA.change();
+        }, 2000);
+
+    }
 }
 
 new Vue({
     el: '#app',
-    provide: rootModule.getProvide(),
+    provide: rootModule,
     render: h => h(App)
 });

@@ -19,6 +19,10 @@ export class Provider {
 
     public hooks: ((instance: any, meta: DIMetaData) => void)[] = [];
 
+    constructor(proxyObj: any) {
+        this.proxy = proxyObj;
+    }
+
     /**
      * get service instance
      * @param identifier

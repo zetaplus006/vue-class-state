@@ -1,4 +1,4 @@
-import { IService, GlobalHelper } from './service';
+import { IService } from './service';
 import { Middleware } from './middleware';
 import { IIdentifier } from './helper';
 import { DIMetaData } from '../di/di_meta';
@@ -25,8 +25,7 @@ export function runInMutaion(
     func: Function,
     payload: any,
     mutationType?: string) {
-    const rootScope = ctx.__scope__.$root.__scope__,
-        scope = ctx.__scope__,
+    const scope = ctx.__scope__,
         meta = DIMetaData.get(ctx),
         mType = mutationType || unnamedName;
 
@@ -37,17 +36,17 @@ export function runInMutaion(
         identifier: meta.identifier
     };
 
-    const globalMiddleware = rootScope.globalMiddlewate;
+    const globalMiddleware = scope.module && scope.globalMiddlewate;
     const middleware = scope.middleware;
 
     const temp = scope.isCommitting;
     scope.isCommitting = true;
 
-    globalMiddleware.dispatchBefore(ctx, vubxMutation, ctx);
+    globalMiddleware && globalMiddleware.dispatchBefore(ctx, vubxMutation, ctx);
     middleware.dispatchBefore(ctx, vubxMutation, ctx);
     const result = func.apply(ctx, payload);
     middleware.dispatchAfter(ctx, vubxMutation, ctx);
-    globalMiddleware.dispatchAfter(ctx, vubxMutation, ctx);
+    globalMiddleware && globalMiddleware.dispatchAfter(ctx, vubxMutation, ctx);
     // arguments is different
     // res =  middleware.createTask(mutationFn, this)(...payload);
 

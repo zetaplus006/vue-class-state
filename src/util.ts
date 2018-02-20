@@ -13,3 +13,11 @@ export function assert(condition: any, msg: string) {
 export const hasSymbol = typeof Symbol === 'function';
 
 export const def = Object.defineProperty;
+
+export function hideVal(obj: any, key: string, value: any) {
+    def(obj, key, {
+        value,
+        enumerable: false,
+        configurable: true
+    })
+}

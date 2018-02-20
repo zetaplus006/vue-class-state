@@ -26,10 +26,6 @@ const plugin = (store: Counter) => {
 };
 
 @observable({
-    root: true,
-    identifier: 'counter',
-    strict: true,
-    devtool: true,
     // 插件，插件在此类实例化后执行
     plugins: [
         plugin
@@ -69,6 +65,6 @@ new Vue({
         }
     },
     mounted() {
-        // addition.init();
+        addition.init();
     }
 });

@@ -1,12 +1,13 @@
-import { IService, GlobalHelper, Service } from '../service/service';
+import { IService, Service } from '../service/service';
 import { Provider } from '../di/provider';
 import { def } from '../util';
 import { IIdentifier, proxyGetters } from '../service/helper';
 import { DIMetaData } from '../di/di_meta';
+import { StateModule } from '../module/module';
 
-export function devtool(service: IService) {
+export function devtool(module: StateModule, identifiers: IIdentifier[]) {
 
-    const provider = DIMetaData.get(service).provider;
+    const provider = module['_provider'];
 
     const devtoolHook =
         typeof window !== 'undefined' &&
@@ -14,7 +15,7 @@ export function devtool(service: IService) {
 
     if (!devtoolHook) return;
 
-    const store: IStore = simulationStore(provider);
+    const store: IStore = simulationStore(provider, identifiers);
 
     store._devtoolHook = devtoolHook;
 
@@ -24,7 +25,7 @@ export function devtool(service: IService) {
         provider.replaceAllState(targetState);
     });
 
-    service.__scope__.globalMiddlewate.subscribe({
+    module['_globalMiddleware'].subscribe({
         after: (mutation: any, state: any) => {
             devtoolHook.emit('vuex:mutation', mutation, state);
         }
@@ -37,8 +38,8 @@ interface IStore {
     _devtoolHook: any;
 }
 
-function simulationStore(provider: Provider): IStore {
-    const { state, getters } = getStateAndGetters(provider.proxy);
+function simulationStore(provider: Provider, identifiers: IIdentifier[]): IStore {
+    const { state, getters } = getStateAndGetters(provider.proxy, identifiers);
     const store = {
         state,
         getters,
@@ -47,13 +48,10 @@ function simulationStore(provider: Provider): IStore {
     return store;
 }
 
-function getStateAndGetters(proxy: any) {
+function getStateAndGetters(proxy: any, identifiers: IIdentifier[]) {
     const getters = {};
     const state = {};
-    let keys: IIdentifier[] = Object.keys(proxy);
-    if (Object.getOwnPropertySymbols) {
-        keys = keys.concat(Object.getOwnPropertySymbols(proxy));
-    }
+    let keys: IIdentifier[] = identifiers;
     keys.forEach(key => {
         const instance = proxy[key];
         if (instance instanceof Service) {
