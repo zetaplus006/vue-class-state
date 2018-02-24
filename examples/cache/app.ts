@@ -1,5 +1,5 @@
+import { created, createDecorator, IMutation, IService, IVubxDecorator, mutation, Service } from 'vubx';
 import Vue from 'vue';
-import { createDecorator, Service, mutation, IMutation, IService, created, IVubxDecorator } from 'vubx';
 
 const observable: IVubxDecorator = createDecorator(Vue);
 
@@ -10,6 +10,7 @@ const plugin = (store: Counter) => {
     store.subscribe({
         // tslint:disable-next-line:no-shadowed-variable
         before: (mutation: IMutation, _service: IService) => {
+            // tslint:disable-next-line:no-console
             console.log(`
                 mutation类型，给devtool使用: ${mutation.type}
                 传入mutation方法的参数数组: ${JSON.stringify(mutation.payload)}
@@ -33,15 +34,15 @@ const plugin = (store: Counter) => {
 })
 class Counter extends Service {
 
-    num = 0;
+    public num = 0;
 
     @mutation
-    add () {
+    public add () {
         this.num++;
     }
 
     @created()
-    init () {
+    public init () {
         const cacheStr = localStorage.getItem(cacheKey);
         if (cacheStr) {
             const cache = JSON.parse(cacheStr);

@@ -1,5 +1,5 @@
+import { createDecorator, mutation, Service } from 'vubx';
 import Vue from 'vue';
-import { createDecorator, Service, mutation } from 'vubx';
 
 const observable = createDecorator(Vue);
 
@@ -7,8 +7,8 @@ const observable = createDecorator(Vue);
 class Addition extends Service {
 
     // 类中的数据在初始化后会被Vue观察到
-    a = 0;
-    b = 1;
+    public a = 0;
+    public b = 1;
 
     // 本类中的getter 都会代理为Vue的计算属性
     get sum () {
@@ -17,7 +17,7 @@ class Addition extends Service {
 
     // 突变方法，与vuex一致必须为同步函数
     @mutation
-    change () {
+    public change () {
         const temp = this.sum;
         this.a = this.b;
         this.b = temp;
@@ -26,6 +26,7 @@ class Addition extends Service {
 }
 
 const addition = new Addition();
+// tslint:disable-next-line:no-console
 console.log(addition);
 new Vue({
     el: '#app',

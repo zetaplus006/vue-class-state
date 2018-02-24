@@ -1,19 +1,19 @@
 import { expect } from 'chai';
 
 // import Vue from 'vue/';
-import { createDecorator, Service, IVubxDecorator, lazyInject, bind, IService } from '../../../lib/vubx';
+import { bind, createDecorator, IService, IVubxDecorator, lazyInject, Service } from '../../../lib/vubx';
 const Vue = require('Vue');
 const observable: IVubxDecorator = createDecorator(Vue);
 
 describe('service $state $getters', function () {
     @observable()
     class State extends Service {
-        a = 1;
-        b = 2;
-        get sum() {
+        public a = 1;
+        public b = 2;
+        get sum () {
             return this.a + this.b;
         }
-        get diff() {
+        get diff () {
             return this.b = this.a;
         }
     }
@@ -60,8 +60,8 @@ describe('computed', () => {
             identifier: key
         })
         class State extends Service {
-            a = 1;
-            get t() {
+            public a = 1;
+            get t () {
                 num++;
                 return this.a;
             }
@@ -85,7 +85,7 @@ describe('computed', () => {
 
         const key = Symbol();
         class Base extends Service {
-            get t() {
+            get t () {
                 num++;
                 return '';
             }
@@ -113,7 +113,7 @@ describe('computed', () => {
 
         const key = Symbol();
         class Base extends Service {
-            get t() {
+            get t () {
                 return 'super';
             }
         }
@@ -123,7 +123,7 @@ describe('computed', () => {
             identifier: key
         })
         class State extends Base {
-            get t() {
+            get t () {
                 return 'child';
             }
         }
@@ -142,10 +142,10 @@ describe('vubxMethods', () => {
             identifier: 'root'
         })
         class State extends Service {
-            a = 1;
-            b = 2;
+            public a = 1;
+            public b = 2;
 
-            change() {
+            public change () {
                 this.mutation(() => {
                     this.a = 2;
                     this.b = 4;
@@ -163,10 +163,10 @@ describe('vubxMethods', () => {
     it('replaceState', () => {
         @observable()
         class State extends Service {
-            a = 1;
-            b = 2;
-            obj = {};
-            get jsonString() {
+            public a = 1;
+            public b = 2;
+            public obj = {};
+            get jsonString () {
                 return Object.assign({}, this, {
                     a: 3,
                     obj: {
@@ -199,22 +199,22 @@ describe('vubxMethods', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
+            public text = 'A';
         }
 
         @observable()
         class ModuleB extends Service implements IModule {
-            text = 'B';
+            public text = 'B';
         }
 
         @observable()
         class ModuleC extends Service {
 
             @lazyInject(moduleKeys.A)
-            moduleA: IModule;
+            public moduleA: IModule;
 
             @lazyInject(moduleKeys.B)
-            moduleB: IModule;
+            public moduleB: IModule;
         }
 
         @observable({
@@ -228,7 +228,7 @@ describe('vubxMethods', () => {
         })
         class Root extends Service {
 
-            obj = {
+            public obj = {
                 a: 'a',
                 b: 1
             };

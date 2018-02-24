@@ -3,7 +3,6 @@ import uglify from 'rollup-plugin-uglify-es';
 import typescript from 'rollup-plugin-typescript2';
 import replace from 'rollup-plugin-post-replace';
 import filesize from 'rollup-plugin-filesize';
-import tslint from 'rollup-plugin-tslint'
 const version = process.env.VERSION || require('./package.json').version;
 const banner =
     `/**
@@ -38,9 +37,6 @@ export default options.map(({ dest, format, env, isMin }) => {
         moduleName,
         format,
         plugins: [
-            tslint({
-                configuration: 'tsconfig.json'
-            }),
             typescript(),
             filesize()
         ]
