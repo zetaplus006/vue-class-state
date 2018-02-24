@@ -1,4 +1,7 @@
 {
+    "extends": [
+        "tslint:recommended"
+    ],
     "rules": {
         "class-name": true,
         "comment-format": [
@@ -74,6 +77,16 @@
             "check-operator",
             "check-separator",
             "check-type"
-        ]
+        ],
+        "space-before-function-paren": false,
+        "linebreak-style": false,
+        "no-unused-variable": true,
+        "object-literal-sort-keys": false,
+        "only-arrow-functions": false,
+        "no-string-literal": false,
+        "max-classes-per-file": false,
+        "member-ordering": false,
+        "forin": false,
+        "one-variable-per-declaration": false
     }
 }

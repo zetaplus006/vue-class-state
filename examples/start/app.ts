@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { createDecorator, Service, mutation, lazyInject, bind, IService } from 'vubx';
+import { createDecorator, Service, mutation } from 'vubx';
 
 const observable = createDecorator(Vue);
 
@@ -11,13 +11,13 @@ class Addition extends Service {
     b = 1;
 
     // 本类中的getter 都会代理为Vue的计算属性
-    get sum() {
+    get sum () {
         return this.a + this.b;
     }
 
     // 突变方法，与vuex一致必须为同步函数
     @mutation
-    change() {
+    change () {
         const temp = this.sum;
         this.a = this.b;
         this.b = temp;
@@ -31,11 +31,11 @@ new Vue({
     el: '#app',
     template: `<div>{{addition.sum}}</div>`,
     computed: {
-        addition() {
+        addition () {
             return addition;
         }
     },
-    mounted() {
+    mounted () {
         setInterval(() => {
             this.addition.change();
         }, 2000);

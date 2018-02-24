@@ -1,12 +1,8 @@
-import Vue from 'vue';
-import { Middleware, ISubscribeOption } from './middleware';
-import { Provider } from '../di/provider';
-import { IIdentifier, IPlugin, ScopeData } from './helper';
-import { def, assert } from '../util';
-import { ValueInjector } from '../di/injector';
-import { IMutation, runInMutaion } from './mutation';
-import { ClassMetaData } from '../di/class_meta';
 import { DIMetaData } from '../di/di_meta';
+import { ValueInjector } from '../di/injector';
+import { def } from '../util';
+import { IIdentifier } from './helper';
+import { IMutation, runInMutaion } from './mutation';
 
 export interface IService {
 
@@ -14,40 +10,38 @@ export interface IService {
 
     $getters: any;
 
-    mutation(fn: Function, mutationType: string): any;
+    mutation (fn: () => void, mutationType: string): any;
 
-    replaceState(state: IService, replaceChildState?: boolean): void;
+    replaceState (state: IService, replaceChildState?: boolean): void;
 
-    replaceAllState(proxyState: any): void;
+    replaceAllState (proxyState: any): void;
 
-    subscribe(option: IMutationSubscribeOption): void;
+    subscribe (option: IMutationSubscribeOption): void;
 
-    subscribeGlobal(option: IMutationSubscribeOption): void;
+    subscribeGlobal (option: IMutationSubscribeOption): void;
 
-    injectService(instance: IService, key: keyof this, identifier: IIdentifier): void;
-
-    getProvide(): any;
+    injectService (instance: IService, key: keyof this, identifier: IIdentifier): void;
 
 }
 
 export type IMutationSubscribe = (mutation: IMutation, service: IService) => any;
 
-export type IMutationSubscribeOption = {
-    before?: IMutationSubscribe,
-    after?: IMutationSubscribe
-};
+export interface IMutationSubscribeOption {
+    before?: IMutationSubscribe;
+    after?: IMutationSubscribe;
+}
 
 export abstract class Service implements IService {
 
-    $state: any;
+    public $state: any;
 
-    $getters: any;
+    public $getters: any;
 
-    mutation(fn: Function, mutationType?: string): any {
+    public mutation (fn: () => void, mutationType?: string): any {
         return runInMutaion(this, fn, null, mutationType);
     }
 
-    replaceState(state: IService, replaceChildState = false): void {
+    public replaceState (state: IService, replaceChildState = false): void {
         const temp = this.__scope__.isCommitting;
         this.__scope__.isCommitting = true;
         for (const key in state) {
@@ -64,11 +58,11 @@ export abstract class Service implements IService {
         this.__scope__.isCommitting = temp;
     }
 
-    replaceAllState(proxyState: any) {
+    public replaceAllState (proxyState: any) {
         DIMetaData.get(this).provider.replaceAllState(proxyState);
     }
 
-    injectService(instance: any, key: keyof this, identifier: IIdentifier): void {
+    public injectService (instance: any, key: keyof this, identifier: IIdentifier): void {
         const provider = DIMetaData.get(this).provider;
         provider.checkIdentifier(identifier);
         provider.register(new ValueInjector(identifier, true, instance));
@@ -79,12 +73,8 @@ export abstract class Service implements IService {
         });
     }
 
-    subscribe(option: IMutationSubscribeOption) {
+    public subscribe (option: IMutationSubscribeOption) {
         this.__scope__.middleware.subscribe(option);
-    }
-
-    getProvide() {
-        return DIMetaData.get(this).provider.proxy;
     }
 
 }

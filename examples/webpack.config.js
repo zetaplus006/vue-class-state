@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 const webpack = require('webpack')
+const TSLintPlugin = require('tslint-webpack-plugin');
+
 module.exports = {
 
   devtool: '#source-map',
@@ -61,7 +63,10 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
     }),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin(),
+    new TSLintPlugin({
+      files: ['src/**/*.ts']
+    })
   ]
 
 }

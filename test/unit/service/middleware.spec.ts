@@ -9,10 +9,10 @@ describe('middleware plugin', () => {
     const key = 'store';
     const plugin = (service: IService) => {
         service.subscribe({
-            before: (m: IMutation, state: Test) => {
+            before: (m: IMutation, _state: Test) => {
                 m.payload[0].a = 10;
             },
-            after: (m: IMutation, state: Test) => {
+            after: (_m: IMutation, state: Test) => {
                 state.count = 20;
             }
         });
@@ -35,7 +35,7 @@ describe('middleware plugin', () => {
         count = 0;
 
         @mutation
-        change(data: any, count: number) {
+        change (data: any, count: number) {
             Object.assign(this.data, data);
             this.count = count;
         }
@@ -60,10 +60,10 @@ describe('global middleware, global plugin', () => {
     const key = 'store';
     const plugin = (service: IService) => {
         service.subscribeGlobal({
-            before: (m: IMutation, state: any) => {
+            before: (m: IMutation, _state: any) => {
                 m.payload[0].a = 10;
             },
-            after: (m: IMutation, state: any) => {
+            after: (_m: IMutation, state: any) => {
                 state.count = 20;
             }
         });
@@ -71,7 +71,7 @@ describe('global middleware, global plugin', () => {
 
     const globalPlugin = (service: IService) => {
         service.subscribe({
-            before: (m: IMutation, state: any) => {
+            before: (m: IMutation, _state: any) => {
                 if (m.mutationType === 'change2') {
                     m.payload[0].a = 20;
                 }
@@ -102,13 +102,13 @@ describe('global middleware, global plugin', () => {
         count2 = 0;
 
         @mutation
-        change(data: any, count: number) {
+        change (data: any, count: number) {
             Object.assign(this.data, data);
             this.count = count;
         }
 
         @mutation
-        change2(data: any, count: number) {
+        change2 (data: any, count: number) {
             Object.assign(this.data2, data);
             this.count = count;
         }

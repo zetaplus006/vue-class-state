@@ -1,16 +1,15 @@
-import { def, assert } from '../util';
 import Vue from 'vue';
-import { IService, Service } from './service';
-import { Middleware } from './middleware';
-import { Provider } from '../di/provider';
-import { IVubxOption } from './observable';
 import { ClassMetaData } from '../di/class_meta';
 import { DIMetaData } from '../di/di_meta';
-import { StateModule } from '../module/module';
+import { IStateModule } from '../module/module';
+import { assert, def } from '../util';
+import { Middleware } from './middleware';
+import { IVubxOption } from './observable';
+import { IService, Service } from './service';
 
-export type IConstructor = { new(...args: any[]): {}; };
+export interface IConstructor { new(...args: any[]): {}; }
 
-export type IServiceClass<T> = { new(...args: any[]): T; };
+export interface IServiceClass<T> { new(...args: any[]): T; }
 
 export type IIdentifier = string;
 
@@ -22,50 +21,33 @@ const defaultConfig = {
 };
 
 export class ScopeData {
-    $vm: Vue;
-    $getters: any = {};
-    $state: any = {};
-    isRoot: boolean;
-    isCommitting: boolean = false;
-    middleware: Middleware = new Middleware();
-    vubxOption: IVubxOption;
+    public $vm: Vue;
+    public $getters: any = {};
+    public $state: any = {};
+    public isRoot: boolean;
+    public isCommitting: boolean = false;
+    public middleware: Middleware = new Middleware();
+    public vubxOption: IVubxOption;
 
-    module: StateModule;
+    public module: IStateModule;
 
-    /*     private _root: IService;
-        get $root(): IService {
-            assert(this._root, 'There must be a root Service and please check your decorator option , or confirm your class has extends Service class');
-            return this._root;
-        }
-        set $root(value: IService) {
-            this._root = value;
-        } */
-
-    get globalPlugins(): IPlugin[] {
-        return this.module['_globalPlugins'];
+    get globalPlugins (): IPlugin[] {
+        return this.module._globalPlugins;
     }
 
-    get globalMiddlewate(): Middleware {
-        return this.module['_globalMiddleware'];
+    get globalMiddlewate (): Middleware {
+        return this.module._globalMiddleware;
     }
 
-    constructor(service: IService, vubxOption: IVubxOption) {
-        // this.isRoot = !!vubxOption.root;
-        /* if (this.isRoot) {
-            this._root = service;
-            this._globalMiddllewate = new Middleware();
-            this._globalPlugins = vubxOption.globalPlugins || [];
-        } else if (vubxOption.globalPlugins.length > 0) {
-            assert(false, 'The globalPlugins option only to be used in root service');
-        } */
+    constructor (vubxOption: IVubxOption) {
         this.vubxOption = vubxOption;
     }
 }
 
-export function proxyState(ctx: any, getterKeys: string[]) {
+export function proxyState (ctx: any, getterKeys: string[]) {
     const $state = (ctx as IService).__scope__.$state;
     Object.keys(ctx).forEach(
-        key => {
+        (key) => {
             if (getterKeys.indexOf(key) < 0) {
                 def($state, key, {
                     get: () => ctx[key],
@@ -80,18 +62,12 @@ export function proxyState(ctx: any, getterKeys: string[]) {
     });
 }
 
-export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
+export function proxyGetters (ctx: any, getterKeys: string[]) {
     const $getters = (ctx as IService).__scope__.$getters;
-    getterKeys.forEach(key => {
-        // def(ctx, key, {
-        //     get: () => vm[key],
-        //     set: value => vm[key] = value,
-        //     enumerable: false,
-        //     configurable: true
-        // });
+    getterKeys.forEach((key) => {
         def($getters, key, {
             get: () => ctx[key],
-            set: value => ctx[key] = value,
+            set: (value) => ctx[key] = value,
             ...defaultConfig
         });
     });
@@ -102,11 +78,10 @@ export function proxyGetters(ctx: any, vm: Vue, getterKeys: string[]) {
     });
 }
 
-export function definedComputed(proto: Object, getterKeys: string[]) {
-    const $getters = {};
-    getterKeys.forEach(key => {
+export function definedComputed (proto: any, getterKeys: string[]) {
+    getterKeys.forEach((key) => {
         def(proto, key, {
-            get(this: IService) {
+            get (this: IService) {
                 return this.__scope__.$vm[key];
             },
             enumerable: true,
@@ -115,7 +90,7 @@ export function definedComputed(proto: Object, getterKeys: string[]) {
     });
 }
 
-export function getAllGetters(target: any) {
+export function getAllGetters (target: any) {
     let getters = {};
     let prototypeSuper = target;
     while (
@@ -131,11 +106,11 @@ export function getAllGetters(target: any) {
     return getters;
 }
 
-export function getPropertyGetters(target: any): { [key: string]: { get(): any, set?(): void } } {
+export function getPropertyGetters (target: any): { [key: string]: { get (): any, set?(): void } } {
     const getters = {};
     const injectMeta = ClassMetaData.get(target).injectMeta;
     const keys: string[] = Object.getOwnPropertyNames(target);
-    keys.forEach(key => {
+    keys.forEach((key) => {
         // skip @lazyInject
         if (key === 'constructor' || injectMeta.has(key)) { return; }
         const descriptor = Object.getOwnPropertyDescriptor(target, key);
@@ -149,14 +124,15 @@ export function getPropertyGetters(target: any): { [key: string]: { get(): any, 
     return getters;
 }
 
-export function useStrict(service: IService) {
+export function useStrict (service: IService) {
     const identifier = DIMetaData.get(service).identifier;
     if (process.env.NODE_ENV !== 'production') {
-        service.__scope__.$vm && service.__scope__.$vm.$watch<any>(function () {
+        service.__scope__.$vm && service.__scope__.$vm.$watch<any>(() => {
             return service.$state;
-        }, (val) => {
+        }, () => {
             assert(service.__scope__.isCommitting,
                 `Do not mutate vubx service[${String(identifier)}] data outside mutation handlers.`);
-        }, { deep: true, sync: true });
+        }, { deep: true, sync: true }
+        );
     }
 }

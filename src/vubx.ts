@@ -1,4 +1,3 @@
-
 /**
  * vubx interface
  */
@@ -13,12 +12,19 @@ export { IDecoratorOption, IVubxDecorator } from './service/observable';
 /* di */
 export { IInjector, IDeps, IServiceFactory } from './di/injector';
 
-export { IModuleOption } from './module/module';
+/* module */
+export { IModuleOption, IStateModule } from './module/module';
 
 /**
  * vubx api
  */
 export { Service } from './service/service';
 export { bind } from './di/binding';
-export { createDecorator, mutation, lazyInject, created } from './decorator';
-export { StateModule } from './module/module';
+export { concat } from './module/concat';
+export {
+    createDecorator,
+    mutation, mutation as Mutation,
+    lazyInject, lazyInject as LazyInject,
+    created, created as Created,
+    StateModule
+} from './decorator';

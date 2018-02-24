@@ -207,11 +207,6 @@ describe('di', () => {
             text = 'A';
         }
 
-        @observable()
-        class ModuleB extends Service implements IModule {
-            text = 'B';
-        }
-
         @observable({
             root: true,
             identifier: 'root',
@@ -559,15 +554,6 @@ describe('di', () => {
         }
 
         @observable()
-        class ModuleB extends Service implements IModule {
-            text = 'B';
-            count = 0;
-            created () {
-                this.count++;
-            }
-        }
-
-        @observable()
         class ModuleC extends Service {
 
             @lazyInject(moduleKeys.A)
@@ -649,17 +635,6 @@ describe('di', () => {
         @observable()
         class ModuleA extends Service implements IModule {
             text = 'A';
-            count = 0;
-
-            @created()
-            created () {
-                this.count++;
-            }
-        }
-
-        @observable()
-        class ModuleB extends Service implements IModule {
-            text = 'B';
             count = 0;
 
             @created()
@@ -751,17 +726,6 @@ describe('di', () => {
         @observable()
         class ModuleA extends Service implements IModule {
             text = 'A';
-            count = 0;
-
-            @created()
-            created () {
-                this.count++;
-            }
-        }
-
-        @observable()
-        class ModuleB extends Service implements IModule {
-            text = 'B';
             count = 0;
 
             @created()

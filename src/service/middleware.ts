@@ -2,16 +2,16 @@ export type ISub = (...arg: any[]) => any;
 
 export type ISubs = ISub[];
 
-export type ISubscribeOption = {
-    before?: ISub
-    after?: ISub
-};
+export interface ISubscribeOption {
+    before?: ISub;
+    after?: ISub;
+}
 
 export class Middleware {
     private beforeSubs: ISubs = [];
     private afterSubs: ISubs = [];
 
-    public subscribe(option: ISubscribeOption) {
+    public subscribe (option: ISubscribeOption) {
         if (!option) return;
         if (option.before) {
             this.beforeSubs.push(option.before);
@@ -26,7 +26,7 @@ export class Middleware {
      * @param fn
      * @param ctx
      */
-    public createTask(fn: ISub, ctx: any | null = null): Function {
+    public createTask (fn: ISub, ctx: any | null = null): (...arg: any[]) => any {
         // fn maybe array
         const self = this;
         return function (...arg: any[]) {
@@ -37,14 +37,14 @@ export class Middleware {
         };
     }
 
-    public dispatchBefore(ctx: any | null, ...arg: any[]) {
+    public dispatchBefore (ctx: any | null, ...arg: any[]) {
         this.run(this.beforeSubs, ctx, ...arg);
     }
-    public dispatchAfter(ctx: any | null, ...arg: any[]) {
+    public dispatchAfter (ctx: any | null, ...arg: any[]) {
         this.run(this.afterSubs, ctx, ...arg);
     }
 
-    private run(subs: ISubs, ctx: any | null, ...arg: any[]) {
+    private run (subs: ISubs, ctx: any | null, ...arg: any[]) {
         for (const sub of subs) {
             // todo if promise
             if (sub.apply(ctx, arg) === false) {

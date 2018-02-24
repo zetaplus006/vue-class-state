@@ -1,15 +1,13 @@
-import { Provider } from './provider';
 import { IIdentifier, IServiceClass } from '../service/helper';
-import { Service, IService } from '../service/service';
-import { assert, hasSymbol } from '../util';
-import { createdHook } from '../service/observable';
+import { assert } from '../util';
 import { DIMetaData } from './di_meta';
+import { Provider } from './provider';
 
 export interface IInjector<T> {
     identifier: IIdentifier;
-    isSingleton: Boolean;
+    isSingleton: boolean;
     provider: Provider;
-    resolve(): T;
+    resolve (): T;
 }
 
 export type IDeps = IIdentifier[];
@@ -22,21 +20,21 @@ export class BaseInjector<T> {
     public isSingleton: boolean = true;
     public provider: Provider;
 
-    public addDIMeta(instance: T, identifier: IIdentifier) {
+    public addDIMeta (instance: T, identifier: IIdentifier) {
         const meta = DIMetaData.get(instance);
         if (meta.hasBeenInjected) {
             return;
         }
         meta.identifier = identifier;
         meta.provider = this.provider;
-        this.provider.hooks.forEach(fn => fn(instance, meta));
+        this.provider.hooks.forEach((fn) => fn(instance, meta));
         meta.hasBeenInjected = true;
     }
 }
 
 export class ClassInjector<T> extends BaseInjector<T> implements IInjector<T> {
 
-    constructor(
+    constructor (
         public identifier: IIdentifier,
         public isSingleton: boolean,
         private serviceClass: IServiceClass<T>
@@ -44,7 +42,7 @@ export class ClassInjector<T> extends BaseInjector<T> implements IInjector<T> {
         super();
     }
 
-    resolve(): T {
+    public resolve (): T {
         if (this.isSingleton) {
             if (!this.instance) {
                 this.instance = this.getInstance();
@@ -55,7 +53,7 @@ export class ClassInjector<T> extends BaseInjector<T> implements IInjector<T> {
         }
     }
 
-    private getInstance() {
+    private getInstance () {
         const instance = new this.serviceClass();
         this.addDIMeta(instance, this.identifier);
         return instance;
@@ -64,7 +62,7 @@ export class ClassInjector<T> extends BaseInjector<T> implements IInjector<T> {
 
 export class ValueInjector<T> extends BaseInjector<T> implements IInjector<T> {
 
-    constructor(
+    constructor (
         public identifier: IIdentifier,
         public isSingleton: boolean,
         private service: T
@@ -72,19 +70,19 @@ export class ValueInjector<T> extends BaseInjector<T> implements IInjector<T> {
         super();
     }
 
-    resolve(): T {
+    public resolve (): T {
         if (!this.instance) {
             this.instance = this.getInstance();
         }
         return this.instance;
     }
 
-    getInstance() {
+    public getInstance () {
         this.addDIMeta(this.service, this.identifier);
         return this.service;
     }
 
-    inTransientScope() {
+    public inTransientScope () {
         assert(false, 'Value injector not support inTransientScope');
         return this;
     }
@@ -92,7 +90,7 @@ export class ValueInjector<T> extends BaseInjector<T> implements IInjector<T> {
 
 export class FactoryInjector<T> extends BaseInjector<T> implements IInjector<T> {
 
-    constructor(
+    constructor (
         public identifier: IIdentifier,
         public isSingleton: boolean,
         private ServiceFactory: IServiceFactory<T>,
@@ -101,7 +99,7 @@ export class FactoryInjector<T> extends BaseInjector<T> implements IInjector<T> 
         super();
     }
 
-    resolve(): T {
+    public resolve (): T {
         if (this.isSingleton) {
             if (!this.instance) {
                 this.instance = this.getInstance();
@@ -112,7 +110,7 @@ export class FactoryInjector<T> extends BaseInjector<T> implements IInjector<T> 
         }
     }
 
-    private getInstance() {
+    private getInstance () {
         const args = this.provider.getAll(this.deps);
         const instance = this.ServiceFactory.apply(null, args) as T;
         this.addDIMeta(instance, this.identifier);

@@ -7,7 +7,7 @@ export interface IMap<K, V> {
 
 class SimpleMap<K, V> implements IMap<K, V> {
 
-    private dictionary: Object = {};
+    private dictionary: object = {};
 
     public get (key: K): V | undefined {
         return this.dictionary[key as any] || undefined;

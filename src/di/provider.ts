@@ -1,33 +1,34 @@
-import { IInjector, IDeps } from './injector';
-import { assert, def } from '../util';
-import { IIdentifier } from '../service/helper';
-import { IService, Service } from '../service/service';
-import { DIMetaData } from './di_meta';
 import { IMap, UseMap } from '../di/map';
+import { IIdentifier } from '../service/helper';
+import { Service } from '../service/service';
+import { assert, def } from '../util';
+import { DIMetaData } from './di_meta';
+import { IDeps, IInjector } from './injector';
 
-export type IProxyState = {
-    [key: string]: any
-};
+export interface IProxyState {
+    [key: string]: any;
+}
 
 export class Provider {
-    private injectorMap: IMap<IIdentifier, IInjector<any>> = new UseMap();
 
     /**
      * for vue provide option
      */
     public proxy: any = {};
 
-    public hooks: ((instance: any, meta: DIMetaData) => void)[] = [];
+    public hooks: Array<(instance: any, meta: DIMetaData) => void> = [];
 
-    constructor(proxyObj: any) {
+    constructor (proxyObj: any) {
         this.proxy = proxyObj;
     }
+
+    private injectorMap: IMap<IIdentifier, IInjector<any>> = new UseMap();
 
     /**
      * get service instance
      * @param identifier
      */
-    public get(identifier: IIdentifier): any {
+    public get (identifier: IIdentifier): any {
         const injector = this.injectorMap.get(identifier);
         if (process.env.NODE_ENV !== 'production') {
             assert(injector,
@@ -40,22 +41,22 @@ export class Provider {
      * get service instance array
      * @param deps
      */
-    public getAll(deps: IDeps): any[] {
-        return deps.map(identifier => this.get(identifier));
+    public getAll (deps: IDeps): any[] {
+        return deps.map((identifier) => this.get(identifier));
     }
 
     /**
      * register a injector in the provider
      * @param injector
      */
-    public register(injector: IInjector<any>) {
+    public register (injector: IInjector<any>) {
         this.checkIdentifier(injector.identifier);
         injector.provider = this;
         this.injectorMap.set(injector.identifier, injector);
         this.defProxy(injector);
     }
 
-    public checkIdentifier(identifier: IIdentifier) {
+    public checkIdentifier (identifier: IIdentifier) {
         if (process.env.NODE_ENV !== 'production') {
             assert(!this.injectorMap.has(identifier),
                 `The identifier ${String(identifier)} has been repeated`);
@@ -66,7 +67,7 @@ export class Provider {
      * replaceState for SSR and devtool
      * @param proxyState
      */
-    public replaceAllState(proxyState: IProxyState) {
+    public replaceAllState (proxyState: IProxyState) {
         for (const key in proxyState) {
             const instance = this.proxy[key];
             if (instance instanceof Service) {
@@ -75,7 +76,7 @@ export class Provider {
         }
     }
 
-    public registerInjectedHook(injected: (instance: any, meta: DIMetaData) => void) {
+    public registerInjectedHook (injected: (instance: any, meta: DIMetaData) => void) {
         if (this.hooks.indexOf(injected) > -1) {
             return;
         }
@@ -86,7 +87,7 @@ export class Provider {
      * for vue provide option
      * @param injector
      */
-    private defProxy(injector: IInjector<any>) {
+    private defProxy (injector: IInjector<any>) {
         /* if (!injector.isSingleton) {
             return;
         } */

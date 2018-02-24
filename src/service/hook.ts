@@ -1,13 +1,13 @@
-import { IDeps } from '../di/injector';
 import { ClassMetaData } from '../di/class_meta';
+import { IDeps } from '../di/injector';
 
-export type ICreatedHook = {
-    method: Function;
+export interface ICreatedHook {
+    method: (...arg: any[]) => void;
     methodName: string;
     deps: IDeps;
-};
+}
 
-export function created(deps: IDeps = []) {
+export function created (deps: IDeps = []) {
     return function (target: any, methodName: string, desc: PropertyDescriptor) {
         const meta = ClassMetaData.get(target);
         meta.hookMeta = {

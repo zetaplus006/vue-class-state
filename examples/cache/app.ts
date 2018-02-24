@@ -9,7 +9,7 @@ const plugin = (store: Counter) => {
     // subscribe方法用于订阅mutation中间件，
     store.subscribe({
         // tslint:disable-next-line:no-shadowed-variable
-        before: (mutation: IMutation, service: IService) => {
+        before: (mutation: IMutation, _service: IService) => {
             console.log(`
                 mutation类型，给devtool使用: ${mutation.type}
                 传入mutation方法的参数数组: ${JSON.stringify(mutation.payload)}
@@ -36,12 +36,12 @@ class Counter extends Service {
     num = 0;
 
     @mutation
-    add() {
+    add () {
         this.num++;
     }
 
     @created()
-    init() {
+    init () {
         const cacheStr = localStorage.getItem(cacheKey);
         if (cacheStr) {
             const cache = JSON.parse(cacheStr);
@@ -60,11 +60,11 @@ new Vue({
     el: '#app',
     template: `<div>{{addition.num}}</div>`,
     computed: {
-        addition() {
+        addition () {
             return addition;
         }
     },
-    mounted() {
+    mounted () {
         addition.init();
     }
 });

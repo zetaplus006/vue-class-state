@@ -1,76 +1,76 @@
-import Vue from 'vue';
-import { createDecorator, Service, mutation, lazyInject, bind, IService, created, IVubxDecorator, StateModule } from 'vubx';
-import component from 'vue-class-component';
-import { Inject } from 'vue-property-decorator';
-import { devtool } from '../../src/plugins/devtool';
+import {
+    bind, createDecorator, IService, IVubxDecorator,
+    Mutation, Service, StateModule
+} from 'vubx';
+import { Component, Inject, Vue } from 'vue-property-decorator';
 
-const observable: IVubxDecorator = createDecorator(Vue);
+const state: IVubxDecorator = createDecorator(Vue);
 
-const moduleKeys = {
+const StateKeys = {
     A: 'moduleA',
     B: 'moduleB'
 };
 
-interface IModule extends IService {
+interface IState extends IService {
     text: string;
 }
 
-@observable()
-class ModuleA extends Service implements IModule {
-    text = 'A';
+@state()
+class StateA extends Service implements IState {
+    public text = 'A';
 
-    @mutation
-    change() {
+    @Mutation
+    public change () {
         this.text = '';
     }
-
 }
 
-@observable()
-class ModuleB extends Service implements IModule {
-    text = 'B';
+// tslint:disable-next-line:max-classes-per-file
+@state()
+class StateB extends Service implements IState {
+    public text = 'B';
 }
 
-const rootModule = new StateModule({
+// tslint:disable-next-line:max-classes-per-file
+@StateModule({
     providers: [
-        bind<IModule>(moduleKeys.A).toClass(ModuleA),
-        bind<IModule>(moduleKeys.B).toClass(ModuleB)
+        bind<IState>(StateKeys.A).toClass(StateA),
+        bind<IState>(StateKeys.B).toClass(StateB)
     ],
-    devtool: [moduleKeys.A, moduleKeys.B],
-    strict: [moduleKeys.A, moduleKeys.B]
-});
+    devtool: [StateKeys.A, StateKeys.B],
+    strict: [StateKeys.A, StateKeys.B]
+})
+class AppModule { }
 
-@component({
-    template: '<div>{{text}}</div>',
-    inject: {
-        moduleA: moduleKeys.A,
-        moduleB: moduleKeys.B
-    }
+// tslint:disable-next-line:max-classes-per-file
+@Component({
+    template: '<div>{{text}}</div>'
 })
 class App extends Vue {
 
-    moduleA: ModuleA;
-    moduleB: IModule;
+    @Inject(StateKeys.A)
+    public moduleA: StateA;
 
-    get text() {
+    @Inject(StateKeys.B)
+    public moduleB: IState;
+
+    get text () {
         return this.moduleA.text + this.moduleB.text;
     }
 
-    get a() {
+    get a () {
         return this.moduleA;
     }
 
-    mounted() {
-        console.log(this.moduleA);
+    public mounted () {
         setTimeout(() => {
             this.moduleA.change();
         }, 2000);
-
     }
 }
 
 new Vue({
     el: '#app',
-    provide: rootModule,
-    render: h => h(App)
+    provide: new AppModule(),
+    render: (h) => h(App)
 });
