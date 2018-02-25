@@ -20,9 +20,9 @@ export { bind } from './di/binding';
 export { concat } from './module/concat';
 export {
     createDecorator,
-    mutation, mutation as Mutation,
-    lazyInject, lazyInject as LazyInject,
-    created, created as Created,
+    Mutation,
+    LazyInject,
+    Created,
     StateModule
 } from './decorator';
 export { replaceState, subscribe } from './service/helper';

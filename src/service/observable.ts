@@ -14,14 +14,14 @@ export interface IVubxOption {
     createdHook: ICreatedHook;
 }
 
-export function createDecorator(vueConstructor: VueConstructor): ClassDecorator {
+export function createDecorator (vueConstructor: VueConstructor): ClassDecorator {
     // tslint:disable-next-line:ban-types
     return function <TFunction extends Function>(constructor: TFunction): any {
         return createVubxClass(vueConstructor, constructor as any);
     };
 }
 
-export function createVubxClass(
+export function createVubxClass (
     vueConstructor: VueConstructor,
     constructor: IConstructor) {
 
@@ -29,7 +29,7 @@ export function createVubxClass(
     definedComputed(constructor.prototype, classMeta.getterKeys);
 
     return class Vubx extends constructor {
-        constructor(...arg: any[]) {
+        constructor (...arg: any[]) {
             super(...arg);
             const meta = ClassMetaData.get(constructor.prototype);
 
@@ -51,7 +51,7 @@ export function createVubxClass(
     };
 }
 
-export function createdHook(service: any, option: IVubxOption, diMeta: DIMetaData) {
+export function createdHook (service: any, option: IVubxOption, diMeta: DIMetaData) {
     initPlugins(service, ScopeData.get(service)!.globalPlugins.concat(option.plugins));
     const hook = option.createdHook;
     if (hook) {
@@ -60,11 +60,11 @@ export function createdHook(service: any, option: IVubxOption, diMeta: DIMetaDat
     }
 }
 
-function initPlugins(ctx: any, plugin: IPlugin[]) {
+function initPlugins (ctx: any, plugin: IPlugin[]) {
     plugin.forEach((action) => action(ctx));
 }
 
-function bindGetters(getters: IGetters, keys: string[], ctx: object) {
+function bindGetters (getters: IGetters, keys: string[], ctx: object) {
     const returnGetters = {};
     keys.forEach((key) => {
         returnGetters[key] = {

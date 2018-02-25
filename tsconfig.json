@@ -32,7 +32,8 @@
     // "test/**/*.ts"
   ],
   "exclude": [
-    "lib/*"
+    "lib/*",
+    "node_modules/*"
   ],
   "compileOnSave": false
 }

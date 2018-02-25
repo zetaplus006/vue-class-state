@@ -4,24 +4,24 @@ import {
 } from 'vubx';
 import { Component, Inject, Vue } from 'vue-property-decorator';
 
-const state = createDecorator(Vue);
+const State = createDecorator(Vue);
 
 const StateKeys = {
     A: 'moduleA',
     B: 'moduleB'
 };
 
-@state
+@State
 class StateA {
     public text = 'A';
 
     @Mutation
-    public change() {
+    public change () {
         this.text = '';
     }
 }
 
-@state
+@State
 class StateB {
     public text = 'B';
 }
@@ -48,15 +48,15 @@ class App extends Vue {
     @Inject(StateKeys.B)
     public moduleB: StateB;
 
-    get text() {
+    get text () {
         return this.moduleA.text + this.moduleB.text;
     }
 
-    get a() {
+    get a () {
         return this.moduleA;
     }
 
-    public mounted() {
+    public mounted () {
         setTimeout(() => {
             this.moduleA.change();
         }, 2000);

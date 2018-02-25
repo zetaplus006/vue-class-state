@@ -17,7 +17,7 @@ export class Provider {
 
     public hooks: Array<(instance: any, meta: DIMetaData) => void> = [];
 
-    constructor(proxyObj: any) {
+    constructor (proxyObj: any) {
         this.proxy = proxyObj;
     }
 
@@ -27,7 +27,7 @@ export class Provider {
      * get service instance
      * @param identifier
      */
-    public get(identifier: IIdentifier): any {
+    public get (identifier: IIdentifier): any {
         const injector = this.injectorMap.get(identifier);
         if (process.env.NODE_ENV !== 'production') {
             assert(injector,
@@ -40,7 +40,7 @@ export class Provider {
      * get service instance array
      * @param deps
      */
-    public getAll(deps: IDeps): any[] {
+    public getAll (deps: IDeps): any[] {
         return deps.map((identifier) => this.get(identifier));
     }
 
@@ -48,14 +48,14 @@ export class Provider {
      * register a injector in the provider
      * @param injector
      */
-    public register(injector: IInjector<any>) {
+    public register (injector: IInjector<any>) {
         this.checkIdentifier(injector.identifier);
         injector.provider = this;
         this.injectorMap.set(injector.identifier, injector);
         this.defProxy(injector);
     }
 
-    public checkIdentifier(identifier: IIdentifier) {
+    public checkIdentifier (identifier: IIdentifier) {
         if (process.env.NODE_ENV !== 'production') {
             assert(!this.injectorMap.has(identifier),
                 `The identifier ${String(identifier)} has been repeated`);
@@ -66,14 +66,14 @@ export class Provider {
      * replaceState for SSR and devtool
      * @param proxyState
      */
-    public replaceAllState(proxyState: IProxyState) {
+    public replaceAllState (proxyState: IProxyState) {
         for (const key in proxyState) {
             const instance = this.proxy[key];
             replaceState(instance, proxyState[key]);
         }
     }
 
-    public registerInjectedHook(injected: (instance: any, meta: DIMetaData) => void) {
+    public registerInjectedHook (injected: (instance: any, meta: DIMetaData) => void) {
         if (this.hooks.indexOf(injected) > -1) {
             return;
         }
@@ -84,7 +84,7 @@ export class Provider {
      * for vue provide option
      * @param injector
      */
-    private defProxy(injector: IInjector<any>) {
+    private defProxy (injector: IInjector<any>) {
         /* if (!injector.isSingleton) {
             return;
         } */

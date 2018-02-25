@@ -1,24 +1,24 @@
 import {
     commit, createDecorator, IMutation,
-    mutation, replaceState, subscribe
+    Mutation, replaceState, subscribe
 } from 'vubx';
 import Vue from 'vue';
 
-const observable = createDecorator(Vue);
+const State = createDecorator(Vue);
 
 const cacheKey = 'cache-key';
 
-@observable
+@State
 class Counter {
 
     public num = 0;
 
-    @mutation
-    public add() {
+    @Mutation
+    public add () {
         this.num++;
     }
 
-    public sub() {
+    public sub () {
         subscribe(this, {
             // tslint:disable-next-line:no-shadowed-variable
             before: (mutation: IMutation, _state: Counter) => {
@@ -38,7 +38,7 @@ class Counter {
         });
     }
 
-    public init() {
+    public init () {
         this.sub();
         const cacheStr = localStorage.getItem(cacheKey);
         if (cacheStr) {
@@ -58,11 +58,11 @@ new Vue({
     el: '#app',
     template: `<div>{{addition.num}}</div>`,
     computed: {
-        addition() {
+        addition () {
             return addition;
         }
     },
-    mounted() {
+    mounted () {
         addition.init();
     }
 });

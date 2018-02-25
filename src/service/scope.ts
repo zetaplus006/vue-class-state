@@ -16,19 +16,19 @@ export class ScopeData {
     public vubxOption: IVubxOption;
     public module: IStateModule;
 
-    get globalPlugins(): IPlugin[] {
+    get globalPlugins (): IPlugin[] {
         return this.module._globalPlugins;
     }
 
-    get globalMiddlewate(): Middleware {
+    get globalMiddlewate (): Middleware {
         return this.module._globalMiddleware;
     }
 
-    constructor(vubxOption: IVubxOption) {
+    constructor (vubxOption: IVubxOption) {
         this.vubxOption = vubxOption;
     }
 
-    public static get(ctx: any): ScopeData | null {
+    public static get (ctx: any): ScopeData | null {
         return ctx[scopeKey] || null;
     }
 }

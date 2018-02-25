@@ -22,13 +22,13 @@ export interface IStateModule {
     _option: IModuleOption;
 }
 
-export function StateModule(option: IModuleOption) {
+export function StateModule (option: IModuleOption) {
     return function (_target: any) {
         return createModuleClass(option);
     };
 }
 
-function createModuleClass(option: IModuleOption) {
+function createModuleClass (option: IModuleOption) {
     return class $StateModule implements IStateModule {
 
         public _provider: Provider;
@@ -39,7 +39,7 @@ function createModuleClass(option: IModuleOption) {
 
         public _option: IModuleOption;
 
-        constructor() {
+        constructor () {
             hideProperty(this, '_provider', new Provider(this));
             hideProperty(this, '_globalMiddleware', new Middleware());
             hideProperty(this, '_globalPlugins', []);

@@ -3,9 +3,9 @@ import { def } from '../util';
 import { ClassMetaData } from './class_meta';
 import { DIMetaData } from './di_meta';
 
-export function lazyInject (identifier?: IIdentifier): any;
-export function lazyInject (target: any, propertyKey: string): any;
-export function lazyInject (option: any, propertyKey?: string): any {
+export function LazyInject (identifier?: IIdentifier): any;
+export function LazyInject (target: any, propertyKey: string): any;
+export function LazyInject (option: any, propertyKey?: string): any {
     if (typeof option === 'object' && propertyKey) {
         return createLazyDecorator(option, propertyKey);
     } else {

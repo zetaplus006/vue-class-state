@@ -27,7 +27,7 @@ export interface IMutationSubscribeOption {
     after?: IMutationSubscribe;
 }
 
-export function proxyState(ctx: any, getterKeys: string[]) {
+export function proxyState (ctx: any, getterKeys: string[]) {
     const $state = ScopeData.get(ctx)!.$state;
     Object.keys(ctx).forEach(
         (key) => {
@@ -45,7 +45,7 @@ export function proxyState(ctx: any, getterKeys: string[]) {
     });
 }
 
-export function proxyGetters(ctx: any, getterKeys: string[]) {
+export function proxyGetters (ctx: any, getterKeys: string[]) {
     const $getters = ScopeData.get(ctx)!.$getters;
     getterKeys.forEach((key) => {
         def($getters, key, {
@@ -61,10 +61,10 @@ export function proxyGetters(ctx: any, getterKeys: string[]) {
     });
 }
 
-export function definedComputed(proto: any, getterKeys: string[]) {
+export function definedComputed (proto: any, getterKeys: string[]) {
     getterKeys.forEach((key) => {
         def(proto, key, {
-            get(this: any) {
+            get (this: any) {
                 return this.__scope__.$vm[key];
             },
             enumerable: true,
@@ -73,7 +73,7 @@ export function definedComputed(proto: any, getterKeys: string[]) {
     });
 }
 
-export function getAllGetters(target: any) {
+export function getAllGetters (target: any) {
     let getters = {};
     let prototypeSuper = target;
     while (
@@ -88,7 +88,7 @@ export function getAllGetters(target: any) {
     return getters;
 }
 
-export function getPropertyGetters(target: any): { [key: string]: { get(): any, set?(): void } } {
+export function getPropertyGetters (target: any): { [key: string]: { get (): any, set? (): void } } {
     const getters = {};
     const injectMeta = ClassMetaData.get(target).injectMeta;
     const keys: string[] = Object.getOwnPropertyNames(target);
@@ -106,7 +106,7 @@ export function getPropertyGetters(target: any): { [key: string]: { get(): any, 
     return getters;
 }
 
-export function useStrict(service: any) {
+export function useStrict (service: any) {
     const identifier = DIMetaData.get(service).identifier, scope = ScopeData.get(service);
     if (process.env.NODE_ENV !== 'production' && scope) {
         scope.$vm && scope.$vm.$watch<any>(() => {
@@ -119,7 +119,7 @@ export function useStrict(service: any) {
     }
 }
 
-export function replaceState(targetState: any, state: any): void {
+export function replaceState (targetState: any, state: any): void {
     const scope = ScopeData.get(targetState);
     if (scope === null) return;
     const temp = scope.isCommitting;
@@ -132,7 +132,7 @@ export function replaceState(targetState: any, state: any): void {
     scope.isCommitting = temp;
 }
 
-export function subscribe(targetState: any, option: IMutationSubscribeOption) {
+export function subscribe (targetState: any, option: IMutationSubscribeOption) {
     const scope = ScopeData.get(targetState);
     if (scope) {
         scope.middleware.subscribe(option);

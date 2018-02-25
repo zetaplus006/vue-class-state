@@ -1,5 +1,5 @@
 export { createDecorator } from './service/observable';
-export { lazyInject } from './di/lazy';
-export { mutation } from './service/mutation';
-export { created } from './service/hook';
+export { LazyInject } from './di/lazy';
+export { Mutation } from './service/mutation';
+export { Created } from './service/hook';
 export { StateModule } from './module/module';
