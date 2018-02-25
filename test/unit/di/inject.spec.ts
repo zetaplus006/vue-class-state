@@ -1,5 +1,9 @@
 import { expect } from 'chai';
-import { createDecorator, Service, IService, bind, lazyInject, IVubxDecorator, created } from '../../../lib/vubx';
+import {
+    bind, created, createDecorator, IService, IVubxDecorator,
+    lazyInject, Service, StateModule
+} from '../../../lib/vubx';
+
 const Vue = require('Vue');
 
 const observable: IVubxDecorator = createDecorator(Vue);
@@ -19,35 +23,23 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
+            public text = 'A';
         }
 
         @observable()
         class ModuleB extends Service implements IModule {
-            text = 'B';
+            public text = 'B';
         }
 
-        @observable({
-            root: true,
-            identifier: 'root',
+        @StateModule({
             providers: [
                 bind<IModule>(moduleKeys.A).toClass(ModuleA),
                 bind<IModule>(moduleKeys.B).toClass(ModuleB)
             ]
         })
-        class Root extends Service {
-
-            @lazyInject(moduleKeys.A)
-            public moduleA: IModule;
-
-            @lazyInject(moduleKeys.B)
-            public moduleB: IModule;
-
-        }
+        class Root { }
 
         const rootModule = new Root();
-        expect(rootModule.moduleA).to.be.ok;
-        expect(rootModule.moduleB).to.be.ok;
         expect(rootModule.moduleA.text).eql('A');
         expect(rootModule.moduleB.text).eql('B');
     });
@@ -61,24 +53,22 @@ describe('di', () => {
         };
 
         class ModuleA {
-            text = 'A';
+            public text = 'A';
         }
 
         @observable()
         class ModuleC extends Service {
-            text = 'C';
+            public text = 'C';
         }
 
         class ModuleB {
-            text = 'B';
+            public text = 'B';
 
             @lazyInject(moduleKeys.C)
             public moduleC: ModuleC;
         }
 
         @observable({
-            root: true,
-            identifier: 'root',
             providers: [
                 bind<ModuleA>(moduleKeys.A).toClass(ModuleA),
                 bind<ModuleB>(moduleKeys.B).toClass(ModuleB),
@@ -116,14 +106,12 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
+            public text = 'A';
         }
 
         const value = new ModuleA();
 
         @observable({
-            root: true,
-            identifier: 'root',
             providers: [
                 bind<IModule>(moduleKeys.A).toValue(value),
                 bind<IModule>(moduleKeys.B).toValue(value)
@@ -158,12 +146,12 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
+            public text = 'A';
         }
 
         @observable()
         class ModuleB extends Service implements IModule {
-            text = 'B';
+            public text = 'B';
         }
 
         @observable({
@@ -204,7 +192,7 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
+            public text = 'A';
         }
 
         @observable({
@@ -244,12 +232,12 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
+            public text = 'A';
         }
 
         @observable()
         class ModuleB extends Service implements IModule {
-            text = 'B';
+            public text = 'B';
         }
 
         @observable({
@@ -277,103 +265,6 @@ describe('di', () => {
         expect(rootModule.moduleB.text).eql('B');
     });
 
-    it('inSingletonScope', () => {
-
-        const moduleKeys = {
-            A: 'ModuleA',
-            B: 'ModuleB'
-        };
-
-        interface IModule extends IService {
-            text: string;
-        }
-
-        @observable()
-        class ModuleA extends Service implements IModule {
-            text = 'A';
-        }
-
-        @observable({
-            root: true,
-            identifier: 'root',
-            providers: [
-                bind<IModule>(moduleKeys.A).toClass(ModuleA).inSingletonScope(),
-                bind<IModule>(moduleKeys.B).toFactory(() => new ModuleA()).inSingletonScope()
-            ]
-        })
-        class Root extends Service {
-
-            @lazyInject(moduleKeys.A)
-            public moduleA1: IModule;
-
-            @lazyInject(moduleKeys.A)
-            public moduleA2: IModule;
-
-            @lazyInject(moduleKeys.B)
-            public moduleB1: IModule;
-
-            @lazyInject(moduleKeys.B)
-            public moduleB2: IModule;
-
-        }
-
-        const rootModule = new Root();
-
-        const rootModule2 = new Root();
-
-        expect(rootModule.moduleA1 === rootModule.moduleA2).eql(true);
-        expect(rootModule.moduleB1 === rootModule.moduleB2).eql(true);
-
-        expect(rootModule.moduleA1 === rootModule2.moduleA1).eql(false);
-
-    });
-
-    it('inTransientScope', () => {
-        const moduleKeys = {
-            A: 'ModuleA',
-            B: 'ModuleB'
-        };
-
-        interface IModule extends IService {
-            text: string;
-        }
-
-        @observable()
-        class ModuleA extends Service implements IModule {
-            text = 'A';
-        }
-
-        @observable({
-            root: true,
-            identifier: 'root',
-            providers: [
-                bind<IModule>(moduleKeys.A).toClass(ModuleA).inTransientScope(),
-                bind<IModule>(moduleKeys.B).toFactory(() => new ModuleA()).inTransientScope()
-            ]
-        })
-        class Root extends Service {
-
-            @lazyInject(moduleKeys.A)
-            public moduleA1: IModule;
-
-            @lazyInject(moduleKeys.A)
-            public moduleA2: IModule;
-
-            @lazyInject(moduleKeys.B)
-            public moduleB1: IModule;
-
-            @lazyInject(moduleKeys.B)
-            public moduleB2: IModule;
-
-        }
-
-        const rootModule = new Root();
-        const proxy = rootModule.getProvide();
-        expect(rootModule.moduleA1 === rootModule.moduleA2).eql(false);
-        expect(rootModule.moduleB1 === rootModule.moduleB2).eql(false);
-        expect(proxy.moduleB1 === rootModule.moduleB1).eql(false);
-    });
-
     it('inject in deep struct', () => {
 
         const moduleKeys = {
@@ -388,22 +279,22 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
+            public text = 'A';
         }
 
         @observable()
         class ModuleB extends Service implements IModule {
-            text = 'B';
+            public text = 'B';
         }
 
         @observable()
         class ModuleC extends Service {
 
             @lazyInject(moduleKeys.A)
-            moduleA: IModule;
+            public moduleA: IModule;
 
             @lazyInject(moduleKeys.B)
-            moduleB: IModule;
+            public moduleB: IModule;
         }
 
         @observable({
@@ -447,21 +338,21 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
-            count = 0;
+            public text = 'A';
+            public count = 0;
 
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
         }
 
         @observable()
         class ModuleB extends Service implements IModule {
-            text = 'B';
-            count = 0;
+            public text = 'B';
+            public count = 0;
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
         }
@@ -470,18 +361,18 @@ describe('di', () => {
         class ModuleC extends Service {
 
             @lazyInject(moduleKeys.A)
-            moduleA: IModule;
+            public moduleA: IModule;
 
             @lazyInject(moduleKeys.B)
-            moduleB: IModule;
+            public moduleB: IModule;
 
             @lazyInject('root')
-            rootModule: Root;
+            public rootModule: Root;
 
-            count = 0;
+            public count = 0;
 
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
         }
@@ -506,9 +397,9 @@ describe('di', () => {
             @lazyInject(moduleKeys.C)
             public moduleC: ModuleC;
 
-            count = 0;
+            public count = 0;
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
 
@@ -545,10 +436,10 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
-            count = 0;
+            public text = 'A';
+            public count = 0;
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
         }
@@ -557,17 +448,17 @@ describe('di', () => {
         class ModuleC extends Service {
 
             @lazyInject(moduleKeys.A)
-            moduleA: IModule;
+            public moduleA: IModule;
 
             @lazyInject(moduleKeys.B)
-            moduleB: IModule;
+            public moduleB: IModule;
 
             @lazyInject('root')
-            rootModule: Root;
+            public rootModule: Root;
 
-            count = 0;
+            public count = 0;
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
         }
@@ -594,10 +485,10 @@ describe('di', () => {
             @lazyInject(moduleKeys.C)
             public moduleC: ModuleC;
 
-            count = 0;
+            public count = 0;
 
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
 
@@ -634,11 +525,11 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
-            count = 0;
+            public text = 'A';
+            public count = 0;
 
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
         }
@@ -647,18 +538,18 @@ describe('di', () => {
         class ModuleC extends Service {
 
             @lazyInject(moduleKeys.A)
-            moduleA: IModule;
+            public moduleA: IModule;
 
             @lazyInject(moduleKeys.B)
-            moduleB: IModule;
+            public moduleB: IModule;
 
             @lazyInject('root')
-            rootModule: Root;
+            public rootModule: Root;
 
-            count = 0;
+            public count = 0;
 
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
         }
@@ -685,10 +576,10 @@ describe('di', () => {
             @lazyInject(moduleKeys.C)
             public moduleC: ModuleC;
 
-            count = 0;
+            public count = 0;
 
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
 
@@ -725,11 +616,11 @@ describe('di', () => {
 
         @observable()
         class ModuleA extends Service implements IModule {
-            text = 'A';
-            count = 0;
+            public text = 'A';
+            public count = 0;
 
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
         }
@@ -738,18 +629,18 @@ describe('di', () => {
         class ModuleC extends Service {
 
             @lazyInject(moduleKeys.A)
-            moduleA: IModule;
+            public moduleA: IModule;
 
             @lazyInject(moduleKeys.B)
-            moduleB: IModule;
+            public moduleB: IModule;
 
             @lazyInject('root')
-            rootModule: Root;
+            public rootModule: Root;
 
-            count = 0;
+            public count = 0;
 
             @created()
-            created () {
+            public created() {
                 this.count++;
             }
         }
@@ -781,7 +672,7 @@ describe('di', () => {
             public moduleB2: IModule;
 
             @created([moduleKeys.A, moduleKeys.B])
-            created (moduleA: any, moduleB: any) {
+            public created(moduleA: any, moduleB: any) {
                 this.moduleA2 = moduleA;
                 this.moduleB2 = moduleB;
             }

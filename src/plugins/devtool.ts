@@ -1,10 +1,10 @@
 import { Provider } from '../di/provider';
 import { IStateModule } from '../module/module';
 import { IIdentifier } from '../service/helper';
-import { Service } from '../service/service';
+import { ScopeData } from '../service/scope';
 import { def } from '../util';
 
-export function devtool (module: IStateModule, identifiers: IIdentifier[]) {
+export function devtool(module: IStateModule, identifiers: IIdentifier[]) {
 
     const provider = module._provider;
 
@@ -37,7 +37,7 @@ interface IStore {
     _devtoolHook: any;
 }
 
-function simulationStore (provider: Provider, identifiers: IIdentifier[]): IStore {
+function simulationStore(provider: Provider, identifiers: IIdentifier[]): IStore {
     const { state, getters } = getStateAndGetters(provider.proxy, identifiers);
     const store = {
         state,
@@ -47,20 +47,21 @@ function simulationStore (provider: Provider, identifiers: IIdentifier[]): IStor
     return store;
 }
 
-function getStateAndGetters (proxy: any, identifiers: IIdentifier[]) {
+function getStateAndGetters(proxy: any, identifiers: IIdentifier[]) {
     const getters = {};
     const state = {};
     const keys: IIdentifier[] = identifiers;
     keys.forEach((key) => {
         const instance = proxy[key];
-        if (instance instanceof Service) {
+        const scope = ScopeData.get(instance);
+        if (scope) {
             def(getters, String(key), {
-                value: instance.__scope__.$getters,
+                value: scope.$getters,
                 enumerable: true,
                 configurable: true
             });
             def(state, String(key), {
-                value: instance.__scope__.$state,
+                value: scope.$state,
                 enumerable: true,
                 configurable: true
             });

@@ -3,41 +3,33 @@ import { ClassMetaData, IGetters } from '../di/class_meta';
 import { DIMetaData } from '../di/di_meta';
 import { hideProperty } from '../util';
 import {
-    definedComputed, IConstructor, IPlugin, proxyGetters,
-    proxyState, ScopeData
+    definedComputed, IConstructor, IPlugin,
+    proxyGetters, proxyState
 } from './helper';
 import { ICreatedHook } from './hook';
-import { IService } from './service';
-
-export interface IDecoratorOption {
-    plugins?: IPlugin[];
-}
+import { ScopeData, scopeKey } from './scope';
 
 export interface IVubxOption {
     plugins: IPlugin[];
     createdHook: ICreatedHook;
 }
 
-export type IVubxDecorator = (option?: IDecoratorOption) => (constructor: IConstructor) => any;
-
-export function createDecorator (vueConstructor: VueConstructor): IVubxDecorator {
-    return function decorator (option: IDecoratorOption) {
-        return function (constructor: IConstructor) {
-            return createVubxClass(vueConstructor, constructor, option);
-        };
+export function createDecorator(vueConstructor: VueConstructor): ClassDecorator {
+    // tslint:disable-next-line:ban-types
+    return function <TFunction extends Function>(constructor: TFunction): any {
+        return createVubxClass(vueConstructor, constructor as any);
     };
 }
 
-export function createVubxClass (
+export function createVubxClass(
     vueConstructor: VueConstructor,
-    constructor: IConstructor,
-    decoratorOption?: IDecoratorOption) {
+    constructor: IConstructor) {
 
     const classMeta = ClassMetaData.setGetterMeta(constructor.prototype);
     definedComputed(constructor.prototype, classMeta.getterKeys);
 
     return class Vubx extends constructor {
-        constructor (...arg: any[]) {
+        constructor(...arg: any[]) {
             super(...arg);
             const meta = ClassMetaData.get(constructor.prototype);
 
@@ -48,12 +40,10 @@ export function createVubxClass (
 
             const option: IVubxOption = {
                 plugins: [],
-                createdHook: meta.hookMeta,
-                ...decoratorOption
+                createdHook: meta.hookMeta
             };
             const scope = new ScopeData(option);
-            // def(this, '__scope__', { value: scope, enumerable: false });
-            hideProperty(this, '__scope__', scope);
+            hideProperty(this, scopeKey, scope);
             scope.$vm = vm;
             proxyState(this, meta.getterKeys);
             proxyGetters(this, meta.getterKeys);
@@ -61,8 +51,8 @@ export function createVubxClass (
     };
 }
 
-export function createdHook (service: IService, option: IVubxOption, diMeta: DIMetaData) {
-    initPlugins(service, service.__scope__.globalPlugins.concat(option.plugins));
+export function createdHook(service: any, option: IVubxOption, diMeta: DIMetaData) {
+    initPlugins(service, ScopeData.get(service)!.globalPlugins.concat(option.plugins));
     const hook = option.createdHook;
     if (hook) {
         const deps = diMeta.provider.getAll(hook.deps);
@@ -70,11 +60,11 @@ export function createdHook (service: IService, option: IVubxOption, diMeta: DIM
     }
 }
 
-function initPlugins (ctx: any, plugin: IPlugin[]) {
-    plugin.forEach((action) => action(ctx as IService));
+function initPlugins(ctx: any, plugin: IPlugin[]) {
+    plugin.forEach((action) => action(ctx));
 }
 
-function bindGetters (getters: IGetters, keys: string[], ctx: object) {
+function bindGetters(getters: IGetters, keys: string[], ctx: object) {
     const returnGetters = {};
     keys.forEach((key) => {
         returnGetters[key] = {

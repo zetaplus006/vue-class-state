@@ -1,41 +1,35 @@
 import {
-    bind, createDecorator, IService, IVubxDecorator,
-    Mutation, Service, StateModule
+    bind, createDecorator,
+    Mutation, StateModule
 } from 'vubx';
 import { Component, Inject, Vue } from 'vue-property-decorator';
 
-const state: IVubxDecorator = createDecorator(Vue);
+const state = createDecorator(Vue);
 
 const StateKeys = {
     A: 'moduleA',
     B: 'moduleB'
 };
 
-interface IState extends IService {
-    text: string;
-}
-
-@state()
-class StateA extends Service implements IState {
+@state
+class StateA {
     public text = 'A';
 
     @Mutation
-    public change () {
+    public change() {
         this.text = '';
     }
 }
 
-// tslint:disable-next-line:max-classes-per-file
-@state()
-class StateB extends Service implements IState {
+@state
+class StateB {
     public text = 'B';
 }
 
-// tslint:disable-next-line:max-classes-per-file
 @StateModule({
     providers: [
-        bind<IState>(StateKeys.A).toClass(StateA),
-        bind<IState>(StateKeys.B).toClass(StateB)
+        bind<StateA>(StateKeys.A).toClass(StateA),
+        bind<StateB>(StateKeys.B).toClass(StateB)
     ],
     devtool: [StateKeys.A, StateKeys.B],
     strict: [StateKeys.A, StateKeys.B]
@@ -52,17 +46,17 @@ class App extends Vue {
     public moduleA: StateA;
 
     @Inject(StateKeys.B)
-    public moduleB: IState;
+    public moduleB: StateB;
 
-    get text () {
+    get text() {
         return this.moduleA.text + this.moduleB.text;
     }
 
-    get a () {
+    get a() {
         return this.moduleA;
     }
 
-    public mounted () {
+    public mounted() {
         setTimeout(() => {
             this.moduleA.change();
         }, 2000);

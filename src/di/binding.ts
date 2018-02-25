@@ -8,26 +8,26 @@ export class Binding<T> {
 
     public injectorFactory: () => IInjector<T>;
 
-    private identifier: IIdentifier;
+    // private identifier: IIdentifier;
     private isSingleton: boolean = true;
 
-    constructor (identifier: IIdentifier) {
-        this.identifier = identifier;
-    }
+    constructor(
+        private identifier: IIdentifier
+    ) { }
 
-    public toClass (serviceClass: IServiceClass<T>) {
+    public toClass(serviceClass: IServiceClass<T>) {
         this.injectorFactory = () =>
             new ClassInjector(this.identifier, this.isSingleton, serviceClass);
         return this;
     }
 
-    public toValue (service: T) {
+    public toValue(service: T) {
         this.injectorFactory = () =>
             new ValueInjector(this.identifier, this.isSingleton, service);
         return this;
     }
 
-    public toFactory (factory: IServiceFactory<T>, deps: IDeps = []) {
+    public toFactory(factory: IServiceFactory<T>, deps: IDeps = []) {
         this.injectorFactory = () =>
             new FactoryInjector(this.identifier, this.isSingleton, factory, deps);
         return this;

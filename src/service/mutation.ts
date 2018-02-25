@@ -1,6 +1,5 @@
 import { DIMetaData } from '../di/di_meta';
 import { IIdentifier } from './helper';
-import { IService } from './service';
 
 export interface IMutation {
     type: string;
@@ -9,18 +8,22 @@ export interface IMutation {
     identifier: IIdentifier;
 }
 
-export function mutation (_target: any, methodName: string, descriptor: PropertyDescriptor) {
+export function mutation(_target: any, methodName: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
-    descriptor.value = function (this: IService, ...arg: any[]) {
+    descriptor.value = function (this: any, ...arg: any[]) {
         return runInMutaion(this, mutationFn, arg, methodName);
     };
     return descriptor;
 }
 
+export function commit(state: any, fn: () => void, mutationType?: string): any {
+    return runInMutaion(state, fn, null, mutationType);
+}
+
 const unnamedName = '<unnamed mutation>';
 
-export function runInMutaion (
-    ctx: IService,
+export function runInMutaion(
+    ctx: any,
     func: () => void,
     payload: any,
     mutationType?: string) {

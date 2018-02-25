@@ -1,11 +1,11 @@
-import Vue from 'vue';
+
 import { ClassMetaData } from '../di/class_meta';
 import { DIMetaData } from '../di/di_meta';
-import { IStateModule } from '../module/module';
+
 import { assert, def } from '../util';
-import { Middleware } from './middleware';
-import { IVubxOption } from './observable';
-import { IService, Service } from './service';
+
+import { IMutation } from './mutation';
+import { ScopeData } from './scope';
 
 export interface IConstructor { new(...args: any[]): {}; }
 
@@ -13,39 +13,22 @@ export interface IServiceClass<T> { new(...args: any[]): T; }
 
 export type IIdentifier = string;
 
-export type IPlugin = (service: IService) => void;
+export type IPlugin = (service: any) => void;
 
 const defaultConfig = {
     enumerable: true,
     configurable: true
 };
 
-export class ScopeData {
-    public $vm: Vue;
-    public $getters: any = {};
-    public $state: any = {};
-    public isRoot: boolean;
-    public isCommitting: boolean = false;
-    public middleware: Middleware = new Middleware();
-    public vubxOption: IVubxOption;
+export type IMutationSubscribe = (mutation: IMutation, service: any) => any;
 
-    public module: IStateModule;
-
-    get globalPlugins (): IPlugin[] {
-        return this.module._globalPlugins;
-    }
-
-    get globalMiddlewate (): Middleware {
-        return this.module._globalMiddleware;
-    }
-
-    constructor (vubxOption: IVubxOption) {
-        this.vubxOption = vubxOption;
-    }
+export interface IMutationSubscribeOption {
+    before?: IMutationSubscribe;
+    after?: IMutationSubscribe;
 }
 
-export function proxyState (ctx: any, getterKeys: string[]) {
-    const $state = (ctx as IService).__scope__.$state;
+export function proxyState(ctx: any, getterKeys: string[]) {
+    const $state = ScopeData.get(ctx)!.$state;
     Object.keys(ctx).forEach(
         (key) => {
             if (getterKeys.indexOf(key) < 0) {
@@ -62,8 +45,8 @@ export function proxyState (ctx: any, getterKeys: string[]) {
     });
 }
 
-export function proxyGetters (ctx: any, getterKeys: string[]) {
-    const $getters = (ctx as IService).__scope__.$getters;
+export function proxyGetters(ctx: any, getterKeys: string[]) {
+    const $getters = ScopeData.get(ctx)!.$getters;
     getterKeys.forEach((key) => {
         def($getters, key, {
             get: () => ctx[key],
@@ -78,10 +61,10 @@ export function proxyGetters (ctx: any, getterKeys: string[]) {
     });
 }
 
-export function definedComputed (proto: any, getterKeys: string[]) {
+export function definedComputed(proto: any, getterKeys: string[]) {
     getterKeys.forEach((key) => {
         def(proto, key, {
-            get (this: IService) {
+            get(this: any) {
                 return this.__scope__.$vm[key];
             },
             enumerable: true,
@@ -90,12 +73,11 @@ export function definedComputed (proto: any, getterKeys: string[]) {
     });
 }
 
-export function getAllGetters (target: any) {
+export function getAllGetters(target: any) {
     let getters = {};
     let prototypeSuper = target;
     while (
-        prototypeSuper !== Service.prototype
-        && prototypeSuper !== Object.prototype
+        prototypeSuper !== Object.prototype
         && prototypeSuper !== null) {
         getters = {
             ...getPropertyGetters(prototypeSuper),
@@ -106,7 +88,7 @@ export function getAllGetters (target: any) {
     return getters;
 }
 
-export function getPropertyGetters (target: any): { [key: string]: { get (): any, set?(): void } } {
+export function getPropertyGetters(target: any): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
     const injectMeta = ClassMetaData.get(target).injectMeta;
     const keys: string[] = Object.getOwnPropertyNames(target);
@@ -124,15 +106,35 @@ export function getPropertyGetters (target: any): { [key: string]: { get (): any
     return getters;
 }
 
-export function useStrict (service: IService) {
-    const identifier = DIMetaData.get(service).identifier;
-    if (process.env.NODE_ENV !== 'production') {
-        service.__scope__.$vm && service.__scope__.$vm.$watch<any>(() => {
-            return service.$state;
+export function useStrict(service: any) {
+    const identifier = DIMetaData.get(service).identifier, scope = ScopeData.get(service);
+    if (process.env.NODE_ENV !== 'production' && scope) {
+        scope.$vm && scope.$vm.$watch<any>(() => {
+            return scope.$state;
         }, () => {
             assert(service.__scope__.isCommitting,
                 `Do not mutate vubx service[${String(identifier)}] data outside mutation handlers.`);
-        }, { deep: true, sync: true }
+        }, { deep: true, sync: true } as any
         );
+    }
+}
+
+export function replaceState(targetState: any, state: any): void {
+    const scope = ScopeData.get(targetState);
+    if (scope === null) return;
+    const temp = scope.isCommitting;
+    scope.isCommitting = true;
+    for (const key in state) {
+        if (targetState.hasOwnProperty(key)) {
+            targetState[key] = state[key];
+        }
+    }
+    scope.isCommitting = temp;
+}
+
+export function subscribe(targetState: any, option: IMutationSubscribeOption) {
+    const scope = ScopeData.get(targetState);
+    if (scope) {
+        scope.middleware.subscribe(option);
     }
 }

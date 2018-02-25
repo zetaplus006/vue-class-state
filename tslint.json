@@ -88,6 +88,7 @@
         "member-ordering": false,
         "forin": false,
         "one-variable-per-declaration": false,
-        "no-var-requires": false
+        "no-var-requires": false,
+        "member-access": true
     }
 }

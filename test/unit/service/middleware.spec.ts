@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { createDecorator, Service, IService, bind, lazyInject, mutation, IMutation, IVubxDecorator } from '../../../lib/vubx';
+import {
+    bind, createDecorator, IMutation, IService, IVubxDecorator,
+    lazyInject, mutation, Service
+} from '../../../lib/vubx';
 const Vue = require('Vue');
 
 const observable: IVubxDecorator = createDecorator(Vue);
@@ -27,21 +30,21 @@ describe('middleware plugin', () => {
     })
     class Test extends Service {
 
-        data = {
+        public data = {
             a: 1,
             b: 2
         };
 
-        count = 0;
+        public count = 0;
 
         @mutation
-        change (data: any, count: number) {
+        public change(data: any, count: number) {
             Object.assign(this.data, data);
             this.count = count;
         }
     }
 
-    let t = new Test();
+    const t = new Test();
     t.change({
         a: 5,
         b: 6
@@ -87,28 +90,28 @@ describe('global middleware, global plugin', () => {
 
     @observable()
     class ChildrenTest extends Service {
-        data = {
+        public data = {
             a: 1,
             b: 2
         };
 
-        data2 = {
+        public data2 = {
             a: 1,
             b: 2
         };
 
-        count = 0;
+        public count = 0;
 
-        count2 = 0;
+        public count2 = 0;
 
         @mutation
-        change (data: any, count: number) {
+        public change(data: any, count: number) {
             Object.assign(this.data, data);
             this.count = count;
         }
 
         @mutation
-        change2 (data: any, count: number) {
+        public change2(data: any, count: number) {
             Object.assign(this.data2, data);
             this.count = count;
         }
@@ -130,10 +133,10 @@ describe('global middleware, global plugin', () => {
     })
     class Test extends Service {
         @lazyInject('children')
-        chilren: ChildrenTest;
+        public chilren: ChildrenTest;
     }
 
-    let t = new Test();
+    const t = new Test();
     t.chilren.change({
         a: 5,
         b: 6
