@@ -5,29 +5,29 @@ import { DIMetaData } from '../di/di_meta';
 import { assert, def } from '../util';
 
 import { IMutation } from './mutation';
-import { ScopeData } from './scope';
+import { ScopeData, scopeKey } from './scope';
 
 export interface IConstructor { new(...args: any[]): {}; }
 
-export interface IServiceClass<T> { new(...args: any[]): T; }
+export interface IstateClass<T> { new(...args: any[]): T; }
 
 export type IIdentifier = string;
 
-export type IPlugin = (service: any) => void;
+export type IPlugin = (state: any) => void;
 
 const defaultConfig = {
     enumerable: true,
     configurable: true
 };
 
-export type IMutationSubscribe = (mutation: IMutation, service: any) => any;
+export type IMutationSubscribe = (mutation: IMutation, state: any) => any;
 
 export interface IMutationSubscribeOption {
     before?: IMutationSubscribe;
     after?: IMutationSubscribe;
 }
 
-export function proxyState (ctx: any, getterKeys: string[]) {
+export function proxyState(ctx: any, getterKeys: string[]) {
     const $state = ScopeData.get(ctx)!.$state;
     Object.keys(ctx).forEach(
         (key) => {
@@ -39,13 +39,9 @@ export function proxyState (ctx: any, getterKeys: string[]) {
             }
         }
     );
-    def(ctx, '$state', {
-        value: $state,
-        enumerable: false
-    });
 }
 
-export function proxyGetters (ctx: any, getterKeys: string[]) {
+export function proxyGetters(ctx: any, getterKeys: string[]) {
     const $getters = ScopeData.get(ctx)!.$getters;
     getterKeys.forEach((key) => {
         def($getters, key, {
@@ -54,18 +50,13 @@ export function proxyGetters (ctx: any, getterKeys: string[]) {
             ...defaultConfig
         });
     });
-    def(ctx, '$getters', {
-        value: $getters,
-        enumerable: false,
-        configurable: false
-    });
 }
 
-export function definedComputed (proto: any, getterKeys: string[]) {
+export function definedComputed(proto: any, getterKeys: string[]) {
     getterKeys.forEach((key) => {
         def(proto, key, {
-            get (this: any) {
-                return this.__scope__.$vm[key];
+            get(this: any) {
+                return (this[scopeKey] as ScopeData).$vm[key];
             },
             enumerable: true,
             configurable: true
@@ -73,7 +64,7 @@ export function definedComputed (proto: any, getterKeys: string[]) {
     });
 }
 
-export function getAllGetters (target: any) {
+export function getAllGetters(target: any) {
     let getters = {};
     let prototypeSuper = target;
     while (
@@ -88,7 +79,7 @@ export function getAllGetters (target: any) {
     return getters;
 }
 
-export function getPropertyGetters (target: any): { [key: string]: { get (): any, set? (): void } } {
+export function getPropertyGetters(target: any): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
     const injectMeta = ClassMetaData.get(target).injectMeta;
     const keys: string[] = Object.getOwnPropertyNames(target);
@@ -98,28 +89,27 @@ export function getPropertyGetters (target: any): { [key: string]: { get (): any
         const descriptor = Object.getOwnPropertyDescriptor(target, key);
         if (descriptor && descriptor.get) {
             getters[key] = {
-                get: descriptor.get,
-                set: descriptor.set && descriptor.set
+                get: descriptor.get
             };
         }
     });
     return getters;
 }
 
-export function useStrict (service: any) {
-    const identifier = DIMetaData.get(service).identifier, scope = ScopeData.get(service);
+export function useStrict(state: any) {
+    const identifier = DIMetaData.get(state).identifier, scope = ScopeData.get(state);
     if (process.env.NODE_ENV !== 'production' && scope) {
         scope.$vm && scope.$vm.$watch<any>(() => {
             return scope.$state;
         }, () => {
-            assert(service.__scope__.isCommitting,
-                `Do not mutate vubx service[${String(identifier)}] data outside mutation handlers.`);
+            assert(state.__scope__.isCommitting,
+                `Do not mutate vubx state[${String(identifier)}] data outside mutation handlers.`);
         }, { deep: true, sync: true } as any
         );
     }
 }
 
-export function replaceState (targetState: any, state: any): void {
+export function replaceState(targetState: any, state: any): void {
     const scope = ScopeData.get(targetState);
     if (scope === null) return;
     const temp = scope.isCommitting;
@@ -132,7 +122,7 @@ export function replaceState (targetState: any, state: any): void {
     scope.isCommitting = temp;
 }
 
-export function subscribe (targetState: any, option: IMutationSubscribeOption) {
+export function subscribe(targetState: any, option: IMutationSubscribeOption) {
     const scope = ScopeData.get(targetState);
     if (scope) {
         scope.middleware.subscribe(option);

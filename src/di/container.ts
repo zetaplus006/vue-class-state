@@ -2,34 +2,34 @@ import { Binding } from '../di/binding';
 import { DIMetaData } from '../di/di_meta';
 import { Provider } from '../di/provider';
 import { devtool } from '../plugins/devtool';
-import { IIdentifier, IPlugin, useStrict } from '../service/helper';
-import { Middleware } from '../service/middleware';
-import { createdHook } from '../service/observable';
-import { ScopeData } from '../service/scope';
+import { IConstructor, IIdentifier, IPlugin, useStrict } from '../state/helper';
+import { Middleware } from '../state/middleware';
+import { createdHook } from '../state/observable';
+import { ScopeData } from '../state/scope';
 import { hideProperty } from '../util';
 
-export interface IModuleOption {
+export interface IContainerOption {
     providers: Array<Binding<any>>;
     globalPlugins?: IPlugin[];
     strict?: IIdentifier[];
     devtool?: IIdentifier[];
 }
 
-export interface IStateModule {
+export interface IContainer {
     _provider: Provider;
     _globalMiddleware: Middleware;
     _globalPlugins: IPlugin[];
-    _option: IModuleOption;
+    _option: IContainerOption;
 }
 
-export function StateModule (option: IModuleOption) {
-    return function (_target: any) {
-        return createModuleClass(option);
+export function Container(option: IContainerOption) {
+    return function (_target: IConstructor) {
+        return createContainerClass(option);
     };
 }
 
-function createModuleClass (option: IModuleOption) {
-    return class $StateModule implements IStateModule {
+function createContainerClass(option: IContainerOption) {
+    return class $StateModule implements IContainer {
 
         public _provider: Provider;
 
@@ -37,9 +37,9 @@ function createModuleClass (option: IModuleOption) {
 
         public _globalPlugins: IPlugin[];
 
-        public _option: IModuleOption;
+        public _option: IContainerOption;
 
-        constructor () {
+        constructor() {
             hideProperty(this, '_provider', new Provider(this));
             hideProperty(this, '_globalMiddleware', new Middleware());
             hideProperty(this, '_globalPlugins', []);

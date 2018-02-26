@@ -7,7 +7,7 @@ export interface ICreatedHook {
     deps: IDeps;
 }
 
-export function Created (deps: IDeps = []) {
+export function Created(deps: IDeps = []) {
     return function (target: any, methodName: string, desc: PropertyDescriptor) {
         const meta = ClassMetaData.get(target);
         meta.hookMeta = {

@@ -1,7 +1,7 @@
-import { IIdentifier, IServiceClass } from '../service/helper';
+import { IIdentifier, IstateClass } from '../state/helper';
 import {
     ClassInjector, FactoryInjector, IDeps,
-    IInjector, IServiceFactory, ValueInjector
+    IInjector, IstateFactory, ValueInjector
 } from './injector';
 
 export class Binding<T> {
@@ -15,19 +15,19 @@ export class Binding<T> {
         private identifier: IIdentifier
     ) { }
 
-    public toClass(serviceClass: IServiceClass<T>) {
+    public toClass(stateClass: IstateClass<T>) {
         this.injectorFactory = () =>
-            new ClassInjector(this.identifier, this.isSingleton, serviceClass);
+            new ClassInjector(this.identifier, this.isSingleton, stateClass);
         return this;
     }
 
-    public toValue(service: T) {
+    public toValue(state: T) {
         this.injectorFactory = () =>
-            new ValueInjector(this.identifier, this.isSingleton, service);
+            new ValueInjector(this.identifier, this.isSingleton, state);
         return this;
     }
 
-    public toFactory(factory: IServiceFactory<T>, deps: IDeps = []) {
+    public toFactory(factory: IstateFactory<T>, deps: IDeps = []) {
         this.injectorFactory = () =>
             new FactoryInjector(this.identifier, this.isSingleton, factory, deps);
         return this;

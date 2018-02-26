@@ -1,4 +1,4 @@
-import { IIdentifier } from '../service/helper';
+import { IIdentifier } from '../state/helper';
 import { def } from '../util';
 import { Provider } from './provider';
 

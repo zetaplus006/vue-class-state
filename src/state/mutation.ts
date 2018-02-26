@@ -8,7 +8,7 @@ export interface IMutation {
     identifier: IIdentifier;
 }
 
-export function Mutation (_target: any, methodName: string, descriptor: PropertyDescriptor) {
+export function Mutation(_target: any, methodName: string, descriptor: PropertyDescriptor) {
     const mutationFn = descriptor.value;
     descriptor.value = function (this: any, ...arg: any[]) {
         return runInMutaion(this, mutationFn, arg, methodName);
@@ -16,13 +16,13 @@ export function Mutation (_target: any, methodName: string, descriptor: Property
     return descriptor;
 }
 
-export function commit (state: any, fn: () => void, mutationType?: string): any {
+export function commit(state: any, fn: () => void, mutationType?: string): any {
     return runInMutaion(state, fn, null, mutationType);
 }
 
 const unnamedName = '<unnamed mutation>';
 
-export function runInMutaion (
+export function runInMutaion(
     ctx: any,
     func: () => void,
     payload: any,

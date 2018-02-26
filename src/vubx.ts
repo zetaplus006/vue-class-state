@@ -2,28 +2,28 @@
  * vubx interface
  */
 
-/* service */
-export { IConstructor, IServiceClass, IIdentifier, IPlugin } from './service/helper';
-export { ISub, ISubs, ISubscribeOption } from './service/middleware';
-export { IMutation } from './service/mutation';
+/* state */
+export { IConstructor, IstateClass, IIdentifier, IPlugin } from './state/helper';
+export { ISub, ISubs, ISubscribeOption } from './state/middleware';
+export { IMutation } from './state/mutation';
 
 /* di */
-export { IInjector, IDeps, IServiceFactory } from './di/injector';
+export { IInjector, IDeps, IstateFactory } from './di/injector';
 
 /* module */
-export { IModuleOption, IStateModule } from './module/module';
+export { IContainerOption, IContainer } from './di/container';
 
 /**
  * vubx api
  */
 export { bind } from './di/binding';
-export { concat } from './module/concat';
 export {
     createDecorator,
     Mutation,
     LazyInject,
     Created,
-    StateModule
+    Container
 } from './decorator';
-export { replaceState, subscribe } from './service/helper';
-export { commit } from './service/mutation';
+export { replaceState, subscribe } from './state/helper';
+export { commit } from './state/mutation';
+export { State } from './state/observable';
