@@ -29,7 +29,7 @@
     "src/**/*.ts",
     "examples/**/*.ts",
     "typings/*.ts",
-    // "test/**/*.ts"
+    "test/**/*.test.ts"
   ],
   "exclude": [
     "lib/*",

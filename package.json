@@ -17,7 +17,7 @@
     "build": "rimraf lib && rollup -c && npm run move-dts",
     "move-dts": "rimraf lib/examples && ncp lib/src/ lib/ && rimraf lib/src",
     "test": "npm run build-unit && npm run test-unit",
-    "test-unit": "./node_modules/.bin/mocha test/unit-build/*.spec.js test/unit-build/**/*.spec.js",
+    "test-unit": "ava test/unit-build/**/*.test.js",
     "build-unit": "rimraf test/unit-build && tsc -p test/unit",
     "pre-publish": "npm run build && npm run test",
     "release": "bash release.sh"
@@ -42,6 +42,7 @@
     "@types/chai": "^4.0.3",
     "@types/mocha": "^2.2.41",
     "@types/node": "^8.0.17",
+    "ava": "^0.25.0",
     "chai": "^4.1.1",
     "css-loader": "^0.28.4",
     "express": "^4.15.3",

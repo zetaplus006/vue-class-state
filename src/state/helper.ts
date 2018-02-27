@@ -66,6 +66,10 @@ export function subscribe(
     }
 }
 
+export function getAllState(state: any) {
+    return ScopeData.get(state)!.$state;
+}
+
 /*
 export function getAllGetters(target: any) {
     let getters = {};

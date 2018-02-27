@@ -41,7 +41,7 @@ function createContainerClass(option: IContainerOption) {
         constructor() {
             hideProperty(this, '_provider', new Provider(this));
             hideProperty(this, '_globalMiddleware', new Middleware());
-            hideProperty(this, '_globalPlugins', []);
+            hideProperty(this, '_globalPlugins', option.globalPlugins || []);
             hideProperty(this, '_option', option);
             this._provider.registerInjectedHook((instance: any, diMetaData: DIMetaData) => {
                 const scope = ScopeData.get(instance);

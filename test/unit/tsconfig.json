@@ -14,7 +14,7 @@
     },
     "include": [
         "../../lib/**/*.ts",
-        "./**/*.ts",
+        "./**/*.test.ts",
         "../src/service/*.type.ts"
     ]
 }
