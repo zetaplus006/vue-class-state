@@ -7,7 +7,7 @@ export function isObject(obj: any) {
 }
 
 export function assert(condition: any, msg: string) {
-    if (!condition) throw new Error(`[vubx warn] ${msg}`);
+    if (!condition) throw new Error(`[vue-class-state warn] ${msg}`);
 }
 
 export const hasSymbol = typeof Symbol === 'function';

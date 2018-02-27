@@ -1,7 +1,7 @@
 import {
     bind, Container,
     Getter, Inject as Inject, Mutation, State
-} from 'vubx';
+} from 'vue-class-state';
 
 export const StateKeys = {
     A: 'moduleA',
@@ -21,8 +21,9 @@ export class StateA {
         @Inject(StateKeys.B) public stateB: StateB,
         @Inject(StateKeys.B) public stateB2: StateB
     ) {
-        // tslint:disable
+        // tslint:disable-next-line:no-console
         console.log(arguments);
+        // tslint:disable-next-line:no-console
         console.log(this);
     }
 

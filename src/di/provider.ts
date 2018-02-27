@@ -2,7 +2,7 @@ import { IMap, UseMap } from '../di/map';
 import { IIdentifier, replaceState } from '../state/helper';
 import { assert, defGet } from '../util';
 import { DIMetaData } from './di_meta';
-import { IDeps, IInjector } from './injector';
+import { IInjector } from './injector';
 
 export interface IProxyState {
     [key: string]: any;
@@ -40,7 +40,7 @@ export class Provider {
      * get state instance array
      * @param deps
      */
-    public getAll(deps: IDeps): any[] {
+    public getAll(deps: IIdentifier[]): any[] {
         return deps.map((identifier) => this.get(identifier));
     }
 

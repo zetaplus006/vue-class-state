@@ -1,12 +1,12 @@
-## vubx
+## vue-class-state
 > Vue状态管理，采用面向对象风格的api设计，灵感来自[mobx](https://github.com/mobxjs/mobx)
 
 
 ## 索引
 
-- [vubx](#vubx)
+- [vue-class-state](#vue-class-state)
 - [索引](#索引)
-- [vubx介绍](#vubx介绍)
+- [vue-class-state介绍](#vue-class-state介绍)
 - [安装](#安装)
 - [基本使用](#基本使用)
 - [依赖注入](#依赖注入)
@@ -24,10 +24,10 @@
     - [mutation中间件详解](#mutation中间件详解)
 - [生命周期](#生命周期)
 
-## vubx介绍
-`vubx`可以视为`vuex`的面向对象风格版本，提供以下功能：
+## vue-class-state介绍
+`vue-class-state`可以视为`vuex`的面向对象风格版本，提供以下功能：
 
-1.`state`、`getters`、`mutation`，其概念与`vuex`基本相通，区别是vubx是以class(类)和decorator(装饰器)的形式来实现的。
+1.`state`、`getters`、`mutation`，其概念与`vuex`基本相通，区别是vue-class-state是以class(类)和decorator(装饰器)的形式来实现的。
 
 2.简单的依赖注入，用于解决子模块之间共享数据的问题，并支持懒加载,此功能不仅能在状态管理中使用，也可与Vue的[provide/inject](https://cn.vuejs.org/v2/api/#provide-inject)配合使用。(此功能主要参考[InversifyJS](https://github.com/inversify/InversifyJS)的api设计)
 
@@ -37,14 +37,14 @@
 
 4.支持严格模式，开启后`state`只能在`mutation`中被修改。
 
-5.支持`vue`官方devtool,可以在devtool的vuex标签下查看`vubx`的`state`、`getters`、`mutation`。
+5.支持`vue`官方devtool,可以在devtool的vuex标签下查看`vue-class-state`的`state`、`getters`、`mutation`。
 
 6.同时支持`Typescript`和`ECMAScript`，使用TypeScript体验最佳,起初就是专门为Vue+Typescript设计的。
 
 ## 安装
 
 ```bash
-npm install vubx --save
+npm install vue-class-state --save
 ```
 
 注意:
@@ -61,7 +61,7 @@ npm install vubx --save
 
 ``` typescript
 import Vue from 'vue';
-import { createDecorator, Service, mutation } from 'vubx';
+import { createDecorator, Service, mutation } from 'vue-class-state';
 
 const observable = createDecorator(Vue);
 
@@ -121,10 +121,10 @@ new Vue({
 
 ``` typescript
 import Vue from 'vue';
-import { createDecorator, Service, mutation, lazyInject, bind, IService, created, IVubxDecorator } from 'vubx';
+import { createDecorator, Service, mutation, lazyInject, bind, IService, created, Ivue-class-stateDecorator } from 'vue-class-state';
 import component from 'vue-class-component';
 
-const observable: IVubxDecorator = createDecorator(Vue);
+const observable: Ivue-class-stateDecorator = createDecorator(Vue);
 
 // 定义服务标识
 const moduleKeys = {
@@ -218,7 +218,7 @@ bind<IModule>(moduleKeys.A).toValue(new ModuleA())
 bind<IModule>(moduleKeys.A).toFactory(() => new ModuleA())
 
 // 传入的第二个参数类型为注入标识数组，表明该工厂依赖的其他模块，会依次注入到工厂参数中
-// 用于弥补vubx不支持构造函数参数注入的缺陷
+// 用于弥补vue-class-state不支持构造函数参数注入的缺陷
 bind<IModule>(moduleKeys.B).toFactory((moduleA: IModule, moduleB: IModule) => {
     return new ModuleC(moduleA, moduleB)
 }, [moduleKeys.A, moduleKeys.B])
@@ -266,7 +266,7 @@ class Module extends Service {
 ```
 ### 在Vue组件中注入模块
 
-Vue已经提供[provide/inject](https://cn.vuejs.org/v2/api/#provide-inject)功能，可以很方便的注入vubx模块
+Vue已经提供[provide/inject](https://cn.vuejs.org/v2/api/#provide-inject)功能，可以很方便的注入vue-class-state模块
 
 ```typescript
 
@@ -325,7 +325,7 @@ class App extends Vue {
 
 ```typescript
 import Vue from 'vue';
-import { createDecorator, Service, mutation } from 'vubx';
+import { createDecorator, Service, mutation } from 'vue-class-state';
 
 const observable = createDecorator(Vue);
 
@@ -392,7 +392,7 @@ new Vue({
 
 ### 插件详解
 
-`vubx`的插件分为`模块插件`与`全局插件`，上述的缓存例子便是一个简单的`模块插件`，只会在注册的本模块初始化时执行，当项目有很多模块时，可以选择性的给某些模块加入缓存机制。
+`vue-class-state`的插件分为`模块插件`与`全局插件`，上述的缓存例子便是一个简单的`模块插件`，只会在注册的本模块初始化时执行，当项目有很多模块时，可以选择性的给某些模块加入缓存机制。
 
 如下注册`全局插件`，注意globalPlugins选项只在`root模块`中有效，并且`全局插件`会在providers选项下注册的所有模块被第一次注入时执行，对于`root模块`只会在初始化时执行，`模块插件`的执行时机也与其一致。
 ```typescript
@@ -417,7 +417,7 @@ class Counter extends Service {
 
 ### mutation中间件详解
 
-在严格模式下，`vubx`中的`state`只能通过mutation方法改变，mutation中间件的功能就是可以在`mutation`方法执行前和执行后进行一系列统一的业务操作，其实也可以说是实现了`AOP`的模式。
+在严格模式下，`vue-class-state`中的`state`只能通过mutation方法改变，mutation中间件的功能就是可以在`mutation`方法执行前和执行后进行一系列统一的业务操作，其实也可以说是实现了`AOP`的模式。
 
 这是一个简单的例子：在`mutation`方法执行前打印`mutation`信息，在其执行后缓存模块的状态到localStorage
 ```typescript
@@ -435,7 +435,7 @@ store.subscribe({
     }
 });
 ```
-vubx的mutation定义如下
+vue-class-state的mutation定义如下
 ```typescript
 interface IMutation {
     // 为适配vuex的devtool而设置的字段，一般不会用于业务
@@ -453,7 +453,7 @@ interface IMutation {
 
 ## 生命周期
 
-由于`vubx`的实现机制是创建子类代替父类的引用，并在子类中做代理Vue数据和依赖注入信息的初始化，因此在父类的构造函数中是无法读取注入进来的模块，但vubx提供了初始化成功的调用钩子用于替代构造函数。
+由于`vue-class-state`的实现机制是创建子类代替父类的引用，并在子类中做代理Vue数据和依赖注入信息的初始化，因此在父类的构造函数中是无法读取注入进来的模块，但vue-class-state提供了初始化成功的调用钩子用于替代构造函数。
 
 ```typescript
 @created()

@@ -8,17 +8,19 @@ export interface IMutation {
     identifier: IIdentifier;
 }
 
-export function Mutation(_target: any, methodName: string, descriptor: PropertyDescriptor) {
+export function commit(state: any, fn: () => void, mutationType?: string): any {
+    return runInMutaion(state, fn, null, mutationType);
+}
+
+export const mutationDecorator = (_target: any, methodName: string, descriptor: PropertyDescriptor) => {
     const mutationFn = descriptor.value;
     descriptor.value = function (this: any, ...arg: any[]) {
         return runInMutaion(this, mutationFn, arg, methodName);
     };
     return descriptor;
-}
+};
 
-export function commit(state: any, fn: () => void, mutationType?: string): any {
-    return runInMutaion(state, fn, null, mutationType);
-}
+export const Mutation = Object.assign(mutationDecorator, { commit });
 
 const unnamedName = '<unnamed mutation>';
 
@@ -31,7 +33,7 @@ export function runInMutaion(
         meta = DIMetaData.get(ctx),
         mType = mutationType || unnamedName;
 
-    const vubxMutation: IMutation = {
+    const mutation: IMutation = {
         type: String(meta.identifier) + ': ' + mType,
         payload,
         mutationType: mType,
@@ -44,11 +46,11 @@ export function runInMutaion(
     const temp = scope.isCommitting;
     scope.isCommitting = true;
 
-    globalMiddleware && globalMiddleware.dispatchBefore(ctx, vubxMutation, ctx);
-    middleware.dispatchBefore(ctx, vubxMutation, ctx);
+    globalMiddleware && globalMiddleware.dispatchBefore(ctx, mutation, ctx);
+    middleware.dispatchBefore(mutation, ctx);
     const result = func.apply(ctx, payload);
-    middleware.dispatchAfter(ctx, vubxMutation, ctx);
-    globalMiddleware && globalMiddleware.dispatchAfter(ctx, vubxMutation, ctx);
+    middleware.dispatchAfter(ctx, mutation, ctx);
+    globalMiddleware && globalMiddleware.dispatchAfter(ctx, mutation, ctx);
     // arguments is different
     // res =  middleware.createTask(mutationFn, this)(...payload);
 

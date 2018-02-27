@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 
 // import Vue from 'vue/';
-import { bind, createDecorator, IService, IVubxDecorator, lazyInject, Service, StateModule } from '../../../lib/vubx';
+import { bind, createDecorator, IService, Ivue-class-stateDecorator, lazyInject, Service, StateModule } from '../../../lib/vue-class-state';
 const Vue = require('Vue');
-const observable: IVubxDecorator = createDecorator(Vue);
+const observable: Ivue-class-stateDecorator = createDecorator(Vue);
 
 describe('service $state $getters', function () {
     @observable()
@@ -120,7 +120,7 @@ describe('computed', () => {
 
 });
 
-describe('vubxMethods', () => {
+describe('vue-class-stateMethods', () => {
 
     it('mutation', () => {
         @observable()

@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import { ClassMetaData, IGetters } from '../di/class_meta';
 import { assert, def, hideProperty } from '../util';
-import { proxyGetters, proxyState } from './helper';
+import { proxyGetters, proxyState, replaceState, subscribe } from './helper';
 import { ScopeData, scopeKey } from './scope';
 
-export function State(target: object, propertyKey: string) {
+export function StateDecorator(target: object, propertyKey: string) {
     def(target, propertyKey, {
         get() {
             assert(false, 'must be init data');
@@ -18,6 +18,9 @@ export function State(target: object, propertyKey: string) {
         configurable: true
     });
 }
+
+export type IState = typeof StateDecorator & { replaceState: typeof replaceState, subscribe: typeof subscribe };
+export const State: IState = Object.assign(StateDecorator, { replaceState, subscribe });
 
 export function Getter(target: object, propertyKey: string) {
     ClassMetaData.addGetterMeta(target, propertyKey);

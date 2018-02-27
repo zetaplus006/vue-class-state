@@ -1,5 +1,5 @@
 /**
- * vubx interface
+ * vue-class-state interface
  */
 
 /* state */
@@ -8,22 +8,16 @@ export { ISub, ISubs, ISubscribeOption } from './state/middleware';
 export { IMutation } from './state/mutation';
 
 /* di */
-export { IInjector, IDeps, IstateFactory } from './di/injector';
+export { IInjector, IstateFactory } from './di/injector';
 
 /* module */
 export { IContainerOption, IContainer } from './di/container';
 
 /**
- * vubx api
+ * vue-class-state api
  */
 export { bind } from './di/binding';
-export {
-    State,
-    Getter,
-    Mutation,
-    LazyInject,
-    Inject,
-    Container
-} from './decorator';
-export { replaceState, subscribe } from './state/helper';
-export { commit } from './state/mutation';
+export { State, Getter } from './state/observable';
+export { Inject } from './di/inject';
+export { Mutation } from './state/mutation';
+export { Container } from './di/container';

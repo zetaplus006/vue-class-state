@@ -1,5 +1,5 @@
-import { Getter, Mutation, State } from 'vubx';
 import Vue from 'vue';
+import { Getter, Mutation, State } from 'vue-class-state';
 
 class Addition {
 
@@ -13,8 +13,7 @@ class Addition {
     }
 
     // 突变方法，与vuex一致必须为同步函数
-    @Mutation
-    public change() {
+    @Mutation public change() {
         const temp = this.sum;
         this.a = this.b;
         this.b = temp;

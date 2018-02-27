@@ -2,7 +2,6 @@ import { IIdentifier } from '../state/helper';
 import { IMap, UseMap } from './map';
 
 export interface IGetters { [key: string]: { get: () => any }; }
-
 export class ClassMetaData {
 
     public static get(target: any): ClassMetaData {

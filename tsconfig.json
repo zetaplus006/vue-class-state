@@ -20,8 +20,8 @@
     "outDir": "lib",
     "baseUrl": ".",
     "paths": {
-      "vubx": [
-        "src/vubx.ts"
+      "vue-class-state": [
+        "src/vue-class-state.ts"
       ]
     }
   },

@@ -53,7 +53,7 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js'],
     alias: {
-      vubx: path.resolve(__dirname, '../src/vubx.ts'),
+      'vue-class-state': path.resolve(__dirname, '../src/vue-class-state.ts'),
       vue: 'vue/dist/vue.common.js'
     }
   },

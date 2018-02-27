@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import {
-    bind, createDecorator, IMutation, IService, IVubxDecorator,
+    bind, createDecorator, IMutation, IService, Ivue-class-stateDecorator,
     lazyInject, mutation, Service
-} from '../../../lib/vubx';
+} from '../../../lib/vue-class-state';
 const Vue = require('Vue');
 
-const observable: IVubxDecorator = createDecorator(Vue);
+const observable: Ivue-class-stateDecorator = createDecorator(Vue);
 
 describe('middleware plugin', () => {
 

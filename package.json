@@ -1,11 +1,11 @@
 {
-  "name": "vubx",
+  "name": "vue-class-state",
   "version": "0.2.0",
   "description": "A object-oriented style State Management for Vue",
-  "main": "lib/vubx.common.js",
-  "module": "lib/vubx.esm.js",
-  "unpkg": "lib/vubx.js",
-  "typings": "lib/vubx.d.ts",
+  "main": "lib/vue-class-state.common.js",
+  "module": "lib/vue-class-state.esm.js",
+  "unpkg": "lib/vue-class-state.js",
+  "typings": "lib/vue-class-state.d.ts",
   "files": [
     "lib",
     "typings",
@@ -30,14 +30,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zetaplus006/vubx.git"
+    "url": "git+https://github.com/zetaplus006/vue-class-state.git"
   },
   "author": "zetaplus006",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zetaplus006/vubx/issues"
+    "url": "https://github.com/zetaplus006/vue-class-state/issues"
   },
-  "homepage": "https://github.com/zetaplus006/vubx#readme",
+  "homepage": "https://github.com/zetaplus006/vue-class-state#readme",
   "devDependencies": {
     "@types/chai": "^4.0.3",
     "@types/mocha": "^2.2.41",

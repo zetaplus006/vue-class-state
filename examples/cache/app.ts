@@ -1,8 +1,5 @@
-import {
-    commit, IMutation,
-    Mutation, replaceState, State, subscribe
-} from 'vubx';
 import Vue from 'vue';
+import { IMutation, Mutation, State } from 'vue-class-state';
 
 const cacheKey = 'cache-key';
 
@@ -16,7 +13,7 @@ class Counter {
     }
 
     public sub() {
-        subscribe(this, {
+        State.subscribe(this, {
             // tslint:disable-next-line:no-shadowed-variable
             before: (mutation: IMutation, _state: Counter) => {
                 // tslint:disable-next-line:no-console
@@ -40,11 +37,11 @@ class Counter {
         const cacheStr = localStorage.getItem(cacheKey);
         if (cacheStr) {
             const cache = JSON.parse(cacheStr);
-            replaceState(this, cache);
+            State.replaceState(this, cache);
         }
         setInterval(() => {
             // this.add();
-            commit(this, () => this.num++, 'add');
+            Mutation.commit(this, () => this.num++, 'add');
         }, 1000);
     }
 }

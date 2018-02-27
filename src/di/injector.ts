@@ -11,8 +11,6 @@ export interface IInjector<T> {
     resolve(): T;
 }
 
-export type IDeps = IIdentifier[];
-
 export type IstateFactory<T> = (...arg: any[]) => T;
 
 export class BaseInjector<T> {
@@ -95,7 +93,7 @@ export class FactoryInjector<T> extends BaseInjector<T> implements IInjector<T> 
         public identifier: IIdentifier,
         public isSingleton: boolean,
         private stateFactory: IstateFactory<T>,
-        private deps: IDeps
+        private deps: IIdentifier[]
     ) {
         super();
     }

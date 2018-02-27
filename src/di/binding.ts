@@ -1,6 +1,6 @@
 import { IIdentifier, IstateClass } from '../state/helper';
 import {
-    ClassInjector, FactoryInjector, IDeps,
+    ClassInjector, FactoryInjector,
     IInjector, IstateFactory, ValueInjector
 } from './injector';
 
@@ -27,7 +27,7 @@ export class Binding<T> {
         return this;
     }
 
-    public toFactory(factory: IstateFactory<T>, deps: IDeps = []) {
+    public toFactory(factory: IstateFactory<T>, deps: IIdentifier[] = []) {
         this.injectorFactory = () =>
             new FactoryInjector(this.identifier, this.isSingleton, factory, deps);
         return this;
