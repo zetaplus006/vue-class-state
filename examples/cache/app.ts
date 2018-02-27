@@ -1,17 +1,14 @@
 import {
-    commit, createDecorator, IMutation,
-    Mutation, replaceState, subscribe
+    commit, IMutation,
+    Mutation, replaceState, State, subscribe
 } from 'vubx';
 import Vue from 'vue';
 
-const State = createDecorator(Vue);
-
 const cacheKey = 'cache-key';
 
-@State
 class Counter {
 
-    public num = 0;
+    @State public num = 0;
 
     @Mutation
     public add() {

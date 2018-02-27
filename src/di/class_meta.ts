@@ -1,5 +1,4 @@
-import { getAllGetters } from '../state/helper';
-import { ICreatedHook } from '../state/hook';
+import { IIdentifier } from '../state/helper';
 import { IMap, UseMap } from './map';
 
 export interface IGetters { [key: string]: { get: () => any }; }
@@ -11,13 +10,6 @@ export class ClassMetaData {
             (target.constructor.__meta__ = new ClassMetaData());
     }
 
-    public static collectGetterMeta(target: object) {
-        const meta = ClassMetaData.get(target);
-        meta.getterMeta = getAllGetters(target) as any;
-        meta.getterKeys = Object.keys(meta.getterMeta);
-        return meta;
-    }
-
     public static addGetterMeta(target: object, key: string) {
         const meta = ClassMetaData.get(target);
         const desc = Object.getOwnPropertyDescriptor(target, key);
@@ -27,12 +19,14 @@ export class ClassMetaData {
         }
     }
 
-    public injectMeta: IMap<string, any> = new UseMap();
+    public injectPropertyMeta: IMap<string, any> = new UseMap();
+
+    public injectParameterMeta: IIdentifier[] = [];
+
+    // public injectparameterKeys: string[] = [];
 
     public getterMeta: IGetters = {};
 
     public getterKeys: string[] = [];
-
-    public hookMeta: ICreatedHook;
 
 }

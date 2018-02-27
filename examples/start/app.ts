@@ -1,23 +1,20 @@
-import { createDecorator, Mutation } from 'vubx';
+import { Getter, Mutation, State } from 'vubx';
 import Vue from 'vue';
 
-const State = createDecorator(Vue);
-
-@State
 class Addition {
 
     // 类中的数据在初始化后会被Vue观察到
-    public a = 0;
-    public b = 1;
+    @State public a = 0;
+    @State public b = 1;
 
     // 本类中的getter 都会代理为Vue的计算属性
-    get sum () {
+    @Getter get sum() {
         return this.a + this.b;
     }
 
     // 突变方法，与vuex一致必须为同步函数
     @Mutation
-    public change () {
+    public change() {
         const temp = this.sum;
         this.a = this.b;
         this.b = temp;
@@ -32,11 +29,11 @@ new Vue({
     el: '#app',
     template: `<div>{{addition.sum}}</div>`,
     computed: {
-        addition () {
+        addition() {
             return addition;
         }
     },
-    mounted () {
+    mounted() {
         setInterval(() => {
             this.addition.change();
         }, 2000);

@@ -1,11 +1,10 @@
 
-import { ClassMetaData } from '../di/class_meta';
 import { DIMetaData } from '../di/di_meta';
 
-import { assert, def } from '../util';
+import { assert, defGet } from '../util';
 
 import { IMutation } from './mutation';
-import { ScopeData, scopeKey } from './scope';
+import { ScopeData } from './scope';
 
 export interface IConstructor { new(...args: any[]): {}; }
 
@@ -15,11 +14,6 @@ export type IIdentifier = string;
 
 export type IPlugin = (state: any) => void;
 
-const defaultConfig = {
-    enumerable: true,
-    configurable: true
-};
-
 export type IMutationSubscribe = (mutation: IMutation, state: any) => any;
 
 export interface IMutationSubscribeOption {
@@ -27,43 +21,19 @@ export interface IMutationSubscribeOption {
     after?: IMutationSubscribe;
 }
 
-export function proxyState(ctx: any, getterKeys: string[]) {
+export function proxyState(ctx: any, key: string) {
     const $state = ScopeData.get(ctx)!.$state;
-    Object.keys(ctx).forEach(
-        (key) => {
-            if (getterKeys.indexOf(key) < 0) {
-                def($state, key, {
-                    get: () => ctx[key],
-                    ...defaultConfig
-                });
-            }
-        }
-    );
+    defGet($state, key, () => ctx[key]);
 }
 
 export function proxyGetters(ctx: any, getterKeys: string[]) {
     const $getters = ScopeData.get(ctx)!.$getters;
     getterKeys.forEach((key) => {
-        def($getters, key, {
-            get: () => ctx[key],
-            set: (value) => ctx[key] = value,
-            ...defaultConfig
-        });
+        defGet($getters, key, () => ctx[key]);
     });
 }
 
-export function definedComputed(proto: any, getterKeys: string[]) {
-    getterKeys.forEach((key) => {
-        def(proto, key, {
-            get(this: any) {
-                return (this[scopeKey] as ScopeData).$vm[key];
-            },
-            enumerable: true,
-            configurable: true
-        });
-    });
-}
-
+/*
 export function getAllGetters(target: any) {
     let getters = {};
     let prototypeSuper = target;
@@ -81,7 +51,7 @@ export function getAllGetters(target: any) {
 
 export function getPropertyGetters(target: any): { [key: string]: { get(): any, set?(): void } } {
     const getters = {};
-    const injectMeta = ClassMetaData.get(target).injectMeta;
+    const injectMeta = ClassMetaData.get(target).injectPropertyMeta;
     const keys: string[] = Object.getOwnPropertyNames(target);
     keys.forEach((key) => {
         // skip @lazyInject
@@ -95,6 +65,7 @@ export function getPropertyGetters(target: any): { [key: string]: { get(): any, 
     });
     return getters;
 }
+ */
 
 export function useStrict(state: any) {
     const identifier = DIMetaData.get(state).identifier, scope = ScopeData.get(state);

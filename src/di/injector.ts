@@ -1,5 +1,6 @@
 import { IIdentifier, IstateClass } from '../state/helper';
 import { assert } from '../util';
+import { ClassMetaData } from './class_meta';
 import { DIMetaData } from './di_meta';
 import { Provider } from './provider';
 
@@ -37,7 +38,7 @@ export class ClassInjector<T> extends BaseInjector<T> implements IInjector<T> {
     constructor(
         public identifier: IIdentifier,
         public isSingleton: boolean,
-        private stateClass: IstateClass<T>
+        public stateClass: IstateClass<T>
     ) {
         super();
     }
@@ -54,7 +55,7 @@ export class ClassInjector<T> extends BaseInjector<T> implements IInjector<T> {
     }
 
     private getInstance() {
-        const instance = new this.stateClass();
+        const instance = resolveClassInstance<T>(this.provider, this);
         this.addDIMeta(instance, this.identifier);
         return instance;
     }
@@ -117,4 +118,11 @@ export class FactoryInjector<T> extends BaseInjector<T> implements IInjector<T> 
         return instance;
     }
 
+}
+
+export function resolveClassInstance<T>(provider: Provider, injector: ClassInjector<T>) {
+    const classMeta = ClassMetaData.get(injector.stateClass.prototype);
+    const parameterMeta = classMeta.injectParameterMeta;
+    const args = provider.getAll(parameterMeta);
+    return new injector.stateClass(...args);
 }

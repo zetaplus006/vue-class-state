@@ -8,18 +8,18 @@ export function LazyInject(identifier?: IIdentifier): any;
 export function LazyInject(target: any, propertyKey: string): any;
 export function LazyInject(option: any, propertyKey?: string): any {
     if (typeof option === 'object' && propertyKey) {
-        return createLazyDecorator(option, propertyKey);
+        return lazyDecorator(option, propertyKey);
     } else {
         return function (target: object, key: string) {
-            return createLazyDecorator(target, key, option);
+            return lazyDecorator(target, key, option);
         };
     }
 }
 
-function createLazyDecorator(target: any, propertyKey: string, identifier?: IIdentifier) {
+export function lazyDecorator(target: any, propertyKey: string, identifier?: IIdentifier) {
     const stateKey: IIdentifier = identifier || propertyKey;
     const meta = ClassMetaData.get(target);
-    meta.injectMeta.set(propertyKey, {
+    meta.injectPropertyMeta.set(propertyKey, {
         identifier
     });
     return {

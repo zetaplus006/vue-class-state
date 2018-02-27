@@ -1,6 +1,6 @@
 import { IMap, UseMap } from '../di/map';
 import { IIdentifier, replaceState } from '../state/helper';
-import { assert, def } from '../util';
+import { assert, defGet } from '../util';
 import { DIMetaData } from './di_meta';
 import { IDeps, IInjector } from './injector';
 
@@ -85,21 +85,9 @@ export class Provider {
      * @param injector
      */
     private defProxy(injector: IInjector<any>) {
-        /* if (!injector.isSingleton) {
-            return;
-        } */
-        const desc: PropertyDescriptor = {
-            get: () => {
-                return injector.resolve();
-            },
-            enumerable: true,
-            configurable: true
-        };
-        def(this.proxy, injector.identifier, desc);
-        // for devtool
-        if (typeof injector.identifier === 'symbol') {
-            def(this.proxy, String(injector.identifier), desc);
-        }
+        defGet(this.proxy, injector.identifier, () => {
+            return injector.resolve();
+        });
     }
 
 }

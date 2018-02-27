@@ -4,7 +4,6 @@ import { Provider } from '../di/provider';
 import { devtool } from '../plugins/devtool';
 import { IConstructor, IIdentifier, IPlugin, useStrict } from '../state/helper';
 import { Middleware } from '../state/middleware';
-import { createdHook } from '../state/observable';
 import { ScopeData } from '../state/scope';
 import { hideProperty } from '../util';
 
@@ -47,13 +46,12 @@ function createContainerClass(option: IContainerOption) {
             this._provider.registerInjectedHook((instance: any, diMetaData: DIMetaData) => {
                 const scope = ScopeData.get(instance);
                 if (scope) {
-                    scope.module = this;
                     if (!diMetaData.hasBeenInjected
                         && this._option.strict
                         && this._option.strict.indexOf(diMetaData.identifier) > -1) {
                         useStrict(instance);
                     }
-                    createdHook(instance, instance.__scope__.vubxOption, diMetaData);
+                    this._globalPlugins.forEach((action) => action(instance));
                 }
             });
             option.providers.forEach((binding) => this._provider.register(binding.injectorFactory()));

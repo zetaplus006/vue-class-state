@@ -18,12 +18,12 @@ export { IContainerOption, IContainer } from './di/container';
  */
 export { bind } from './di/binding';
 export {
-    createDecorator,
+    State,
+    Getter,
     Mutation,
     LazyInject,
-    Created,
+    Inject,
     Container
 } from './decorator';
 export { replaceState, subscribe } from './state/helper';
 export { commit } from './state/mutation';
-export { State } from './state/observable';
