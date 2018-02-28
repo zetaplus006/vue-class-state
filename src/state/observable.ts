@@ -2,6 +2,7 @@ import Vue from 'vue';
 import { ClassMetaData, IGetters } from '../di/class_meta';
 import { assert, def, hideProperty } from '../util';
 import { getAllState, proxyGetters, proxyState, replaceState, subscribe } from './helper';
+import { globalMiddleware } from './middleware';
 import { ScopeData, scopeKey } from './scope';
 
 export function StateDecorator(target: object, propertyKey: string) {
@@ -19,9 +20,21 @@ export function StateDecorator(target: object, propertyKey: string) {
     });
 }
 
-export type IState = typeof StateDecorator &
-    { replaceState: typeof replaceState, subscribe: typeof subscribe, getAllState: typeof getAllState };
-export const State: IState = Object.assign(StateDecorator, { replaceState, subscribe, getAllState });
+export type IStateType = typeof StateDecorator
+    & {
+        replaceState: typeof replaceState,
+        subscribe: typeof subscribe,
+        getAllState: typeof getAllState,
+        globalSubscribe: typeof globalMiddleware.subscribe
+    };
+
+export const State: IStateType = Object.assign(
+    StateDecorator, {
+        replaceState,
+        subscribe,
+        getAllState,
+        globalSubscribe: globalMiddleware.subscribe.bind(globalMiddleware)
+    });
 
 export function Getter(target: object, propertyKey: string) {
     ClassMetaData.addGetterMeta(target, propertyKey);

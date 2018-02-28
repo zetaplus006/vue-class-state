@@ -1,48 +1,43 @@
 import {
-    bind, Container,
-    Getter, Inject as Inject, Mutation, State
+    bind, Container, Getter, Inject, State
 } from 'vue-class-state';
 
 export const StateKeys = {
     A: 'moduleA',
-    B: 'moduleB'
+    B: 'moduleB',
+    STORE: 'store'
 };
 
 export class StateA {
     @State public text = 'A';
 
-    @Inject(StateKeys.A) public me: StateB;
-
-    @Getter get computed() {
-        return this.text + '__computed';
-    }
-
-    constructor(
-        @Inject(StateKeys.B) public stateB: StateB,
-        @Inject(StateKeys.B) public stateB2: StateB
-    ) {
-        // tslint:disable-next-line:no-console
-        console.log(arguments);
-        // tslint:disable-next-line:no-console
-        console.log(this);
-    }
-
-    @Mutation
-    public change() {
-        this.text = '';
-    }
 }
 
 export class StateB {
     @State public text = 'B';
 }
 
+export class Store {
+
+    // @State public a = 0;
+    constructor(
+        @Inject(StateKeys.A) public stateA: StateA,
+        @Inject(StateKeys.B) public stateB: StateB
+    ) {
+    }
+
+    @Getter get text() {
+        return this.stateA.text + this.stateB.text;
+    }
+}
+
 @Container({
     providers: [
         bind<StateA>(StateKeys.A).toClass(StateA),
-        bind<StateB>(StateKeys.B).toClass(StateB)
+        bind<StateB>(StateKeys.B).toClass(StateB),
+        bind<Store>(StateKeys.STORE).toClass(Store)
     ],
-    devtool: [StateKeys.A, StateKeys.B],
-    strict: [StateKeys.A, StateKeys.B]
+    devtool: [StateKeys.A, StateKeys.B, StateKeys.STORE],
+    strict: [StateKeys.A, StateKeys.B, StateKeys.STORE]
 })
 export class AppContainer { }

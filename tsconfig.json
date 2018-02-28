@@ -5,7 +5,7 @@
       "dom",
       "es2015",
     ],
-    "module": "es2015",
+    "module": "commonjs",
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "strict": true,
@@ -14,7 +14,6 @@
     "noUnusedParameters": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
     "declaration": true,
     "declarationDir": "./lib",
     "outDir": "lib",
@@ -29,7 +28,7 @@
     "src/**/*.ts",
     "examples/**/*.ts",
     "typings/*.ts",
-    "test/**/*.test.ts"
+    "test/**/*.ts"
   ],
   "exclude": [
     "lib/*",

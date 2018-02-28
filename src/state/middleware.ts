@@ -45,11 +45,13 @@ export class Middleware {
     }
 
     private run(subs: ISubs, ctx: any | null, ...arg: any[]) {
-        for (const sub of subs) {
-            // todo if promise
-            if (sub.apply(ctx, arg) === false) {
+        let len = subs.length;
+        while (len--) {
+            if (subs[len].apply(ctx, arg) === false) {
                 break;
             }
         }
     }
 }
+
+export const globalMiddleware = new Middleware();

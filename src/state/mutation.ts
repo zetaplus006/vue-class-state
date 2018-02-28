@@ -1,5 +1,7 @@
 import { DIMetaData } from '../di/di_meta';
 import { IIdentifier } from './helper';
+import { globalMiddleware } from './middleware';
+import { ScopeData, scopeKey } from './scope';
 
 export interface IMutation {
     type: string;
@@ -23,34 +25,34 @@ export const mutationDecorator = (_target: any, methodName: string, descriptor: 
 export const Mutation = Object.assign(mutationDecorator, { commit });
 
 const unnamedName = '<unnamed mutation>';
-
+const unknownIdentifier = 'unknown';
 export function runInMutaion(
     ctx: any,
     func: () => void,
     payload: any,
     mutationType?: string) {
-    const scope = ctx.__scope__,
+    const scope = ctx[scopeKey] as ScopeData,
         meta = DIMetaData.get(ctx),
-        mType = mutationType || unnamedName;
+        mType = mutationType || unnamedName,
+        type = String(meta.identifier || unknownIdentifier) + ': ' + mType;
 
     const mutation: IMutation = {
-        type: String(meta.identifier) + ': ' + mType,
+        type,
         payload,
         mutationType: mType,
         identifier: meta.identifier
     };
 
-    const globalMiddleware = scope.module && scope.globalMiddlewate;
     const middleware = scope.middleware;
 
     const temp = scope.isCommitting;
     scope.isCommitting = true;
 
-    globalMiddleware && globalMiddleware.dispatchBefore(ctx, mutation, ctx);
-    middleware.dispatchBefore(mutation, ctx);
+    globalMiddleware.dispatchBefore(ctx, mutation, ctx);
+    middleware.dispatchBefore(ctx, mutation, ctx);
     const result = func.apply(ctx, payload);
     middleware.dispatchAfter(ctx, mutation, ctx);
-    globalMiddleware && globalMiddleware.dispatchAfter(ctx, mutation, ctx);
+    globalMiddleware.dispatchAfter(ctx, mutation, ctx);
     // arguments is different
     // res =  middleware.createTask(mutationFn, this)(...payload);
 

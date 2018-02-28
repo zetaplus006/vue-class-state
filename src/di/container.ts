@@ -16,7 +16,6 @@ export interface IContainerOption {
 
 export interface IContainer {
     _provider: Provider;
-    _globalMiddleware: Middleware;
     _globalPlugins: IPlugin[];
     _option: IContainerOption;
 }
@@ -31,8 +30,6 @@ function createContainerClass(option: IContainerOption) {
     return class $StateModule implements IContainer {
 
         public _provider: Provider;
-
-        public _globalMiddleware: Middleware;
 
         public _globalPlugins: IPlugin[];
 
