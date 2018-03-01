@@ -3,14 +3,13 @@ import {
 } from 'vue-class-state';
 
 export const StateKeys = {
-    A: 'moduleA',
-    B: 'moduleB',
+    A: 'stateA',
+    B: 'stateB',
     STORE: 'store'
 };
 
 export class StateA {
     @State public text = 'A';
-
 }
 
 export class StateB {
@@ -23,12 +22,12 @@ export class Store {
     constructor(
         @Inject(StateKeys.A) public stateA: StateA,
         @Inject(StateKeys.B) public stateB: StateB
-    ) {
-    }
+    ) { }
 
     @Getter get text() {
         return this.stateA.text + this.stateB.text;
     }
+
 }
 
 @Container({

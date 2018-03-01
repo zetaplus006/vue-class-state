@@ -62,20 +62,31 @@ export function checkScope(ctx: any, target: any) {
 
 export function initScope(ctx: any, target: any) {
     const meta = ClassMetaData.get(target);
+    const allGetterMeta = trackGetters(ctx, meta), keys = Object.keys(allGetterMeta);
     const vm: Vue = new Vue({
-        computed: bindGetters(meta.getterMeta, meta.getterKeys, ctx)
+        computed: bindGetters(allGetterMeta, keys, ctx)
     });
     const scope = new ScopeData();
     hideProperty(ctx, scopeKey, scope);
     scope.$vm = vm;
-    proxyGetters(ctx, meta.getterKeys);
+    proxyGetters(ctx, keys);
 }
 
-function bindGetters(getters: IGetters, keys: string[], ctx: object) {
+function trackGetters(ctx: any, meta: ClassMetaData) {
+    const ctors = meta.constructorMeta;
+    const getters = {};
+    ctors.filter(ctor => ctx instanceof ctor).forEach(ctor => {
+        // getter extends
+        Object.assign(getters, ClassMetaData.get(ctor.prototype).getterMeta);
+    });
+    return getters;
+}
+
+export function bindGetters(getters: IGetters, keys: string[], ctx: object) {
     const returnGetters = {};
     keys.forEach((key) => {
         returnGetters[key] = {
-            get: getters[key].get.bind(ctx)
+            get: getters[key].bind(ctx)
         };
     });
     return returnGetters;

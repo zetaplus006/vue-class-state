@@ -1,3 +1,4 @@
+import { ClassMetaData } from '../di/class_meta';
 import { IContainer } from '../di/container';
 import { Provider } from '../di/provider';
 import { IIdentifier } from '../state/helper';
@@ -54,22 +55,38 @@ function getStateAndGetters(proxy: any, identifiers: IIdentifier[]) {
     const keys: IIdentifier[] = identifiers;
     keys.forEach((key) => {
         const instance = proxy[key];
-        const scope = ScopeData.get(instance);
-        if (scope) {
-            def(getters, String(key), {
-                value: scope.$getters,
-                enumerable: true,
-                configurable: true
-            });
-            def(state, String(key), {
-                value: scope.$state,
-                enumerable: true,
-                configurable: true
-            });
+        let scope = ScopeData.get(instance);
+        if (scope === null) {
+            tryReadGetter(instance);
+            scope = ScopeData.get(instance);
         }
+        def(getters, String(key), {
+            value: scope!.$getters,
+            enumerable: true,
+            configurable: true
+        });
+        def(state, String(key), {
+            value: scope!.$state,
+            enumerable: true,
+            configurable: true
+        });
     });
     return {
         state,
         getters
     };
+}
+
+/**
+ * try to read the first getter
+ * @param instance
+ */
+function tryReadGetter(instance: any) {
+    const classMeta = ClassMetaData.get(Object.getPrototypeOf(instance));
+    if (classMeta.getterKeys.length) {
+        try {
+            instance[classMeta.getterKeys[0]];
+            // tslint:disable-next-line:no-empty
+        } finally { }
+    }
 }

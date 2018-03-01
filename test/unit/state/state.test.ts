@@ -89,3 +89,35 @@ test('State.replaceState', t => {
         }
     });
 });
+
+test('extends', t => {
+    class Super {
+        @State public super = 'Super';
+
+        @Getter get SuperGetter() {
+            return this.super;
+        }
+    }
+
+    class Base extends Super {
+        @State public base = 'Base';
+
+        @Getter get baseGetter() {
+            return this.base;
+        }
+    }
+
+    class Child extends Base {
+        @State public child = 'Child';
+
+        @Getter get childGetter() {
+            return this.child;
+        }
+    }
+
+    const c = new Child();
+    t.true(c.child === 'Child' && c.child === c.childGetter);
+    t.true(c.base === 'Base' && c.base === c.baseGetter);
+    t.true(c.super === 'Super' && c.super === c.SuperGetter);
+
+});

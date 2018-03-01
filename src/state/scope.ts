@@ -23,4 +23,5 @@ export class ScopeData {
     public static get(ctx: any): ScopeData | null {
         return ctx[scopeKey] || null;
     }
+
 }
