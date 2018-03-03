@@ -6,9 +6,9 @@ import { assert, defGet } from '../util';
 import { IMutation } from './mutation';
 import { ScopeData } from './scope';
 
-export interface IConstructor { new(...args: any[]): {}; }
+export interface IConstructor { new(...args: any[]): any; }
 
-export interface IstateClass<T> { new(...args: any[]): T; }
+export interface IClass<T> { new(...args: any[]): T; }
 
 export type IIdentifier = string;
 
@@ -17,12 +17,17 @@ export type IPlugin = (state: any) => void;
 export type IMutationSubscribe = (mutation: IMutation, state: any) => any;
 
 export function proxyState(ctx: any, key: string) {
-    const $state = ScopeData.get(ctx)!.$state;
+    const $state = ScopeData.get(ctx).$state;
     defGet($state, key, () => ctx[key]);
 }
 
+export function proxyGetter(ctx: any, key: string) {
+    const $getters = ScopeData.get(ctx).$getters;
+    defGet($getters, key, () => ctx[key]);
+}
+
 export function proxyGetters(ctx: any, getterKeys: string[]) {
-    const $getters = ScopeData.get(ctx)!.$getters;
+    const $getters = ScopeData.get(ctx).$getters;
     getterKeys.forEach((key) => {
         defGet($getters, key, () => ctx[key]);
     });

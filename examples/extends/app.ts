@@ -30,5 +30,4 @@ class Child extends Base {
 })
 class AppContainer { }
 
-new AppContainer()
-
+new AppContainer();

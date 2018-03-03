@@ -1,9 +1,7 @@
 import Vue from 'vue';
-import { ClassMetaData, IGetters } from '../di/class_meta';
-import { assert, def, hideProperty } from '../util';
-import { getAllState, proxyGetters, proxyState, replaceState, subscribe } from './helper';
+import { assert, def } from '../util';
+import { getAllState, proxyState, replaceState, subscribe } from './helper';
 import { globalMiddleware } from './middleware';
-import { ScopeData, scopeKey } from './scope';
 
 export function StateDecorator(target: object, propertyKey: string) {
     def(target, propertyKey, {
@@ -11,7 +9,7 @@ export function StateDecorator(target: object, propertyKey: string) {
             assert(false, 'must be init data');
         },
         set(value) {
-            checkScope(this, target);
+            // checkScope(this, target);
             Vue.util.defineReactive(this, propertyKey, value);
             proxyState(this, propertyKey);
         },
@@ -35,7 +33,7 @@ export const State: IStateType = Object.assign(
         getAllState,
         globalSubscribe: globalMiddleware.subscribe.bind(globalMiddleware)
     });
-
+/*
 export function Getter(target: object, propertyKey: string) {
     ClassMetaData.addGetterMeta(target, propertyKey);
     return {
@@ -52,8 +50,8 @@ export function Getter(target: object, propertyKey: string) {
         enumerable: false,
         configurable: true
     };
-}
-
+} */
+/*
 export function checkScope(ctx: any, target: any) {
     if (!ScopeData.get(ctx)) {
         initScope(ctx, target);
@@ -91,3 +89,4 @@ export function bindGetters(getters: IGetters, keys: string[], ctx: object) {
     });
     return returnGetters;
 }
+ */

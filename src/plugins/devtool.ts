@@ -55,18 +55,15 @@ function getStateAndGetters(proxy: any, identifiers: IIdentifier[]) {
     const keys: IIdentifier[] = identifiers;
     keys.forEach((key) => {
         const instance = proxy[key];
-        let scope = ScopeData.get(instance);
-        if (scope === null) {
-            tryReadGetter(instance);
-            scope = ScopeData.get(instance);
-        }
+        const scope = ScopeData.get(instance);
+        tryReadGetters(instance);
         def(getters, String(key), {
-            value: scope!.$getters,
+            value: scope.$getters,
             enumerable: true,
             configurable: true
         });
         def(state, String(key), {
-            value: scope!.$state,
+            value: scope.$state,
             enumerable: true,
             configurable: true
         });
@@ -81,12 +78,18 @@ function getStateAndGetters(proxy: any, identifiers: IIdentifier[]) {
  * try to read the first getter
  * @param instance
  */
-function tryReadGetter(instance: any) {
-    const classMeta = ClassMetaData.get(Object.getPrototypeOf(instance));
-    if (classMeta.getterKeys.length) {
-        try {
-            instance[classMeta.getterKeys[0]];
-            // tslint:disable-next-line:no-empty
-        } finally { }
+function tryReadGetters(instance: any, proto?: any) {
+    if (proto && proto === Object.prototype) {
+        return;
     }
+    const _proto = Object.getPrototypeOf(proto || instance);
+    const getterKeys = ClassMetaData.get(_proto).getterKeys;
+    let len = getterKeys.length;
+    try {
+        while (len--) {
+            instance[getterKeys[len]];
+        }
+        // tslint:disable-next-line:no-empty
+    } finally { }
+    tryReadGetters(instance, _proto);
 }

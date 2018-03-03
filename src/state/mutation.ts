@@ -1,7 +1,7 @@
 import { DIMetaData } from '../di/di_meta';
 import { IIdentifier } from './helper';
 import { globalMiddleware } from './middleware';
-import { ScopeData, scopeKey } from './scope';
+import { ScopeData } from './scope';
 
 export interface IMutation {
     type: string;
@@ -31,7 +31,7 @@ export function runInMutaion(
     func: () => void,
     payload: any,
     mutationType?: string) {
-    const scope = ctx[scopeKey] as ScopeData,
+    const scope = ScopeData.get(ctx),
         meta = DIMetaData.get(ctx),
         mType = mutationType || unnamedName,
         type = String(meta.identifier || unknownIdentifier) + ': ' + mType;

@@ -9,6 +9,10 @@ class App extends Vue {
     @Inject(StateKeys.STORE)
     public store: Store;
 
+    get _store() {
+        return this.store;
+    }
+
 }
 
 new Vue({

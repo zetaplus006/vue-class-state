@@ -1,4 +1,4 @@
-import { IIdentifier, IstateClass } from '../state/helper';
+import { IClass, IIdentifier } from '../state/helper';
 import { assert } from '../util';
 import { ClassMetaData } from './class_meta';
 import { DIMetaData } from './di_meta';
@@ -36,7 +36,7 @@ export class ClassInjector<T> extends BaseInjector<T> implements IInjector<T> {
     constructor(
         public identifier: IIdentifier,
         public isSingleton: boolean,
-        public stateClass: IstateClass<T>
+        public stateClass: IClass<T>
     ) {
         super();
     }

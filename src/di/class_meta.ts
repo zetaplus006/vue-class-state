@@ -1,6 +1,5 @@
-import { IConstructor, IIdentifier } from '../state/helper';
+import { IIdentifier } from '../state/helper';
 import { hideProperty } from '../util';
-import { IMap, UseMap } from './map';
 
 export interface IGetters { [key: string]: () => any; }
 
@@ -17,35 +16,20 @@ export class ClassMetaData {
         return meta;
     }
 
-    public static addGetterMeta(target: any, key: string) {
-        const meta = ClassMetaData.get(target);
-        const desc = Object.getOwnPropertyDescriptor(target, key);
-        const ctor: IConstructor = target.constructor;
-        if (desc && desc.get) {
-            meta.getterMeta[key] = desc.get;
-            meta.getterKeys.push(key);
-            if (meta.constructorMeta.length === 0) {
-                meta.constructorMeta.push(ctor);
-                trackCtorMeta(ctor, ctor);
-            }
-        }
-    }
-
-    public constructorMeta: IConstructor[] = [];
-
-    public injectPropertyMeta: IMap<string, any> = new UseMap();
-
     public injectParameterMeta: IIdentifier[] = [];
-
-    // public injectparameterKeys: string[] = [];
-
-    public getterMeta: IGetters = {};
 
     public getterKeys: string[] = [];
 
+    public addGetterKey(key: string) {
+
+        if (this.getterKeys.indexOf(key) === -1) {
+            this.getterKeys.push(key);
+        }
+    }
+
 }
 
-function trackCtorMeta(ctor: IConstructor, childCtor: IConstructor) {
+/* function trackCtorMeta(ctor: IConstructor, childCtor: IConstructor) {
     if (ctor === Object) {
         return;
     }
@@ -55,3 +39,4 @@ function trackCtorMeta(ctor: IConstructor, childCtor: IConstructor) {
     baseMeta.constructorMeta.push(childCtor);
     trackCtorMeta(baseCtor, childCtor);
 }
+ */
