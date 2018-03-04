@@ -139,17 +139,17 @@ bind<IModule>(moduleKeys.B).toFactory((moduleA: IModule, moduleB: IModule) => {
     }
 }, [moduleKeys.A, moduleKeys.B])
 ```
-## 拦截`mutation`
+### `mutation`和严格模式
 
 以下是简单的缓存例子
 
 ```typescript
 import Vue from 'vue';
-import { IMutation, Mutation, State } from 'vue-class-state';
-
-const cacheKey = 'cache-key';
+import { bind, Container, IMutation, Mutation, State } from 'vue-class-state';
 
 class Counter {
+    
+    cacheKey = 'cache-key';
 
     @State public num = 0;
 
@@ -172,37 +172,42 @@ class Counter {
             },
             // after选项代表在mutation执行后执行的方法，相对的也提供before选项，用于在mutation执行前进行操作
             after: () => {
-                localStorage.setItem(cacheKey, JSON.stringify(this));
+                localStorage.setItem(this.cacheKey, JSON.stringify(this));
             }
         });
     }
-
-    public init() {
+    constructor() {
         this.sub();
-        const cacheStr = localStorage.getItem(cacheKey);
+        const cacheStr = localStorage.getItem(this.cacheKey);
         if (cacheStr) {
             const cache = JSON.parse(cacheStr);
             State.replaceState(this, cache);
         }
         setInterval(() => {
-            //等同于 Mutation.commit(this, () => this.num++, 'add');
-            this.add()
+            // 等同于 Mutation.commit(this, () => this.num++, 'add');
+            this.add();
         }, 1000);
     }
 }
 
-const addition = new Counter();
+const COUNTER = 'counter';
+
+@Container({
+    providers: [bind<Counter>(COUNTER).toClass(Counter)],
+    devtool: [COUNTER],
+    strict: [COUNTER]
+})
+class AppContainer { }
+
+const container = new AppContainer();
 
 new Vue({
     el: '#app',
-    template: `<div>{{addition.num}}</div>`,
+    template: `<div>{{counter.num}}</div>`,
     computed: {
-        addition() {
-            return addition;
+        counter() {
+            return container[COUNTER];
         }
-    },
-    mounted() {
-        addition.init();
     }
 });
 
