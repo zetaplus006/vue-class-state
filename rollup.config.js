@@ -5,26 +5,26 @@ import replace from 'rollup-plugin-post-replace';
 import filesize from 'rollup-plugin-filesize';
 const version = process.env.VERSION || require('./package.json').version;
 const banner =
-`/**
- * vubx v${version}
+    `/**
+ * vue-class-state v${version}
  * (c) ${new Date().getFullYear()} zetaplus006
  * @license MIT
  */`
-const entry = 'src/vubx.ts';
-const moduleName = 'Vubx';
+const entry = 'src/vue-class-state.ts';
+const moduleName = 'vue-class-state';
 
 const options = [{
-    dest: 'lib/vubx.esm.js',
+    dest: 'lib/vue-class-state.esm.js',
     format: 'es'
 }, {
-    dest: 'lib/vubx.common.js',
+    dest: 'lib/vue-class-state.common.js',
     format: 'cjs'
 }, {
-    dest: 'lib/vubx.js',
+    dest: 'lib/vue-class-state.js',
     format: 'umd',
     env: '"development"'
 }, {
-    dest: 'lib/vubx.min.js',
+    dest: 'lib/vue-class-state.min.js',
     format: 'umd',
     isMin: true
 }]

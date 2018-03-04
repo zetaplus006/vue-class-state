@@ -1,26 +1,30 @@
-import { IInjector, IDeps } from './injector';
-import { assert, def } from '../util';
-import { IIdentifier } from '../service/helper';
-import { IService, Service } from '../service/service';
-import { DIMetaData } from './di_meta';
 import { IMap, UseMap } from '../di/map';
+import { IIdentifier, replaceState } from '../state/helper';
+import { assert, defGet } from '../util';
+import { DIMetaData } from './di_meta';
+import { IInjector } from './injector';
 
-export type IProxyState = {
-    [key: string]: any
-};
+export interface IProxyState {
+    [key: string]: any;
+}
 
 export class Provider {
-    private injectorMap: IMap<IIdentifier, IInjector<any>> = new UseMap();
 
     /**
      * for vue provide option
      */
-    public proxy: any = {};
+    public proxy: any;
 
-    public hooks: ((instance: any, meta: DIMetaData) => void)[] = [];
+    public hooks: Array<(instance: any, meta: DIMetaData) => void> = [];
+
+    constructor(proxyObj: any) {
+        this.proxy = proxyObj;
+    }
+
+    private injectorMap: IMap<IIdentifier, IInjector<any>> = new UseMap();
 
     /**
-     * get service instance
+     * get state instance
      * @param identifier
      */
     public get(identifier: IIdentifier): any {
@@ -33,11 +37,11 @@ export class Provider {
     }
 
     /**
-     * get service instance array
+     * get state instance array
      * @param deps
      */
-    public getAll(deps: IDeps): any[] {
-        return deps.map(identifier => this.get(identifier));
+    public getAll(deps: IIdentifier[]): any[] {
+        return deps.map((identifier) => this.get(identifier));
     }
 
     /**
@@ -65,9 +69,7 @@ export class Provider {
     public replaceAllState(proxyState: IProxyState) {
         for (const key in proxyState) {
             const instance = this.proxy[key];
-            if (instance instanceof Service) {
-                instance.replaceState(proxyState[key], false);
-            }
+            replaceState(instance, proxyState[key]);
         }
     }
 
@@ -83,21 +85,9 @@ export class Provider {
      * @param injector
      */
     private defProxy(injector: IInjector<any>) {
-        /* if (!injector.isSingleton) {
-            return;
-        } */
-        const desc: PropertyDescriptor = {
-            get: () => {
-                return injector.resolve();
-            },
-            enumerable: true,
-            configurable: true
-        };
-        def(this.proxy, injector.identifier, desc);
-        // for devtool
-        if (typeof injector.identifier === 'symbol') {
-            def(this.proxy, String(injector.identifier), desc);
-        }
+        defGet(this.proxy, injector.identifier, () => {
+            return injector.resolve();
+        });
     }
 
 }

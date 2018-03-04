@@ -5,24 +5,22 @@
       "dom",
       "es2015",
     ],
-    "module": "es2015",
+    "module": "commonjs",
     "moduleResolution": "node",
     "experimentalDecorators": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "strictNullChecks": true,
+    "strict": true,
     "strictFunctionTypes": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
     "declaration": true,
     "declarationDir": "./lib",
     "outDir": "lib",
     "baseUrl": ".",
     "paths": {
-      "vubx": [
-        "src/vubx.ts"
+      "vue-class-state": [
+        "src/vue-class-state.ts"
       ]
     }
   },
@@ -33,7 +31,8 @@
     "test/**/*.ts"
   ],
   "exclude": [
-    "lib/*"
+    "lib/*",
+    "node_modules/*"
   ],
   "compileOnSave": false
 }

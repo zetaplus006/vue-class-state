@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const webpack = require('webpack')
+
 module.exports = {
 
   devtool: '#source-map',
@@ -35,6 +36,11 @@ module.exports = {
       },
       {
         test: /\.ts$/,
+        enforce: 'pre',
+        loader: 'tslint-loader'
+      },
+      {
+        test: /\.ts$/,
         exclude: /node_modules|vue\/src/,
         loader: 'ts-loader',
         options: {
@@ -47,7 +53,7 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js'],
     alias: {
-      vubx: path.resolve(__dirname, '../src/vubx.ts'),
+      'vue-class-state': path.resolve(__dirname, '../src/vue-class-state.ts'),
       vue: 'vue/dist/vue.common.js'
     }
   },
@@ -62,6 +68,7 @@ module.exports = {
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin()
+
   ]
 
 }

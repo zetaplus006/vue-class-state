@@ -1,11 +1,11 @@
 {
-  "name": "vubx",
+  "name": "vue-class-state",
   "version": "0.2.0",
   "description": "A object-oriented style State Management for Vue",
-  "main": "lib/vubx.common.js",
-  "module": "lib/vubx.esm.js",
-  "unpkg": "lib/vubx.js",
-  "typings": "lib/vubx.d.ts",
+  "main": "lib/vue-class-state.common.js",
+  "module": "lib/vue-class-state.esm.js",
+  "unpkg": "lib/vue-class-state.js",
+  "typings": "lib/vue-class-state.d.ts",
   "files": [
     "lib",
     "typings",
@@ -17,7 +17,8 @@
     "build": "rimraf lib && rollup -c && npm run move-dts",
     "move-dts": "rimraf lib/examples && ncp lib/src/ lib/ && rimraf lib/src",
     "test": "npm run build-unit && npm run test-unit",
-    "test-unit": "./node_modules/.bin/mocha test/unit-build/*.spec.js test/unit-build/**/*.spec.js",
+    "test-unit": " ava --verbose --tap-nyan test/unit-build",
+    "test-unit-ts": "ava-ts --verbose --tap-nyan test/unit",
     "build-unit": "rimraf test/unit-build && tsc -p test/unit",
     "pre-publish": "npm run build && npm run test",
     "release": "bash release.sh"
@@ -30,18 +31,20 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zetaplus006/vubx.git"
+    "url": "git+https://github.com/zetaplus006/vue-class-state.git"
   },
   "author": "zetaplus006",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zetaplus006/vubx/issues"
+    "url": "https://github.com/zetaplus006/vue-class-state/issues"
   },
-  "homepage": "https://github.com/zetaplus006/vubx#readme",
+  "homepage": "https://github.com/zetaplus006/vue-class-state#readme",
   "devDependencies": {
     "@types/chai": "^4.0.3",
     "@types/mocha": "^2.2.41",
     "@types/node": "^8.0.17",
+    "ava": "^0.25.0",
+    "ava-ts": "^0.24.2",
     "chai": "^4.1.1",
     "css-loader": "^0.28.4",
     "express": "^4.15.3",
@@ -51,11 +54,14 @@
     "rollup": "^0.45.2",
     "rollup-plugin-filesize": "^1.4.2",
     "rollup-plugin-post-replace": "^1.0.0",
-    "rollup-plugin-typescript2": "^0.5.0",
+    "rollup-plugin-typescript2": "^0.11.1",
     "rollup-plugin-uglify-es": "^0.0.1",
     "ts-loader": "^2.3.1",
-    "typescript": "^2.6.2",
-    "vue": "^2.5.6",
+    "ts-node": "^5.0.0",
+    "tslint": "^5.9.1",
+    "tslint-loader": "^3.5.3",
+    "typescript": "2.6.2",
+    "vue": "2.5.13",
     "vue-class-component": "^6.1.0",
     "vue-loader": "^13.0.2",
     "vue-property-decorator": "^6.0.0",

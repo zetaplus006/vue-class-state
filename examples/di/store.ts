@@ -1,4 +1,3 @@
-
 import {
     bind, Container, Getter, Inject, State
 } from 'vue-class-state';
@@ -22,7 +21,7 @@ export class StateB {
 export class Store {
 
     // 根据注入标识在将实例注入到类实例属性中
-    // 并且在第一次读取该属性时才进行初始化，这也是相比于构造器注入的优势
+    // 并且在第一次读取该属性时才进行初始化
     // @Inject(StateKeys.A)  stateA: StateA
 
     constructor(
@@ -32,7 +31,7 @@ export class Store {
     ) {
     }
 
-    // 定义计算属性
+    // 定义计算属性,
     // 并且在第一次读取该属性时才进行该计算属性的初始化
     @Getter get text() {
         return this.stateA.text + this.stateB.text;

@@ -10,11 +10,12 @@
         "sourceMap": false,
         "experimentalDecorators": true,
         "allowSyntheticDefaultImports": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "outDir": "../unit-build/"
     },
     "include": [
         "../../lib/**/*.ts",
-        "./**/*.ts",
-        "../src/service/*.type.ts"
+        "./**/*.test.ts",
     ]
 }
