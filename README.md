@@ -139,11 +139,7 @@ bind<IModule>(moduleKeys.B).toFactory((moduleA: IModule, moduleB: IModule) => {
     }
 }, [moduleKeys.A, moduleKeys.B])
 ```
-
-
-## 拦截mutation
-
-### 基本例子
+## 拦截`mutation`
 
 以下是简单的缓存例子
 
