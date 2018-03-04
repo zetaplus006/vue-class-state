@@ -7,3 +7,4 @@ explorations
 *.log
 .rpt2_cache
 test/unit-build
+lib
