@@ -1,10 +1,10 @@
+import { devtool } from '../dev/devtool';
 import { Binding } from '../di/binding';
 import { DIMetaData } from '../di/di_meta';
 import { Provider } from '../di/provider';
-import { devtool } from '../plugins/devtool';
 import { IConstructor, IIdentifier, IPlugin, useStrict } from '../state/helper';
 import { Middleware } from '../state/middleware';
-import { ScopeData } from '../state/scope';
+import { scopeKey } from '../state/scope';
 import { hideProperty } from '../util';
 
 export interface IContainerOption {
@@ -41,7 +41,7 @@ function createContainerClass(option: IContainerOption) {
             hideProperty(this, '_globalPlugins', option.globalPlugins || []);
             hideProperty(this, '_option', option);
             this._provider.registerInjectedHook((instance: any, diMetaData: DIMetaData) => {
-                const scope = ScopeData.get(instance);
+                const scope = instance[scopeKey];
                 if (scope) {
                     if (!diMetaData.hasBeenInjected
                         && this._option.strict

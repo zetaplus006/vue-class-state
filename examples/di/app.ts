@@ -9,12 +9,13 @@ State.showInject();
 })
 class App extends Vue {
 
-    @Inject(StateKeys.STORE) public store: Store;
+    @Inject(StateKeys.STORE) store: Store;
 
 }
 
 new Vue({
     el: '#app',
+    // 在根组件实例化一个容器
     provide: new AppContainer(),
     render: (h) => h(App)
 });

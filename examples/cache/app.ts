@@ -1,62 +1,56 @@
-import Vue from 'vue';
-import { IMutation, Mutation, State } from 'vue-class-state';
 
-const cacheKey = 'cache-key';
+import {
+    bind, Container, Getter, Inject, State
+} from 'vue-class-state';
 
-class Counter {
+// 定义注入标识
+export const StateKeys = {
+    A: 'stateA',
+    B: 'stateB',
+    STORE: 'store'
+};
 
-    @State public num = 0;
-
-    @Mutation
-    public add() {
-        this.num++;
-    }
-
-    public sub() {
-        State.subscribe(this, {
-            // tslint:disable-next-line:no-shadowed-variable
-            before: (mutation: IMutation, _state: Counter) => {
-                // tslint:disable-next-line:no-console
-                console.log(`
-                    mutation类型，给devtool使用: ${mutation.type}
-                    传入mutation方法的参数数组: ${JSON.stringify(mutation.payload)}
-                    调用的模块注入标识: ${mutation.identifier}
-                    调用的方法名: ${mutation.mutationType}
-                `);
-            },
-            // after选项代表在mutation执行后执行的方法，相对的也提供before选项，用于在mutation执行前进行操作
-            after: () => {
-                // store中所有被Vue观察到的数据都会被代理到$state对象中
-                localStorage.setItem(cacheKey, JSON.stringify(this));
-            }
-        });
-    }
-
-    public init() {
-        this.sub();
-        const cacheStr = localStorage.getItem(cacheKey);
-        if (cacheStr) {
-            const cache = JSON.parse(cacheStr);
-            State.replaceState(this, cache);
-        }
-        setInterval(() => {
-            // this.add();
-            Mutation.commit(this, () => this.num++, 'add');
-        }, 1000);
-    }
+export class StateA {
+    // 定义可观察数据
+    @State text = 'A';
 }
 
-const addition = new Counter();
+export class StateB {
+    @State text = 'B';
+}
 
-new Vue({
-    el: '#app',
-    template: `<div>{{addition.num}}</div>`,
-    computed: {
-        addition() {
-            return addition;
-        }
-    },
-    mounted() {
-        addition.init();
+export class Store {
+
+    // 根据注入标识在将实例注入到类实例属性中
+    // 并且在第一次读取该属性时才进行初始化，这也是相比于构造器注入的优势
+    // @Inject(StateKeys.A)  stateA: StateA
+
+    constructor(
+        // 根据注入标识在将实例注入到构造器参数中
+        @Inject(StateKeys.A) public stateA: StateA,
+        @Inject(StateKeys.B) public stateB: StateB
+    ) {
     }
-});
+
+    // 定义计算属性
+    // 并且在第一次读取该属性时才进行该计算属性的初始化
+    @Getter get text() {
+        return this.stateA.text + this.stateB.text;
+    }
+
+}
+
+// 定义容器
+@Container({
+    providers: [
+        // 绑定注入规则，一个标识对应一个类实例（容器范围内单例注入）
+        bind<StateA>(StateKeys.A).toClass(StateA),
+        bind<StateB>(StateKeys.B).toClass(StateB),
+        bind<Store>(StateKeys.STORE).toClass(Store)
+    ],
+    // 指定哪些实例可以在vue的官方devtool中的vuex栏目中查看到
+    devtool: [StateKeys.A, StateKeys.B, StateKeys.STORE],
+    // 指定那些实例开启严格模式
+    strict: [StateKeys.A, StateKeys.B, StateKeys.STORE]
+})
+export class AppContainer { }

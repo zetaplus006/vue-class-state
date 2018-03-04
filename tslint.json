@@ -89,7 +89,7 @@
         "forin": false,
         "one-variable-per-declaration": false,
         "no-var-requires": false,
-        "member-access": true,
+        "member-access": false,
         "arrow-parens": false
     }
 }
