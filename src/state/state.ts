@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import { showInject } from '../dev/show_inject';
 import { assert, def } from '../util';
 import { getAllState, proxyState, replaceState, subscribe } from './helper';
 import { globalMiddleware } from './middleware';
@@ -23,7 +24,8 @@ export type IStateType = typeof StateDecorator
         replaceState: typeof replaceState,
         subscribe: typeof subscribe,
         getAllState: typeof getAllState,
-        globalSubscribe: typeof globalMiddleware.subscribe
+        globalSubscribe: typeof globalMiddleware.subscribe,
+        showInject: typeof showInject
     };
 
 export const State: IStateType = Object.assign(
@@ -31,7 +33,8 @@ export const State: IStateType = Object.assign(
         replaceState,
         subscribe,
         getAllState,
-        globalSubscribe: globalMiddleware.subscribe.bind(globalMiddleware)
+        globalSubscribe: globalMiddleware.subscribe.bind(globalMiddleware),
+        showInject
     });
 /*
 export function Getter(target: object, propertyKey: string) {
