@@ -11,7 +11,6 @@
 
 4.支持`vue`官方devtool,可以在devtool的vuex标签下查看`state`、`getters`、`mutation`。
 
-
 ## 安装
 
 ```bash
@@ -111,17 +110,20 @@ new Vue({
 });
 ```
 
-#### 注册类
+### 注册类
+
 ```typescript
 bind<IModule>(moduleKeys.A).toClass(ModuleA)
 ```
 
-#### 注册值
+### 注册值
+
 ```typescript
 bind<IModule>(moduleKeys.A).toValue(new ModuleA())
 ```
 
-#### 注册工厂
+### 注册工厂
+
 ```typescript
 bind<IModule>(moduleKeys.A).toFactory(() => new ModuleA())
 
@@ -139,7 +141,8 @@ bind<IModule>(moduleKeys.B).toFactory((moduleA: IModule, moduleB: IModule) => {
     }
 }, [moduleKeys.A, moduleKeys.B])
 ```
-### `mutation`和严格模式
+
+### 拦截`mutation`
 
 以下是简单的缓存例子
 
@@ -148,18 +151,18 @@ import Vue from 'vue';
 import { bind, Container, IMutation, Mutation, State } from 'vue-class-state';
 
 class Counter {
-    
     cacheKey = 'cache-key';
 
-    @State public num = 0;
+    @State num = 0;
 
-    @Mutation
-    public add() {
+    // 严格模式下，修改实例的state值必须调用该实例的Mutation方法
+    // 和vuex一致，必须为同步函数
+    @Mutation add() {
         this.num++;
     }
 
-    public sub() {
-        // 可以拦截Mutation的执行
+    sub() {
+        // 可以拦截Mutation的执行
         State.subscribe(this, {
             before: (mutation: IMutation, _state: Counter) => {
                 // tslint:disable-next-line:no-console
