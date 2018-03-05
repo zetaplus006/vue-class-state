@@ -1,11 +1,10 @@
 
 import { DIMetaData } from '../di/di_meta';
-
-import { assert, defGet } from '../util';
-
+import { watcherKey } from '../state/computed';
+import { assert, defGet, hideProperty } from '../util';
 import { IMutation } from './mutation';
 import { ScopeData } from './scope';
-
+import { Watcher } from './watcher';
 export interface IConstructor { new(...args: any[]): any; }
 
 export interface IClass<T> { new(...args: any[]): T; }
@@ -34,13 +33,17 @@ export function proxyGetters(ctx: any, getterKeys: string[]) {
 }
 
 export function useStrict(state: any) {
-    const identifier = DIMetaData.get(state).identifier, scope = ScopeData.get(state);
+    const identifier = DIMetaData.get(state).identifier,
+        scope = ScopeData.get(state);
     if (process.env.NODE_ENV !== 'production' && scope) {
-        scope.$vm && scope.$vm.$watch<any>(() => {
+        if (!state[watcherKey]) {
+            hideProperty(state, watcherKey, []);
+        }
+        new Watcher(state, () => {
             return scope.$state;
         }, () => {
             assert(state.__scope__.isCommitting,
-                `Do not mutate vue-class-state state[${String(identifier)}] data outside mutation handlers.`);
+                `Do not mutate state[${identifier}] data outside mutation handlers.`);
         }, { deep: true, sync: true } as any
         );
     }

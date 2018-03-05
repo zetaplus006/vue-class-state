@@ -1,18 +1,15 @@
-import Vue from 'vue';
 import { def, hideProperty } from '../util';
 import { Middleware } from './middleware';
-import { IWatcher } from './watcher';
 
 export const scopeKey = '__scope__';
 
 export class ScopeData {
-    public $vm: Vue = new Vue();
 
     public $state: any = {};
 
     public $getters: any = {};
 
-    public watchers: { [key: string]: IWatcher } = {};
+    // public watchers: { [key: string]: IWatcher } = {};
 
     public isCommitting: boolean = false;
 

@@ -3,7 +3,7 @@
  */
 import Vue from 'vue';
 import { ClassMetaData } from '../di/class_meta';
-import { assert, def, defGet } from '../util';
+import { assert, def, defGet, hideProperty } from '../util';
 import { ScopeData } from './scope';
 import { Dep, IWatcher, Watcher } from './watcher';
 
@@ -29,6 +29,8 @@ export function Computed(targetOrOption: any, propertyKey?: string): any {
     }
 }
 
+export const watcherKey = '_watchers';
+
 export function createComputed(option: IComputedOption, target: any, propertyKey: string): PropertyDescriptor {
     const desc = Object.getOwnPropertyDescriptor(target, propertyKey);
     if (!desc || desc && !desc.get) {
@@ -42,9 +44,12 @@ export function createComputed(option: IComputedOption, target: any, propertyKey
                 return get.call(this);
             }
             const scope = ScopeData.get(this);
-            const watcher = scope.watchers[propertyKey] = new Watcher(
-                scope.$vm,
-                get.bind(this),
+            if (!this[watcherKey]) {
+                hideProperty(this, watcherKey, []);
+            }
+            const watcher = new Watcher(
+                this,
+                get,
                 noop,
                 computedWatcherOptions
             );
