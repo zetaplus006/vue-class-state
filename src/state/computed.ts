@@ -3,7 +3,7 @@
  */
 import Vue from 'vue';
 import { ClassMetaData } from '../di/class_meta';
-import { def, defGet } from '../util';
+import { assert, def, defGet } from '../util';
 import { ScopeData } from './scope';
 import { Dep, IWatcher, Watcher } from './watcher';
 
@@ -13,7 +13,7 @@ const noop = function () { };
 export interface IComputedOption {
     enumerable: boolean;
 }
-const defaultComputedOption: IComputedOption = { enumerable: false };
+const defaultComputedOption: IComputedOption = { enumerable: true };
 
 const computedWatcherOptions = { lazy: true };
 
@@ -30,7 +30,11 @@ export function Computed(targetOrOption: any, propertyKey?: string): any {
 }
 
 export function createComputed(option: IComputedOption, target: any, propertyKey: string): PropertyDescriptor {
-    const get = Object.getOwnPropertyDescriptor(target, propertyKey)!.get || noop;
+    const desc = Object.getOwnPropertyDescriptor(target, propertyKey);
+    if (!desc || desc && !desc.get) {
+        assert(false, '[@Getter] must be used for getter property');
+    }
+    const get = desc!.get!;
     ClassMetaData.get(target).addGetterKey(propertyKey);
     return {
         get() {
