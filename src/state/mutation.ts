@@ -1,4 +1,4 @@
-import { DIMetaData } from '../di/di_meta';
+import { DIMetaData, meta_key } from '../di/di_meta';
 import { IIdentifier } from './helper';
 import { globalMiddleware } from './middleware';
 import { ScopeData } from './scope';
@@ -32,15 +32,16 @@ export function runInMutaion(
     payload: any,
     mutationType?: string) {
     const scope = ScopeData.get(ctx),
-        meta = DIMetaData.get(ctx),
+        meta = ctx[meta_key] as DIMetaData || undefined,
+        identifier = meta && meta.identifier || unknownIdentifier,
         mType = mutationType || unnamedName,
-        type = String(meta.identifier || unknownIdentifier) + ': ' + mType;
+        type = identifier + ': ' + mType;
 
     const mutation: IMutation = {
         type,
         payload,
         mutationType: mType,
-        identifier: meta.identifier
+        identifier
     };
 
     const middleware = scope.middleware;

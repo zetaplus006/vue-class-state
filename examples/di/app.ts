@@ -1,5 +1,5 @@
-import { State } from 'vue-class-state';
-import { Component, Inject, Vue } from 'vue-property-decorator';
+import { Inject, State } from 'vue-class-state';
+import { Component, Vue } from 'vue-property-decorator';
 import { AppContainer, StateKeys, Store } from './store';
 
 State.showInject();

@@ -1,14 +1,18 @@
+import Vue from 'vue';
 import { IConstructor, IIdentifier } from '../state/helper';
 import { def } from '../util';
 import { ClassMetaData } from './class_meta';
 import { DIMetaData } from './di_meta';
 export function Inject(identifier: IIdentifier): any {
-    return function (target: IConstructor, propertyKey?: string, parameterIndex?: number) {
-        const isParamInject = typeof parameterIndex === 'number';
-        if (isParamInject) {
-            setParamsMeta(target, parameterIndex!, identifier);
+    return function (target: IConstructor | object, propertyKey?: string, parameterIndex?: number) {
+        if (typeof parameterIndex === 'number') {
+            setParamsMeta(target as IConstructor, parameterIndex!, identifier);
         } else {
-            return lazyDecorator(target, propertyKey!, identifier);
+            if (target instanceof Vue) {
+                injectIntoComponent(target, propertyKey!, identifier);
+            } else {
+                return lazyDecorator(propertyKey!, identifier);
+            }
         }
     };
 }
@@ -18,7 +22,7 @@ export function setParamsMeta(target: IConstructor, index: number, identifier: I
     classMeta.injectParameterMeta[index] = identifier;
 }
 
-export function lazyDecorator(_target: any, propertyKey: string, identifier?: IIdentifier) {
+export function lazyDecorator(propertyKey: string, identifier?: IIdentifier) {
     const stateKey: IIdentifier = identifier || propertyKey;
     return {
         get(this: any) {
@@ -33,4 +37,24 @@ export function lazyDecorator(_target: any, propertyKey: string, identifier?: II
         enumerable: false,
         configuriable: true
     };
+}
+
+/**
+ * change from https://github.com/vuejs/vue-class-component/blob/master/src/util.ts#L19
+ * and https://github.com/kaorun343/vue-property-decorator/blob/master/src/vue-property-decorator.ts#L19
+ */
+export function injectIntoComponent(proto: any, propertyKey: string, identifier: IIdentifier) {
+    const Ctor = proto.constructor;
+    if (!Ctor.__decorators__) {
+        Ctor.__decorators__ = [];
+    }
+    const factory = (option: any, key: string) => {
+        if (option.inject === undefined) {
+            option.inject = {};
+        }
+        if (!Array.isArray(option.inject)) {
+            option.inject[key] = identifier;
+        }
+    };
+    Ctor.__decorators__.push((options: any) => factory(options, propertyKey));
 }
