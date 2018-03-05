@@ -9,7 +9,6 @@
   "files": [
     "lib",
     "typings",
-    "src",
     "README",
     "LICENSE"
   ],
