@@ -9,8 +9,6 @@ export class ScopeData {
 
     public $getters: any = {};
 
-    // public watchers: { [key: string]: IWatcher } = {};
-
     public isCommitting: boolean = false;
 
     get middleware() {

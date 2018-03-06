@@ -1,5 +1,6 @@
 import { IMap, UseMap } from '../di/map';
-import { IIdentifier, replaceState } from '../state/helper';
+import { IIdentifier } from '../state/helper';
+import { replaceState } from '../state/state';
 import { assert, defGet } from '../util';
 import { DIMetaData } from './di_meta';
 import { IInjector } from './injector';
