@@ -9,8 +9,6 @@ export class ScopeData {
 
     public $getters: any = {};
 
-    public isCommitting: boolean = false;
-
     get middleware() {
         const middleware = new Middleware();
         def(this, 'middleware', {

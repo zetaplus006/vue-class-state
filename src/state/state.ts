@@ -1,8 +1,7 @@
 import Vue from 'vue';
 import { showInject } from '../dev/show_inject';
-import { assert, def } from '../util';
-import { proxyState } from './helper';
-import { globalMiddleware } from './middleware';
+import { assert, def, defGet } from '../util';
+import { globalState } from './helper';
 import { IMutation } from './mutation';
 import { ScopeData, scopeKey } from './scope';
 
@@ -15,7 +14,7 @@ export function StateDecorator(target: object, propertyKey: string) {
         },
         set(value) {
             Vue.util.defineReactive(this, propertyKey, value);
-            proxyState(this, propertyKey);
+            defGet(ScopeData.get(this).$state, propertyKey, () => this[propertyKey]);
         },
         enumerable: true,
         configurable: true
@@ -25,14 +24,19 @@ export function StateDecorator(target: object, propertyKey: string) {
 export function replaceState(targetState: any, state: any): void {
     const scope = targetState[scopeKey] as ScopeData || undefined;
     if (scope === undefined) return;
-    const temp = scope.isCommitting;
-    scope.isCommitting = true;
-    for (const key in state) {
-        if (targetState.hasOwnProperty(key)) {
-            targetState[key] = state[key];
+    const temp = globalState.isCommitting;
+    globalState.isCommitting = true;
+    try {
+        for (const key in state) {
+            if (targetState.hasOwnProperty(key)) {
+                targetState[key] = state[key];
+            }
         }
+    } catch (error) {
+        throw error;
+    } finally {
+        globalState.isCommitting = temp;
     }
-    scope.isCommitting = temp;
 }
 
 export function subscribe(
@@ -54,6 +58,6 @@ export const State = Object.assign(
         replaceState,
         subscribe,
         getAllState,
-        globalSubscribe: globalMiddleware.subscribe.bind(globalMiddleware),
+        globalSubscribe: globalState.middleware.subscribe.bind(globalState.middleware),
         showInject
     });

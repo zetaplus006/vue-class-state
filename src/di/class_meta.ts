@@ -28,15 +28,3 @@ export class ClassMetaData {
     }
 
 }
-
-/* function trackCtorMeta(ctor: IConstructor, childCtor: IConstructor) {
-    if (ctor === Object) {
-        return;
-    }
-    const baseProto = Object.getPrototypeOf(ctor.prototype);
-    const baseCtor = baseProto.constructor;
-    const baseMeta = ClassMetaData.get(baseCtor.prototype);
-    baseMeta.constructorMeta.push(childCtor);
-    trackCtorMeta(baseCtor, childCtor);
-}
- */

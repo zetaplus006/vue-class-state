@@ -90,7 +90,8 @@ export class AppContainer { }
 ``` typescript
 // app.ts
 
-import { Component, Inject, Vue } from 'vue-property-decorator';
+import { Inject } from 'vue-class-state';
+import { Component, Vue } from 'vue-property-decorator';
 import { AppContainer, StateKeys, Store } from './store';
 
 @Component({

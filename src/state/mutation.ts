@@ -1,6 +1,5 @@
 import { DIMetaData, meta_key } from '../di/di_meta';
-import { IIdentifier } from './helper';
-import { globalMiddleware } from './middleware';
+import { globalState, IIdentifier } from './helper';
 import { ScopeData } from './scope';
 
 export interface IMutation {
@@ -46,17 +45,17 @@ export function runInMutaion(
 
     const middleware = scope.middleware;
 
-    const temp = scope.isCommitting;
-    scope.isCommitting = true;
+    const temp = globalState.isCommitting;
+    globalState.isCommitting = true;
 
-    globalMiddleware.dispatchBefore(ctx, mutation, ctx);
+    globalState.middleware.dispatchBefore(ctx, mutation, ctx);
     middleware.dispatchBefore(ctx, mutation, ctx);
     const result = func.apply(ctx, payload);
     middleware.dispatchAfter(ctx, mutation, ctx);
-    globalMiddleware.dispatchAfter(ctx, mutation, ctx);
+    globalState.middleware.dispatchAfter(ctx, mutation, ctx);
     // arguments is different
     // res =  middleware.createTask(mutationFn, this)(...payload);
 
-    scope.isCommitting = temp;
+    globalState.isCommitting = temp;
     return result;
 }

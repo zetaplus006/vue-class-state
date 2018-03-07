@@ -1,8 +1,7 @@
 import { ClassMetaData } from '../di/class_meta';
 import { IContainer } from '../di/container';
 import { Provider } from '../di/provider';
-import { IIdentifier } from '../state/helper';
-import { globalMiddleware } from '../state/middleware';
+import { globalState, IIdentifier } from '../state/helper';
 import { ScopeData } from '../state/scope';
 import { def } from '../util';
 
@@ -26,7 +25,7 @@ export function devtool(container: IContainer, identifiers: IIdentifier[]) {
         provider.replaceAllState(targetState);
     });
 
-    globalMiddleware.subscribe({
+    globalState.middleware.subscribe({
         after: (mutation: any, state: any) => {
             devtoolHook.emit('vuex:mutation', mutation, state);
         }

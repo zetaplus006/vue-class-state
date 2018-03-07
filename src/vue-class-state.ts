@@ -3,7 +3,7 @@
  */
 
 /* state */
-export { IConstructor, IClass, IIdentifier, IPlugin } from './state/helper';
+export { IClass, IIdentifier, IPlugin } from './state/helper';
 export { ISub, ISubs, ISubscribeOption } from './state/middleware';
 export { IMutation } from './state/mutation';
 

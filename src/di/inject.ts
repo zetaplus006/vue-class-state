@@ -1,12 +1,12 @@
 import Vue from 'vue';
-import { IConstructor, IIdentifier } from '../state/helper';
+import { IClass, IIdentifier } from '../state/helper';
 import { def } from '../util';
 import { ClassMetaData } from './class_meta';
 import { DIMetaData } from './di_meta';
 export function Inject(identifier: IIdentifier): any {
-    return function (target: IConstructor | object, propertyKey?: string, parameterIndex?: number) {
+    return function (target: IClass | object, propertyKey?: string, parameterIndex?: number) {
         if (typeof parameterIndex === 'number') {
-            setParamsMeta(target as IConstructor, parameterIndex!, identifier);
+            setParamsMeta(target as IClass, parameterIndex!, identifier);
         } else {
             if (target instanceof Vue) {
                 injectIntoComponent(target, propertyKey!, identifier);
@@ -17,7 +17,7 @@ export function Inject(identifier: IIdentifier): any {
     };
 }
 
-export function setParamsMeta(target: IConstructor, index: number, identifier: IIdentifier): void {
+export function setParamsMeta(target: IClass, index: number, identifier: IIdentifier): void {
     const classMeta = ClassMetaData.get(target.prototype);
     classMeta.injectParameterMeta[index] = identifier;
 }

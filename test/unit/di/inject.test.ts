@@ -195,7 +195,7 @@ test('factory inject with deps', t => {
     t.is(root.paramB.text, root.paramB.text);
 });
 
-test('factory inject deep', t => {
+test('deep inject', t => {
     const KEYS = {
         A: 'A',
         B: 'B',

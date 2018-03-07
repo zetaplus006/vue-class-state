@@ -53,5 +53,3 @@ export class Middleware {
         }
     }
 }
-
-export const globalMiddleware = new Middleware();

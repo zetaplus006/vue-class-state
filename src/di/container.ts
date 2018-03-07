@@ -2,7 +2,7 @@ import { devtool } from '../dev/devtool';
 import { Binding } from '../di/binding';
 import { DIMetaData } from '../di/di_meta';
 import { Provider } from '../di/provider';
-import { IConstructor, IIdentifier, IPlugin, useStrict } from '../state/helper';
+import { IClass, IIdentifier, IPlugin, useStrict } from '../state/helper';
 import { Middleware } from '../state/middleware';
 import { scopeKey } from '../state/scope';
 import { hideProperty } from '../util';
@@ -21,7 +21,7 @@ export interface IContainer {
 }
 
 export function Container(option: IContainerOption) {
-    return function (_target: IConstructor) {
+    return function (_target: IClass) {
         return createContainerClass(option);
     };
 }

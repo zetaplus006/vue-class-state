@@ -33,8 +33,8 @@ export const watcherKey = '_watchers';
 
 export function createComputed(option: IComputedOption, target: any, propertyKey: string): PropertyDescriptor {
     const desc = Object.getOwnPropertyDescriptor(target, propertyKey);
-    if (!desc || desc && !desc.get) {
-        assert(false, '[@Getter] must be used for getter property');
+    if (process.env.NODE_ENV !== 'production') {
+        assert(desc && desc.get, '[@Getter] must be used for getter property');
     }
     const get = desc!.get!;
     ClassMetaData.get(target).addGetterKey(propertyKey);
