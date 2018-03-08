@@ -2,7 +2,6 @@ import Vue from 'vue';
 import { showInject } from '../dev/show_inject';
 import { assert, def, defGet } from '../util';
 import { globalState } from './helper';
-import { IMutation } from './mutation';
 import { ScopeData, scopeKey } from './scope';
 
 export function StateDecorator(target: object, propertyKey: string) {
@@ -39,16 +38,6 @@ export function replaceState(targetState: any, state: any): void {
     }
 }
 
-export function subscribe(
-    targetState: any,
-    option: {
-        before?: (mutation: IMutation, state: any) => any,
-        after?: (mutation: IMutation, state: any) => any
-    }) {
-    const scope = ScopeData.get(targetState);
-    scope.middleware.subscribe(option);
-}
-
 export function getAllState(state: any) {
     return ScopeData.get(state).$state;
 }
@@ -56,7 +45,6 @@ export function getAllState(state: any) {
 export const State = Object.assign(
     StateDecorator, {
         replaceState,
-        subscribe,
         getAllState,
         globalSubscribe: globalState.middleware.subscribe.bind(globalState.middleware),
         showInject

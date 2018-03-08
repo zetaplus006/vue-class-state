@@ -1,15 +1,12 @@
 import { IClass, IIdentifier } from '../state/helper';
 import {
     ClassInjector, FactoryInjector,
-    IInjector, IstateFactory, ValueInjector
+    IInjector, IInstanceFactory, ValueInjector
 } from './injector';
 
 export class Binding<T> {
 
     public injectorFactory: () => IInjector<T>;
-
-    // private identifier: IIdentifier;
-    private isSingleton: boolean = true;
 
     constructor(
         private identifier: IIdentifier
@@ -17,19 +14,19 @@ export class Binding<T> {
 
     public toClass(stateClass: IClass<T>) {
         this.injectorFactory = () =>
-            new ClassInjector(this.identifier, this.isSingleton, stateClass);
+            new ClassInjector(this.identifier, stateClass);
         return this;
     }
 
     public toValue(state: T) {
         this.injectorFactory = () =>
-            new ValueInjector(this.identifier, this.isSingleton, state);
+            new ValueInjector(this.identifier, state);
         return this;
     }
 
-    public toFactory(factory: IstateFactory<T>, deps: IIdentifier[] = []) {
+    public toFactory(factory: IInstanceFactory<T>, deps: IIdentifier[] = []) {
         this.injectorFactory = () =>
-            new FactoryInjector(this.identifier, this.isSingleton, factory, deps);
+            new FactoryInjector(this.identifier, factory, deps);
         return this;
     }
 

@@ -11,14 +11,15 @@ export class Middleware {
     private beforeSubs: ISubs = [];
     private afterSubs: ISubs = [];
 
-    public subscribe(option: ISubscribeOption) {
-        if (!option) return;
-        if (option.before) {
-            this.beforeSubs.push(option.before);
-        }
-        if (option.after) {
-            this.afterSubs.push(option.after);
-        }
+    public subscribe(...options: ISubscribeOption[]) {
+        options.forEach(option => {
+            if (option.before) {
+                this.beforeSubs.splice(0, 0, option.before);
+            }
+            if (option.after) {
+                this.afterSubs.push(option.after);
+            }
+        });
     }
 
     /**

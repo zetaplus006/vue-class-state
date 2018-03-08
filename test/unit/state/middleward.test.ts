@@ -2,6 +2,17 @@ import test from 'ava';
 import { bind, Container, IMutation, Mutation, State } from '../../../lib/vue-class-state';
 
 test('instance middleware', t => {
+
+    const TestMutation = Mutation({
+        before: (m: IMutation, _state: Test) => {
+            m.payload[0].a = 10;
+        },
+        // tslint:disable-next-line:no-shadowed-variable
+        after: (_m: IMutation, state: Test) => {
+            state.count = 20;
+        }
+    });
+
     class Test {
 
         @State public data = {
@@ -11,21 +22,9 @@ test('instance middleware', t => {
 
         @State public count = 0;
 
-        @Mutation public change(data: any, count: number) {
+        @TestMutation public change(data: any, count: number) {
             Object.assign(this.data, data);
             this.count = count;
-        }
-
-        constructor() {
-            State.subscribe(this, {
-                before: (m: IMutation, _state: Test) => {
-                    m.payload[0].a = 10;
-                },
-                // tslint:disable-next-line:no-shadowed-variable
-                after: (_m: IMutation, state: Test) => {
-                    state.count = 20;
-                }
-            });
         }
 
     }

@@ -1,5 +1,4 @@
-import { def, hideProperty } from '../util';
-import { Middleware } from './middleware';
+import { hideProperty } from '../util';
 
 export const scopeKey = '__scope__';
 
@@ -8,16 +7,6 @@ export class ScopeData {
     public $state: any = {};
 
     public $getters: any = {};
-
-    get middleware() {
-        const middleware = new Middleware();
-        def(this, 'middleware', {
-            value: middleware,
-            enumerable: true,
-            configurable: true
-        });
-        return middleware;
-    }
 
     public static get(ctx: any): ScopeData {
         return ctx[scopeKey] || (function () {

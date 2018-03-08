@@ -5,10 +5,10 @@
 /* state */
 export { IClass, IIdentifier, IPlugin } from './state/helper';
 export { ISub, ISubs, ISubscribeOption } from './state/middleware';
-export { IMutation } from './state/mutation';
+export { IMutation, IMutationOption } from './state/mutation';
 
 /* di */
-export { IInjector, IstateFactory } from './di/injector';
+export { IInjector, IInstanceFactory } from './di/injector';
 
 /* module */
 export { IContainerOption, IContainer } from './di/container';

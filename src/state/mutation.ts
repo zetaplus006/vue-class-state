@@ -1,6 +1,6 @@
 import { DIMetaData, meta_key } from '../di/di_meta';
 import { globalState, IIdentifier } from './helper';
-import { ScopeData } from './scope';
+import { Middleware } from './middleware';
 
 export interface IMutation {
     type: string;
@@ -9,29 +9,58 @@ export interface IMutation {
     identifier: IIdentifier;
 }
 
-export function commit(state: any, fn: () => void, mutationType?: string): any {
-    return runInMutaion(state, fn, null, mutationType);
+export interface IMutationOption {
+    before?: (mutation: IMutation, state: any) => any;
+    after?: (mutation: IMutation, state: any) => any;
 }
-
-export const mutationDecorator = (_target: any, methodName: string, descriptor: PropertyDescriptor) => {
-    const mutationFn = descriptor.value;
-    descriptor.value = function (this: any, ...arg: any[]) {
-        return runInMutaion(this, mutationFn, arg, methodName);
-    };
-    return descriptor;
-};
-
-export const Mutation = Object.assign(mutationDecorator, { commit });
 
 const unnamedName = '<unnamed mutation>';
 const unknownIdentifier = 'unknown';
+
+export function MutationFactory(...options: IMutationOption[]): any;
+export function MutationFactory(_target: any, methodName: string, descriptor: PropertyDescriptor): any;
+export function MutationFactory(): any {
+    if (arguments.length >= 3 && typeof arguments[1] === 'string') {
+        rewriteMethod(arguments[2], arguments[1], undefined);
+    } else {
+        return createMutation.apply(null, arguments);
+    }
+}
+
+export function createMutation() {
+    let middleware: Middleware | undefined;
+    if (arguments.length) {
+        middleware = new Middleware();
+        middleware.subscribe.apply(middleware, arguments);
+    }
+    const mutation = (_target: any, methodName: string, descriptor: PropertyDescriptor) => {
+        return rewriteMethod(descriptor, methodName, middleware);
+    };
+    // tslint:disable-next-line:no-shadowed-variable
+    const commit = (state: any, fn: () => void, mutationType?: string) => {
+        return runInMutaion(state, fn, null, middleware, mutationType);
+    };
+    return Object.assign(mutation, { commit });
+}
+
+export function rewriteMethod(
+    descriptor: PropertyDescriptor,
+    methodName: string,
+    middleware: Middleware | undefined): PropertyDescriptor {
+    const mutationFn = descriptor.value;
+    descriptor.value = function (...arg: any[]) {
+        return runInMutaion(this, mutationFn, arg, middleware, methodName);
+    };
+    return descriptor;
+}
+
 export function runInMutaion(
     ctx: any,
     func: () => void,
     payload: any,
+    middleware?: Middleware,
     mutationType?: string) {
-    const scope = ScopeData.get(ctx),
-        meta = ctx[meta_key] as DIMetaData || undefined,
+    const meta = ctx[meta_key] as DIMetaData || undefined,
         identifier = meta && meta.identifier || unknownIdentifier,
         mType = mutationType || unnamedName,
         type = identifier + ': ' + mType;
@@ -43,15 +72,13 @@ export function runInMutaion(
         identifier
     };
 
-    const middleware = scope.middleware;
-
     const temp = globalState.isCommitting;
     globalState.isCommitting = true;
 
     globalState.middleware.dispatchBefore(ctx, mutation, ctx);
-    middleware.dispatchBefore(ctx, mutation, ctx);
+    middleware && middleware.dispatchBefore(ctx, mutation, ctx);
     const result = func.apply(ctx, payload);
-    middleware.dispatchAfter(ctx, mutation, ctx);
+    middleware && middleware.dispatchAfter(ctx, mutation, ctx);
     globalState.middleware.dispatchAfter(ctx, mutation, ctx);
     // arguments is different
     // res =  middleware.createTask(mutationFn, this)(...payload);
@@ -59,3 +86,9 @@ export function runInMutaion(
     globalState.isCommitting = temp;
     return result;
 }
+
+export function commit(state: any, fn: () => void, mutationType?: string): any {
+    return runInMutaion(state, fn, null, undefined, mutationType);
+}
+
+export const Mutation = Object.assign(MutationFactory, { commit });

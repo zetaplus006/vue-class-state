@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import { IClass, IIdentifier } from '../state/helper';
-import { def } from '../util';
+import { hideProperty } from '../util';
 import { ClassMetaData } from './class_meta';
 import { DIMetaData } from './di_meta';
 export function Inject(identifier: IIdentifier): any {
@@ -27,11 +27,7 @@ export function lazyDecorator(propertyKey: string, identifier?: IIdentifier) {
     return {
         get(this: any) {
             const state = DIMetaData.get(this).provider.get(stateKey);
-            def(this, propertyKey, {
-                value: state,
-                enumerable: false,
-                configurable: true
-            });
+            hideProperty(this, propertyKey, state);
             return state;
         },
         enumerable: false,
