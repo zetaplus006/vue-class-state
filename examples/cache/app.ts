@@ -19,6 +19,7 @@ const CacheMutation = Mutation({
 });
 
 class Counter {
+
     cacheKey = 'cache-key';
 
     @State public num = 0;
