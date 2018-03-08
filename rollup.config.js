@@ -26,6 +26,7 @@ const options = [{
 }, {
     dest: 'lib/vue-class-state.min.js',
     format: 'umd',
+    env: '"production"',
     isMin: true
 }]
 

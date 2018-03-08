@@ -1,7 +1,7 @@
 ## vue-class-state
 > Vue状态管理，灵感来自[mobx](https://github.com/mobxjs/mobx)
 
-`vue-class-state`可以视为`vuex`的面向对象风格版本，提供以下功能：
+`vue-class-state`提供以下功能：
 
 1.`state`、`getters`、`mutation`，其概念与`vuex`基本相通，区别是vue-class-state是以class(类)和decorator(装饰器)的形式来实现的。
 
@@ -30,9 +30,7 @@ npm install vue vue-class-state --save
 ``` typescript
 // store.ts
 
-import {
-    bind, Container, Getter, Inject, State
-} from 'vue-class-state';
+import { bind, Container, Getter, Inject, State } from 'vue-class-state';
 
 // 定义注入标识
 export const StateKeys = {
@@ -90,22 +88,25 @@ export class AppContainer { }
 ``` typescript
 // app.ts
 
+import Vue from 'vue';
+import Component from 'vue-class-component';
 import { Inject } from 'vue-class-state';
-import { Component, Vue } from 'vue-property-decorator';
 import { AppContainer, StateKeys, Store } from './store';
 
+// 推荐使用vue官方的vue-class-component库
 @Component({
     template: '<div>{{store.text}}</div>'
 })
 class App extends Vue {
 
+    // 根据注入标识在子组件中注入实例
     @Inject(StateKeys.STORE) store: Store;
 
 }
 
 new Vue({
     el: '#app',
-    // 在根组件实例化一个容器
+    // 在根组件实例化一个容器，传入到provide选项
     provide: new AppContainer(),
     render: (h) => h(App)
 });
@@ -151,44 +152,49 @@ bind<IModule>(moduleKeys.B).toFactory((moduleA: IModule, moduleB: IModule) => {
 import Vue from 'vue';
 import { bind, Container, IMutation, Mutation, State } from 'vue-class-state';
 
-class Counter {
-    cacheKey = 'cache-key';
-
-    @State num = 0;
-
-    // 严格模式下，修改实例的state值必须调用该实例的Mutation方法
-    // 和vuex一致，必须为同步函数
-    @Mutation add() {
-        this.num++;
-    }
-
-    sub() {
-        // 可以拦截Mutation的执行
-        State.subscribe(this, {
-            before: (mutation: IMutation, _state: Counter) => {
-                // tslint:disable-next-line:no-console
-                console.log(`
-                    mutation类型，给devtool使用: ${mutation.type}
+// 如果想拦截某些Mutation的执行，可以创建一个新的装饰器
+const CacheMutation = Mutation({
+    before: (mutation: IMutation, _state: Counter) => {
+        console.log(`
+                    mutation类型，供devtool使用: ${mutation.type}
                     传入mutation方法的参数数组: ${JSON.stringify(mutation.payload)}
                     调用的模块注入标识: ${mutation.identifier}
                     调用的方法名: ${mutation.mutationType}
                 `);
-            },
-            // after选项代表在mutation执行后执行的方法，相对的也提供before选项，用于在mutation执行前进行操作
-            after: () => {
-                localStorage.setItem(this.cacheKey, JSON.stringify(this));
-            }
-        });
+    },
+    // after选项代表在mutation执行后执行的方法，相对的也提供before选项，用于在mutation执行前进行操作
+    after: (_mutation: IMutation, state: Counter) => {
+        localStorage.setItem(state.cacheKey, JSON.stringify(state));
     }
+});
+
+class Counter {
+
+    cacheKey = 'cache-key';
+
+    @State public num = 0;
+
+    // 严格模式下，修改实例的state值必须调用该实例的Mutation方法
+    // 和vuex一致，必须为同步函数
+    @CacheMutation
+    public add() {
+        this.num++;
+    }
+
+    // 这个mutation不会被拦截
+    @Mutation
+    public add2() {
+        this.num++;
+    }
+
     constructor() {
-        this.sub();
         const cacheStr = localStorage.getItem(this.cacheKey);
         if (cacheStr) {
             const cache = JSON.parse(cacheStr);
             State.replaceState(this, cache);
         }
         setInterval(() => {
-            // 等同于 Mutation.commit(this, () => this.num++, 'add');
+            // 等同于 CacheMutation.commit(this, () => this.num++, 'add');
             this.add();
         }, 1000);
     }
@@ -214,5 +220,4 @@ new Vue({
         }
     }
 });
-
 ```

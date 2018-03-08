@@ -35,7 +35,7 @@ class Counter {
             State.replaceState(this, cache);
         }
         setInterval(() => {
-            // 等同于 Mutation.commit(this, () => this.num++, 'add');
+            // 等同于 CacheMutation.commit(this, () => this.num++, 'add');
             this.add();
         }, 1000);
     }
