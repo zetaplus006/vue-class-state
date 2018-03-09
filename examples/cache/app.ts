@@ -46,7 +46,6 @@ const COUNTER = 'counter';
 
 @Container({
     providers: [bind<Counter>(COUNTER).toClass(Counter)],
-    devtool: [COUNTER],
     strict: [COUNTER]
 })
 class AppContainer { }

@@ -17,8 +17,8 @@ export interface IMutationOption {
 const unnamedName = '<unnamed mutation>';
 const unknownIdentifier = 'unknown';
 
-export function MutationFactory(...options: IMutationOption[]): any;
-export function MutationFactory(_target: any, methodName: string, descriptor: PropertyDescriptor): any;
+export function MutationFactory(...options: IMutationOption[]): MethodDecorator;
+export function MutationFactory(target: any, methodName: string, descriptor: PropertyDescriptor): PropertyDescriptor;
 export function MutationFactory(): any {
     if (arguments.length >= 3 && typeof arguments[1] === 'string') {
         rewriteMethod(arguments[2], arguments[1], undefined);

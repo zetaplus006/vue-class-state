@@ -40,7 +40,8 @@ export default options.map(({ dest, format, env, isMin }) => {
         plugins: [
             typescript(),
             filesize()
-        ]
+        ],
+        external: ['vue']
     }
     if (isMin) {
         config.plugins.push(uglify({

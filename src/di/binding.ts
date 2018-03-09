@@ -9,7 +9,7 @@ export class Binding<T> {
     public injectorFactory: () => IInjector<T>;
 
     constructor(
-        private identifier: IIdentifier
+        public identifier: IIdentifier
     ) { }
 
     public toClass(stateClass: IClass<T>) {

@@ -47,9 +47,8 @@ export class Store {
         bind<StateB>(StateKeys.B).toClass(StateB),
         bind<Store>(StateKeys.STORE).toClass(Store)
     ],
-    // 指定哪些实例可以在vue的官方devtool中的vuex栏目中查看到
-    devtool: [StateKeys.A, StateKeys.B, StateKeys.STORE],
-    // 指定那些实例开启严格模式
-    strict: [StateKeys.A, StateKeys.B, StateKeys.STORE]
+    devtool: false,
+    // 开启严格模式
+    strict: true
 })
 export class AppContainer { }
