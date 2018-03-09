@@ -13,8 +13,8 @@ export type IInstanceFactory<T> = (...arg: any[]) => T;
 
 export abstract class BaseInjector<T> {
 
-    public instance: T;
-    public provider: Provider;
+    public instance!: T;
+    public provider!: Provider;
 
     public resolve(): T {
         return this.instance || (this.instance = this.getInstance());

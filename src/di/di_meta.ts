@@ -12,8 +12,8 @@ export class DIMetaData {
         return ctx[meta_key];
     }
 
-    public identifier: IIdentifier;
+    public identifier!: IIdentifier;
     public hasBeenInjected: boolean = false;
-    public provider: Provider;
+    public provider!: Provider;
 
 }

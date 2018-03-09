@@ -6,7 +6,7 @@ import {
 
 export class Binding<T> {
 
-    public injectorFactory: () => IInjector<T>;
+    public injectorFactory!: () => IInjector<T>;
 
     constructor(
         public identifier: IIdentifier

@@ -28,11 +28,11 @@ export function Container(option: IContainerOption) {
 function createContainerClass(option: IContainerOption) {
     return class $StateModule implements IContainer {
 
-        public _provider: Provider;
+        public _provider!: Provider;
 
-        public _globalPlugins: IPlugin[];
+        public _globalPlugins!: IPlugin[];
 
-        public _option: IContainerOption;
+        public _option!: IContainerOption;
 
         constructor() {
             hideProperty(this, '_provider', new Provider(this));
