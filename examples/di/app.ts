@@ -11,7 +11,7 @@ State.showInject();
 class App extends Vue {
 
     // 根据注入标识在子组件中注入实例
-    @Inject(StateKeys.STORE) store: Store;
+    @Inject(StateKeys.STORE) store!: Store;
 
 }
 

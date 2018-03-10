@@ -1,5 +1,5 @@
 import test from 'ava';
-import { bind, Container, Inject } from '../../../lib/vue-class-state';
+import { bind, Container, Inject } from '../../../lib/vue-class-state.common';
 
 test('class inject', t => {
     const KEYS = {

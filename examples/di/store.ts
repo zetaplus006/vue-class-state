@@ -1,6 +1,4 @@
-import {
-    bind, Container, Getter, Inject, State
-} from 'vue-class-state';
+import { bind, Container, Getter, Inject, State } from 'vue-class-state';
 
 // 定义注入标识
 export const StateKeys = {
@@ -22,7 +20,7 @@ export class Store {
 
     // 根据注入标识在将实例注入到类实例属性中
     // 并且在第一次读取该属性时才进行初始化
-    // @Inject(StateKeys.A)  stateA: StateA
+    // @Inject(StateKeys.A)  stateA!: StateA
 
     constructor(
         // 根据注入标识在将实例注入到构造器参数中
@@ -47,7 +45,6 @@ export class Store {
         bind<StateB>(StateKeys.B).toClass(StateB),
         bind<Store>(StateKeys.STORE).toClass(Store)
     ],
-    devtool: false,
     // 开启严格模式
     strict: true
 })

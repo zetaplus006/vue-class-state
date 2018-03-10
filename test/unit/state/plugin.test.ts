@@ -1,5 +1,5 @@
 import test from 'ava';
-import { bind, Container, State } from '../../../lib/vue-class-state';
+import { bind, Container, State } from '../../../lib/vue-class-state.common';
 
 test('global plugin', t => {
     const testKey = 'test';

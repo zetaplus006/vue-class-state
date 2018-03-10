@@ -1,5 +1,5 @@
 import test from 'ava';
-import { bind, Container, IMutation, Mutation, State } from '../../../lib/vue-class-state';
+import { bind, Container, IMutation, Mutation, State } from '../../../lib/vue-class-state.common';
 
 test('instance middleware', t => {
 

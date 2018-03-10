@@ -1,5 +1,5 @@
 import test from 'ava';
-import { Getter, Mutation, State } from '../../../lib/vue-class-state';
+import { Getter, Mutation, State } from '../../../lib/vue-class-state.common';
 
 test('$state $getters', (t) => {
     class Test {

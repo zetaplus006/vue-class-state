@@ -51,8 +51,8 @@ export class StateB {
 export class Store {
 
     // 根据注入标识在将实例注入到类实例属性中
-    // 并且在第一次读取该属性时才进行初始化，这也是相比于构造器注入的优势
-    // @Inject(StateKeys.A)  stateA: StateA
+    // 并且在第一次读取该属性时才进行初始化
+    // @Inject(StateKeys.A)  stateA!: StateA
 
     constructor(
         // 根据注入标识在将实例注入到构造器参数中
@@ -61,7 +61,7 @@ export class Store {
     ) {
     }
 
-    // 定义计算属性
+    // 定义计算属性,
     // 并且在第一次读取该属性时才进行该计算属性的初始化
     @Getter get text() {
         return this.stateA.text + this.stateB.text;
@@ -77,10 +77,8 @@ export class Store {
         bind<StateB>(StateKeys.B).toClass(StateB),
         bind<Store>(StateKeys.STORE).toClass(Store)
     ],
-    // 指定哪些实例可以在vue的官方devtool中的vuex栏目中查看到
-    devtool: [StateKeys.A, StateKeys.B, StateKeys.STORE],
-    // 指定那些实例开启严格模式
-    strict: [StateKeys.A, StateKeys.B, StateKeys.STORE]
+    // 开启严格模式
+    strict: true
 })
 export class AppContainer { }
 ```
@@ -100,7 +98,7 @@ import { AppContainer, StateKeys, Store } from './store';
 class App extends Vue {
 
     // 根据注入标识在子组件中注入实例
-    @Inject(StateKeys.STORE) store: Store;
+    @Inject(StateKeys.STORE) store!: Store;
 
 }
 
@@ -204,7 +202,6 @@ const COUNTER = 'counter';
 
 @Container({
     providers: [bind<Counter>(COUNTER).toClass(Counter)],
-    devtool: [COUNTER],
     strict: [COUNTER]
 })
 class AppContainer { }

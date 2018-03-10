@@ -1,4 +1,4 @@
-import Vue from "vue";
+import Vue from 'vue';
 
 declare module 'vue/types/options' {
     // tslint:disable-next-line:interface-name
@@ -9,15 +9,15 @@ declare module 'vue/types/options' {
 
 declare module 'vue/types/vue' {
 
+    // tslint:disable-next-line:interface-name
     interface VueConstructor<V extends Vue = Vue> {
         util: {
             defineReactive(
-                obj: Object,
+                obj: any,
                 key: string,
                 val: any,
-                customSetter?: Function
+                customSetter?: (value: any) => void
             ): void
-        }
+        };
     }
 }
-

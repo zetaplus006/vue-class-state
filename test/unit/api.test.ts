@@ -1,5 +1,5 @@
 import test from 'ava';
-import * as VueClassState from '../../lib/vue-class-state';
+import * as VueClassState from '../../lib/vue-class-state.common';
 
 test('apis', (t) => {
     const apis = Object.keys(VueClassState).sort();
