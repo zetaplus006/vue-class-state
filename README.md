@@ -91,20 +91,20 @@ import Component from 'vue-class-component';
 import { Inject } from 'vue-class-state';
 import { AppContainer, StateKeys, Store } from './store';
 
-// 推荐使用vue官方的vue-class-component库
+// 推荐使用vue官方的vue-class-component库
 @Component({
     template: '<div>{{store.text}}</div>'
 })
 class App extends Vue {
 
-    // 根据注入标识在子组件中注入实例
+    // 根据注入标识在子组件中注入实例
     @Inject(StateKeys.STORE) store!: Store;
 
 }
 
 new Vue({
     el: '#app',
-    // 在根组件实例化一个容器，传入到provide选项
+    // 在根组件实例化一个容器，传入到provide选项
     provide: new AppContainer(),
     render: (h) => h(App)
 });
@@ -179,7 +179,7 @@ class Counter {
         this.num++;
     }
 
-    // 这个mutation不会被拦截
+    // 默认的Mutation不会被拦截
     @Mutation
     public add2() {
         this.num++;
