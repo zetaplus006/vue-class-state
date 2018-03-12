@@ -5,7 +5,7 @@ import Vue from 'vue';
 import { ClassMetaData } from '../di/class_meta';
 import { assert, def, defGet, hideProperty } from '../util';
 import { ScopeData } from './scope';
-import { Dep, IWatcher, Watcher } from './watcher';
+import { Dep, IWatcher, IWatcherOption, Watcher } from './watcher';
 
 // tslint:disable-next-line:no-empty
 const noop = function () { };
@@ -15,7 +15,10 @@ export interface IComputedOption {
 }
 const defaultComputedOption: IComputedOption = { enumerable: true };
 
-const computedWatcherOptions = { lazy: true };
+const computedWatcherOptions: IWatcherOption = {
+    lazy: true,
+    computed: true
+};
 
 export function Computed(option: IComputedOption): any;
 export function Computed(target: object, propertyKey: string): any;

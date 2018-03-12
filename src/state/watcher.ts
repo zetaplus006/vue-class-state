@@ -1,11 +1,17 @@
 import Vue from 'vue';
 
+export interface IWatcherOption {
+    lazy: boolean;
+    // computed for next vue version(>2.5.15)
+    computed: boolean;
+}
+
 export declare class IWatcher {
     constructor(
         vm: any,
         expOrFn: () => any,
         cb: () => any,
-        options?: { lazy: boolean }
+        options?: IWatcherOption
     );
     public value: any;
     public dirty: boolean;
