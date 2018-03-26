@@ -4,8 +4,7 @@
 
 /* state */
 export { IClass, IIdentifier, IPlugin } from './state/helper';
-export { ISub, ISubs, ISubscribeOption } from './state/middleware';
-export { IMutation, IMutationOption } from './state/mutation';
+export { IMutation } from './state/mutation';
 
 /* di */
 export { IInjector, IInstanceFactory } from './di/injector';

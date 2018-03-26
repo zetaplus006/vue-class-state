@@ -46,6 +46,5 @@ export const State = Object.assign(
     StateDecorator, {
         replaceState,
         getAllState,
-        globalSubscribe: globalState.middleware.subscribe.bind(globalState.middleware),
         showInject
     });

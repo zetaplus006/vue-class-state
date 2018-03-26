@@ -1,16 +1,19 @@
 import test from 'ava';
-import { bind, Container, IMutation, Mutation, State } from '../../../lib/vue-class-state.common';
+import { IMutation, Mutation, State } from '../../../lib/vue-class-state.common';
 
 test('instance middleware', t => {
 
-    const TestMutation = Mutation({
-        before: (m: IMutation, _state: Test) => {
-            m.payload[0].a = 10;
-        },
-        // tslint:disable-next-line:no-shadowed-variable
-        after: (_m: IMutation, state: Test) => {
-            state.count = 20;
-        }
+    const list = [];
+
+    const TestMutation = Mutation.create((next: () => void, m: IMutation) => {
+        m.payload[0].a = 10;
+        list.push(1);
+        next();
+        list.push(5);
+    }, (next: () => void) => {
+        list.push(2);
+        next();
+        list.push(4);
     });
 
     class Test {
@@ -24,6 +27,7 @@ test('instance middleware', t => {
 
         @TestMutation public change(data: any, count: number) {
             Object.assign(this.data, data);
+            list.push(3);
             this.count = count;
         }
 
@@ -35,47 +39,5 @@ test('instance middleware', t => {
         b: 6
     }, 1);
     t.deepEqual(state.data, { a: 10, b: 6 });
-    t.true(state.count === 20);
-});
-
-test('global middleware', t => {
-    const testKey: string = 'test';
-
-    State.globalSubscribe({
-        before: (m: IMutation, state: Test) => {
-            t.true(state instanceof Test);
-            t.true(state.count === 0);
-            t.true(m.identifier === testKey);
-            t.true(m.type === `${testKey}: change`);
-            t.true(m.mutationType === 'change');
-            t.deepEqual(m.payload, [100]);
-        },
-        after: (m: IMutation, state: Test) => {
-            t.true(state instanceof Test);
-            t.true(state.count === 100);
-            t.true(m.identifier === testKey);
-            t.true(m.type === `${testKey}: change`);
-            t.true(m.mutationType === 'change');
-            t.deepEqual(m.payload, [100]);
-        }
-    });
-    class Test {
-        @State public count = 0;
-
-        @Mutation public change(count: number) {
-            this.count = count;
-        }
-
-    }
-
-    @Container({
-        providers: [
-            bind<Test>(testKey).toClass(Test)
-        ]
-    })
-    class TestContainer { }
-
-    const state1 = new TestContainer()[testKey] as Test;
-    state1.change(100);
-
+    t.deepEqual(list, [1, 2, 3, 4, 5]);
 });

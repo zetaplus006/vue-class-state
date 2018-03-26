@@ -1,17 +1,16 @@
 import { ClassMetaData } from '../di/class_meta';
 import { IContainer } from '../di/container';
 import { Provider } from '../di/provider';
-import { globalState, IIdentifier } from '../state/helper';
+import { IIdentifier } from '../state/helper';
 import { ScopeData } from '../state/scope';
 import { def } from '../util';
 
+export const devtoolHook =
+    typeof window !== 'undefined' &&
+    window['__VUE_DEVTOOLS_GLOBAL_HOOK__'];
 export function devtool(container: IContainer, identifiers: IIdentifier[]) {
 
     const provider = container._provider;
-
-    const devtoolHook =
-        typeof window !== 'undefined' &&
-        window['__VUE_DEVTOOLS_GLOBAL_HOOK__'];
 
     if (!devtoolHook) return;
 
@@ -25,11 +24,6 @@ export function devtool(container: IContainer, identifiers: IIdentifier[]) {
         provider.replaceAllState(targetState);
     });
 
-    globalState.middleware.subscribe({
-        after: (mutation: any, state: any) => {
-            devtoolHook.emit('vuex:mutation', mutation, state);
-        }
-    });
 }
 
 interface IStore {
