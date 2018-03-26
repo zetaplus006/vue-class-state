@@ -8,7 +8,6 @@ declare module 'vue/types/options' {
 }
 
 declare module 'vue/types/vue' {
-
     // tslint:disable-next-line:interface-name
     interface VueConstructor<V extends Vue = Vue> {
         util: {

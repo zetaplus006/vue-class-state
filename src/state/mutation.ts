@@ -16,20 +16,20 @@ export function createMutation(...middleware: IMiddleware[]) {
 
     const commitFn = compose(middleware.concat(...globalState.middlewares)
         .concat((next: () => void, _mutation: IMutation, _state: any) => {
-            runSafe(() => cb && cb());
+            allowChange(() => cb && cb());
             next();
         }));
 
     const commit = (state: any, fn: () => void, mutationType?: string) => {
         cb = fn;
-        return commitFn(null as any, createMuationData(state, mutationType, []), state);
+        return commitFn(null as any, createMuationData(state, mutationType, null), state);
     };
 
     function decorator(_target: any, methodName: string, descriptor: PropertyDescriptor) {
         const mutationFn = descriptor.value;
         let args: any = [];
         const mutationMiddleware = (next: () => void, _mutation: IMutation, state: any) => {
-            runSafe(() => mutationFn.apply(state, args));
+            allowChange(() => mutationFn.apply(state, args));
             next();
         };
         const fn = compose(middleware.concat(...globalState.middlewares).concat(mutationMiddleware));
@@ -61,7 +61,7 @@ function createMuationData(ctx: any, mutationType: string | undefined, payload: 
     return mutation;
 }
 
-function runSafe(cb: () => void) {
+function allowChange(cb: () => void) {
     const temp = globalState.isCommitting;
     globalState.isCommitting = true;
     cb();
