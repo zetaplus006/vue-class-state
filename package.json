@@ -1,6 +1,6 @@
 {
   "name": "vue-class-state",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A object-oriented style State Management for Vue",
   "main": "lib/vue-class-state.common.js",
   "module": "lib/vue-class-state.esm.js",
