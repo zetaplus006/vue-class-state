@@ -5,7 +5,7 @@
 
 1.`state`、`getters`、`mutation`，其概念与`vuex`基本相通，区别是vue-class-state是以class(类)和decorator(装饰器)的形式来实现的。
 
-2.简单的依赖注入，用于解决子模块之间共享数据的问题,此功能不仅能在状态管理中使用，也可与Vue的[provide/inject](https://cn.vuejs.org/v2/api/#provide-inject)配合使用。(此功能主要参考[InversifyJS](https://github.com/inversify/InversifyJS)的api设计)
+2.简单的依赖注入，用于解决子模块之间共享数据的问题,此功能不仅能在状态管理中使用，也可与Vue的[provide/inject](https://cn.vuejs.org/v2/api/#provide-inject)配合使用。
 
 3.支持严格模式，开启后`state`只能在`mutation`中被修改，支持拦截mutation。
 
@@ -40,7 +40,7 @@ export const StateKeys = {
 };
 
 export class StateA {
-    // 定义可观察数据
+    // 定义响应式数据
     @State text = 'A';
 }
 

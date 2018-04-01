@@ -15,7 +15,7 @@ export function createMutation(...middleware: IMiddleware[]) {
     let cb: (...args: any[]) => void;
     let args: any[] = [];
 
-    const commitFn = compose(middleware.concat(...globalState.middlewares)
+    const commitFn = compose(middleware.concat(globalState.middlewares)
         .concat((next: () => void, _mutation: IMutation, state: any) => {
             allowChange(() => cb && cb.apply(state, args));
             next();
