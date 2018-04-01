@@ -12,30 +12,25 @@ export const Mutation = Object.assign(createMutation(), { create: createMutation
 
 export function createMutation(...middleware: IMiddleware[]) {
 
-    let cb: () => void;
+    let cb: (...args: any[]) => void;
+    let args: any[] = [];
 
     const commitFn = compose(middleware.concat(...globalState.middlewares)
-        .concat((next: () => void, _mutation: IMutation, _state: any) => {
-            allowChange(() => cb && cb());
+        .concat((next: () => void, _mutation: IMutation, state: any) => {
+            allowChange(() => cb && cb.apply(state, args));
             next();
         }));
 
-    const commit = (state: any, fn: () => void, mutationType?: string) => {
+    const commit = (state: any, fn: () => void, mutationType?: string, arg?: any[]) => {
         cb = fn;
-        return commitFn(null as any, createMuationData(state, mutationType, null), state);
+        args = arg || [];
+        return commitFn(null as any, createMuationData(state, mutationType, arg), state);
     };
 
     function decorator(_target: any, methodName: string, descriptor: PropertyDescriptor) {
         const mutationFn = descriptor.value;
-        let args: any = [];
-        const mutationMiddleware = (next: () => void, _mutation: IMutation, state: any) => {
-            allowChange(() => mutationFn.apply(state, args));
-            next();
-        };
-        const fn = compose(middleware.concat(...globalState.middlewares).concat(mutationMiddleware));
         descriptor.value = function (...arg: any[]) {
-            args = arg;
-            return fn(null as any, createMuationData(this, methodName, args), this);
+            commit(this, mutationFn, methodName, arg);
         };
         return descriptor;
     }
@@ -47,7 +42,7 @@ const unnamedName = '<unnamed mutation>';
 const unknownIdentifier = 'unknown';
 
 function createMuationData(ctx: any, mutationType: string | undefined, payload: any) {
-    const meta = ctx[meta_key] as DIMetaData || undefined,
+    const meta = ctx[meta_key] as DIMetaData | undefined,
         identifier = meta && meta.identifier || unknownIdentifier,
         mType = mutationType || unnamedName,
         type = identifier + ': ' + mType;
