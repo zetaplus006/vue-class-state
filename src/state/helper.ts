@@ -1,4 +1,5 @@
 
+import Vue from 'vue';
 import { devtoolHook } from '../dev/devtool';
 import { DIMetaData } from '../di/di_meta';
 import { watcherKey } from '../state/computed';
@@ -12,6 +13,8 @@ export interface IClass<T= any> { new(...args: any[]): T; }
 export type IIdentifier = string;
 
 export type IPlugin = (state: any) => void;
+
+export const isSSR = Vue.prototype.$isServer;
 
 export const globalState = {
     middlewares: [] as IMiddleware[],

@@ -1,3 +1,4 @@
+import { hasOwn } from '../util';
 
 export interface IMap<K, V> {
     get(key: K): V | undefined;
@@ -7,7 +8,7 @@ export interface IMap<K, V> {
 
 class SimpleMap<K, V> implements IMap<K, V> {
 
-    private dictionary: object = {};
+    private dictionary: object = Object.create(null);
 
     public get(key: K): V | undefined {
         return this.dictionary[key as any] || undefined;
@@ -19,7 +20,7 @@ class SimpleMap<K, V> implements IMap<K, V> {
     }
 
     public has(key: K): boolean {
-        return this.dictionary.hasOwnProperty(key as any);
+        return hasOwn(this.dictionary, key as any);
     }
 }
 

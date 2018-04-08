@@ -56,9 +56,11 @@ function createMuationData(ctx: any, mutationType: string | undefined, payload: 
     return mutation;
 }
 
-function allowChange(cb: () => void) {
-    const temp = globalState.isCommitting;
-    globalState.isCommitting = true;
-    cb();
-    globalState.isCommitting = temp;
-}
+export const allowChange = process.env.NODE_ENV !== 'production'
+    ? (cb: () => void) => {
+        const temp = globalState.isCommitting;
+        globalState.isCommitting = true;
+        cb();
+        globalState.isCommitting = temp;
+    }
+    : (cb: () => void) => cb();

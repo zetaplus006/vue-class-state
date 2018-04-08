@@ -3,6 +3,11 @@ export function assert(condition: any, msg: string) {
     if (!condition) throw new Error(`[vue-class-state warn] ${msg}`);
 }
 
+const _hasOwn = Object.prototype.hasOwnProperty;
+export function hasOwn(obj: any, key: string) {
+    return _hasOwn.call(obj, key);
+}
+
 export const def = Object.defineProperty;
 
 export function hideProperty(obj: any, key: string, value: any) {

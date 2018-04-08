@@ -1,5 +1,5 @@
 import { IIdentifier } from '../state/helper';
-import { hideProperty } from '../util';
+import { hasOwn, hideProperty } from '../util';
 
 export interface IGetters { [key: string]: () => any; }
 
@@ -8,7 +8,7 @@ const classMetaKey = '__meta__';
 export class ClassMetaData {
 
     public static get(target: any): ClassMetaData {
-        if (target.constructor.hasOwnProperty(classMetaKey)) {
+        if (hasOwn(target.constructor, classMetaKey)) {
             return target.constructor[classMetaKey];
         }
         const meta = new ClassMetaData();

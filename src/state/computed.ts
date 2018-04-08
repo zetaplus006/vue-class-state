@@ -1,9 +1,9 @@
 /**
  * change from https://github.com/vuejs/vue/blob/dev/src/core/instance/state.js#L163
  */
-import Vue from 'vue';
 import { ClassMetaData } from '../di/class_meta';
 import { assert, def, defGet, hideProperty } from '../util';
+import { isSSR } from './helper';
 import { ScopeData } from './scope';
 import { Dep, IWatcher, IWatcherOption, Watcher } from './watcher';
 
@@ -34,7 +34,12 @@ export function Computed(targetOrOption: any, propertyKey?: string): any {
 
 export const watcherKey = '_watchers';
 
-export function createComputed(option: IComputedOption, target: any, propertyKey: string): PropertyDescriptor {
+export const createComputed = isSSR
+    // tslint:disable-next-line:no-empty
+    ? (() => { }) as any
+    : _createComputed;
+
+export function _createComputed(option: IComputedOption, target: any, propertyKey: string): PropertyDescriptor {
     const desc = Object.getOwnPropertyDescriptor(target, propertyKey);
     if (process.env.NODE_ENV !== 'production') {
         assert(desc && desc.get, '[@Getter] must be used for getter property');
@@ -43,9 +48,6 @@ export function createComputed(option: IComputedOption, target: any, propertyKey
     ClassMetaData.get(target).addGetterKey(propertyKey);
     return {
         get() {
-            if (Vue.prototype.$isServer) {
-                return get.call(this);
-            }
             const scope = ScopeData.get(this);
             if (!this[watcherKey]) {
                 hideProperty(this, watcherKey, []);
