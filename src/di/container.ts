@@ -1,8 +1,9 @@
 import { devtool } from '../dev/devtool';
+import { useStrict } from '../dev/strict';
 import { Binding } from '../di/binding';
 import { DIMetaData } from '../di/di_meta';
 import { Provider } from '../di/provider';
-import { IClass, IIdentifier, IPlugin, useStrict } from '../state/helper';
+import { IClass, IIdentifier, IPlugin } from '../state/helper';
 import { scopeKey } from '../state/scope';
 import { hideProperty } from '../util';
 

@@ -65,7 +65,7 @@ export function _createComputed(option: IComputedOption, target: any, propertyKe
                 configurable: true
             });
             defGet(scope.$getters, propertyKey, () => this[propertyKey]);
-            return getter.call(this);
+            return getter();
         },
         enumerable: option.enumerable,
         configurable: true
@@ -73,7 +73,7 @@ export function _createComputed(option: IComputedOption, target: any, propertyKe
 }
 
 function createComputedGetter(watcher: IWatcher) {
-    return function computedGetter(this: any) {
+    return function computedGetter() {
         if (watcher.dirty) {
             watcher.evaluate();
         }
