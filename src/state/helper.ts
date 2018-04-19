@@ -9,6 +9,9 @@ export type IIdentifier = string;
 
 export type IPlugin = (state: any) => void;
 
+// tslint:disable-next-line:no-empty
+export const noop = function () { };
+
 export const isSSR = Vue.prototype.$isServer;
 
 export const globalState = {

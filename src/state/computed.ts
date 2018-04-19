@@ -3,12 +3,9 @@
  */
 import { ClassMetaData } from '../di/class_meta';
 import { assert, def, defGet, hideProperty } from '../util';
-import { isSSR } from './helper';
+import { isSSR, noop } from './helper';
 import { ScopeData } from './scope';
 import { Dep, IWatcher, IWatcherOption, Watcher } from './watcher';
-
-// tslint:disable-next-line:no-empty
-const noop = function () { };
 
 export interface IComputedOption {
     enumerable: boolean;
@@ -36,7 +33,7 @@ export const watcherKey = '_watchers';
 
 export const createComputed = isSSR
     // tslint:disable-next-line:no-empty
-    ? (() => { }) as any
+    ? noop as any
     : _createComputed;
 
 export function _createComputed(option: IComputedOption, target: any, propertyKey: string): PropertyDescriptor {

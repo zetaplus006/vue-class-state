@@ -3,7 +3,7 @@ import { useStrict } from '../dev/strict';
 import { Binding } from '../di/binding';
 import { DIMetaData } from '../di/di_meta';
 import { Provider } from '../di/provider';
-import { IClass, IIdentifier, IPlugin } from '../state/helper';
+import { IClass, IIdentifier, IPlugin, isSSR } from '../state/helper';
 import { scopeKey } from '../state/scope';
 import { hideProperty } from '../util';
 
@@ -49,7 +49,7 @@ function createContainerClass(option: IContainerOption) {
                     ? option.devtool : storeIdentifiers;
 
             this._provider.registerInjectedHook((instance: any, diMetaData: DIMetaData) => {
-                if (process.env.NODE_ENV !== 'production') {
+                if (process.env.NODE_ENV !== 'production' && !isSSR) {
                     if (instance[scopeKey] && !diMetaData.hasBeenInjected
                         && strictList.indexOf(diMetaData.identifier) > -1) {
                         useStrict(instance);

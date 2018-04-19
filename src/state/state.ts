@@ -1,13 +1,13 @@
 import Vue from 'vue';
 import { showInject } from '../dev/show_inject';
 import { assert, def, defGet, hasOwn } from '../util';
-import { isSSR } from './helper';
+import { isSSR, noop } from './helper';
 import { allowChange } from './mutation';
 import { ScopeData, scopeKey } from './scope';
 
 export const StateDecorator = isSSR
     // tslint:disable-next-line:no-empty
-    ? (() => { }) as PropertyDecorator
+    ? noop as PropertyDecorator
     : function (target: object, propertyKey: string) {
         def(target, propertyKey, {
             get() {

@@ -8,7 +8,7 @@ import { assert, hideProperty } from '../util';
 export function useStrict(state: any) {
     const identifier = DIMetaData.get(state).identifier,
         scope = state[scopeKey] as ScopeData || undefined;
-    if (scope) {
+    if (scope && Watcher) {
         if (!state[watcherKey]) {
             hideProperty(state, watcherKey, []);
         }

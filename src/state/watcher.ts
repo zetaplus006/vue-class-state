@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import { isSSR } from './helper';
 
 export interface IWatcherOption {
     lazy: boolean;
@@ -23,21 +24,26 @@ export interface IDep {
     target: any;
 }
 
-const computedKey = 'c';
-const vm = new Vue({
-    data: {
-        a: 1
-    },
-    computed: {
-        [computedKey]() {
-            return 1;
+let _watcher, _dep, Watcher: typeof IWatcher, Dep: IDep;
+if (!isSSR) {
+    const computedKey = 'c';
+    const vm = new Vue({
+        data: {
+            a: 1
+        },
+        computed: {
+            [computedKey]() {
+                return 1;
+            }
         }
-    }
-});
-const _watcher = (vm as any)._computedWatchers[computedKey];
-const _dep = (vm as any)._data.__ob__.dep;
-
-export const Watcher: typeof IWatcher = Object.getPrototypeOf(_watcher).constructor;
-export const Dep: IDep = Object.getPrototypeOf(_dep).constructor;
-
-vm.$destroy();
+    });
+    vm.$destroy();
+    _watcher = (vm as any)._computedWatchers[computedKey];
+    _dep = (vm as any)._data.__ob__.dep;
+    Watcher = Object.getPrototypeOf(_watcher).constructor;
+    Dep = Object.getPrototypeOf(_dep).constructor;
+}
+export {
+    Watcher,
+    Dep
+};
