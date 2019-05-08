@@ -1,9 +1,7 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Inject, State } from 'vue-class-state';
+import { Inject } from 'vue-class-state';
 import { AppContainer, StateKeys, Store } from './store';
-
-State.showInject();
 
 @Component({
     template: '<div>{{store.text}}</div>'

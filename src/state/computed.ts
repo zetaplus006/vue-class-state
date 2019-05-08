@@ -10,7 +10,7 @@ import { Dep, IWatcher, IWatcherOption, Watcher } from './watcher';
 export interface IComputedOption {
     enumerable: boolean;
 }
-const defaultComputedOption: IComputedOption = { enumerable: true };
+const defaultComputedOption: IComputedOption = { enumerable: false };
 
 const computedWatcherOptions: IWatcherOption = {
     lazy: true,

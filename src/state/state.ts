@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import { showInject } from '../dev/show_inject';
 import { assert, def, defGet, hasOwn } from '../util';
 import { isSSR, noop } from './helper';
 import { allowChange } from './mutation';
@@ -43,6 +42,5 @@ export function getAllState(state: any) {
 export const State = Object.assign(
     StateDecorator, {
         replaceState,
-        getAllState,
-        showInject
+        getAllState
     });
