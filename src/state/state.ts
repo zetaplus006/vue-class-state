@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { assert, def, defGet, hasOwn } from '../util';
+import { assert, assign, def, defGet, hasOwn } from '../util';
 import { isSSR, noop } from './helper';
 import { allowChange } from './mutation';
 import { ScopeData, scopeKey } from './scope';
@@ -39,7 +39,7 @@ export function getAllState(state: any) {
     return ScopeData.get(state).$state;
 }
 
-export const State = Object.assign(
+export const State = assign(
     StateDecorator, {
         replaceState,
         getAllState

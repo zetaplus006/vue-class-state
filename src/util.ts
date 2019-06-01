@@ -25,3 +25,13 @@ export function defGet(obj: any, key: string, get: () => any) {
         configurable: true
     });
 }
+
+export function assign<T, U>(target: T, source: U): T & U {
+    let key;
+    for (key in source) {
+        if (hasOwn(source, key)) {
+            (target as any)[key] = source[key];
+        }
+    }
+    return target as any;
+}

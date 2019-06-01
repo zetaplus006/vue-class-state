@@ -1,3 +1,4 @@
+import { assign } from 'src/util';
 import { DIMetaData, meta_key } from '../di/di_meta';
 import { compose, IMiddleware } from './compose';
 import { globalState, IIdentifier } from './helper';
@@ -8,7 +9,7 @@ export interface IMutation {
     identifier: IIdentifier;
 }
 
-export const Mutation = Object.assign(createMutation(), { create: createMutation });
+export const Mutation = assign(createMutation(), { create: createMutation });
 
 export function createMutation(...middleware: IMiddleware[]) {
 
@@ -35,7 +36,7 @@ export function createMutation(...middleware: IMiddleware[]) {
         return descriptor;
     }
 
-    return Object.assign(decorator, { commit });
+    return assign(decorator, { commit });
 }
 
 const unnamedName = '<unnamed mutation>';
