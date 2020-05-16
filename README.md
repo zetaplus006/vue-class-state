@@ -9,7 +9,7 @@
 
 3.支持严格模式，开启后`state`只能在`mutation`中被修改，支持拦截mutation。
 
-<!-- 4.支持`vue`官方devtool,可以在devtool的vuex标签下查看`state`、`getters`、`mutation`。 -->
+4.支持`vue`官方devtool,可以在devtool的vuex标签下查看`state`、`getters`、`mutation`。
 
 ## 安装
 

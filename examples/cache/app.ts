@@ -20,6 +20,8 @@ class Counter {
 
     cacheKey = 'cache-key';
 
+    @State public obj = { test: 1 };
+
     @State public num = 0;
 
     // @CacheMutation
@@ -35,7 +37,7 @@ class Counter {
             const cache = JSON.parse(cacheStr);
             State.replaceState(this, cache);
         }
-        setInterval(() => {
+        setTimeout(() => {
             // 等同于 CacheMutation.commit(this, () => this.num++, 'add');
             this.add();
         }, 1000);

@@ -35,3 +35,5 @@ export function assign<T, U>(target: T, source: U): T & U {
     }
     return target as any;
 }
+
+export const isDev = process.env.NODE_ENV !== 'production';

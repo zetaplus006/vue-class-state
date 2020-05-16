@@ -2,7 +2,7 @@
  * change from https://github.com/vuejs/vue/blob/dev/src/core/instance/state.js#L163
  */
 import { ClassMetaData } from '../di/class_meta';
-import { assert, def, defGet, hideProperty } from '../util';
+import { assert, def, defGet, hideProperty, isDev } from '../util';
 import { isSSR, noop } from './helper';
 import { ScopeData } from './scope';
 import { Dep, IWatcher, IWatcherOption, Watcher } from './watcher';
@@ -61,7 +61,9 @@ export function _createComputed(option: IComputedOption, target: any, propertyKe
                 enumerable: option.enumerable,
                 configurable: true
             });
-            defGet(scope.$getters, propertyKey, () => this[propertyKey]);
+            if (isDev) {
+                defGet(scope.$getters, propertyKey, () => this[propertyKey]);
+            }
             return getter();
         },
         enumerable: option.enumerable,

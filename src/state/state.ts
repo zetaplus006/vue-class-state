@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { assert, assign, def, defGet, hasOwn } from '../util';
+import { assert, assign, def, hasOwn, isDev } from '../util';
 import { isSSR, noop } from './helper';
 import { allowChange } from './mutation';
 import { ScopeData, scopeKey } from './scope';
@@ -16,7 +16,17 @@ export const StateDecorator = isSSR
             },
             set(value) {
                 Vue.util.defineReactive(this, propertyKey, value);
-                defGet(ScopeData.get(this).$state, propertyKey, () => this[propertyKey]);
+                const scopeData = ScopeData.get(this);
+                if (isDev) {
+                    def(scopeData.$state, propertyKey, {
+                        get: () => this[propertyKey],
+                        set: (val: any) => {
+                            this[propertyKey] = val;
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
+                }
             },
             enumerable: true,
             configurable: true
@@ -41,6 +51,6 @@ export function getAllState(state: any) {
 
 export const State = assign(
     StateDecorator, {
-        replaceState,
-        getAllState
-    });
+    replaceState,
+    getAllState
+});
