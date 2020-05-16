@@ -1,5 +1,5 @@
-import { assign } from 'src/util';
 import { DIMetaData, meta_key } from '../di/di_meta';
+import { assign } from '../util';
 import { compose, IMiddleware } from './compose';
 import { globalState, IIdentifier } from './helper';
 export interface IMutation {

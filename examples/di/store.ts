@@ -46,6 +46,7 @@ export class Store {
         bind<Store>(StateKeys.STORE).toClass(Store)
     ],
     // 开启严格模式
-    strict: true
+    strict: true,
+    devtool: true
 })
 export class AppContainer { }

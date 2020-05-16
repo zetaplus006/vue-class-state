@@ -1,6 +1,7 @@
+import Vue from 'vue';
 import { ClassMetaData } from '../di/class_meta';
 import { IContainer } from '../di/container';
-import { Provider } from '../di/provider';
+import { IProxyState, Provider } from '../di/provider';
 import { IIdentifier } from '../state/helper';
 import { ScopeData } from '../state/scope';
 import { def } from '../util';
@@ -15,8 +16,6 @@ export function devtool(container: IContainer, identifiers: IIdentifier[]) {
     if (!devtoolHook) return;
 
     const store: IStore = simulationStore(provider, identifiers);
-
-    store._devtoolHook = devtoolHook;
 
     devtoolHook.emit('vuex:init', store);
 
@@ -37,7 +36,16 @@ function simulationStore(provider: Provider, identifiers: IIdentifier[]): IStore
     const store = {
         state,
         getters,
-        _devtoolHook: null
+        _devtoolHook: devtoolHook,
+        // tslint:disable-next-line:no-empty
+        registerModule() { },
+        // tslint:disable-next-line:no-empty
+        unregisterModule() { },
+        replaceState(targetState: IProxyState) {
+            provider.replaceAllState(targetState);
+        },
+        _vm: new Vue({}),
+        _mutations: {}
     };
     return store;
 }

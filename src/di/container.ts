@@ -1,4 +1,5 @@
 // import { devtool } from '../dev/devtool';
+import { devtool } from '../dev/devtool';
 import { useStrict } from '../dev/strict';
 import { Binding } from '../di/binding';
 import { DIMetaData } from '../di/di_meta';
@@ -44,9 +45,9 @@ function createContainerClass(option: IContainerOption) {
                 return binding.identifier;
             });
             const strictList = option.strict === true ? storeIdentifiers : (option.strict || []);
-            // const devtoolList = option.devtool === false
-            //     ? [] : Array.isArray(option.devtool)
-            //         ? option.devtool : storeIdentifiers;
+            const devtoolList = option.devtool === false
+                ? [] : Array.isArray(option.devtool)
+                    ? option.devtool : storeIdentifiers;
 
             this._provider.registerInjectedHook((instance: any, diMetaData: DIMetaData) => {
                 if (process.env.NODE_ENV !== 'production' && !isSSR) {
@@ -57,9 +58,9 @@ function createContainerClass(option: IContainerOption) {
                 }
                 this._globalPlugins.forEach((action) => action(instance));
             });
-            // if (process.env.NODE_ENV !== 'production' && devtoolList.length) {
-            //     devtool(this, devtoolList);
-            // }
+            if (process.env.NODE_ENV !== 'production' && devtoolList.length) {
+                devtool(this, devtoolList);
+            }
         }
     };
 }
