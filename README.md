@@ -159,9 +159,10 @@ const CacheMutation = Mutation.create((next: () => void, mutation: IMutation, st
         调用的模块注入标识: ${mutation.identifier}
         调用的方法名: ${mutation.mutationType}
     `);
-    next();
+    const res = next();
     // mutation 执行后保存缓存
     localStorage.setItem(state.cacheKey, JSON.stringify(state));
+    return res;
 });
 
 class Counter {
