@@ -17,9 +17,9 @@ export function createMutation(...middleware: IMiddleware[]) {
     let args: any[] = [];
 
     const commitFn = compose(middleware.concat(globalState.middlewares)
-        .concat((next: () => void, _mutation: IMutation, state: any) => {
-            allowChange(() => cb && cb.apply(state, args));
-            next();
+        .concat((_next: () => void, _mutation: IMutation, state: any) => {
+            const result = allowChange(() => cb && cb.apply(state, args));
+            return result;
         }));
 
     const commit = (state: any, fn: () => void, mutationType?: string, arg?: any[]) => {
@@ -31,7 +31,7 @@ export function createMutation(...middleware: IMiddleware[]) {
     function decorator(_target: any, methodName: string, descriptor: PropertyDescriptor) {
         const mutationFn = descriptor.value;
         descriptor.value = function (...arg: any[]) {
-            commit(this, mutationFn, methodName, arg);
+            return commit(this, mutationFn, methodName, arg);
         };
         return descriptor;
     }
@@ -61,7 +61,8 @@ export const allowChange = process.env.NODE_ENV !== 'production'
     ? (cb: () => void) => {
         const temp = globalState.isCommitting;
         globalState.isCommitting = true;
-        cb();
+        const result = cb();
         globalState.isCommitting = temp;
+        return result;
     }
     : (cb: () => void) => cb();
