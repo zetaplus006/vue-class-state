@@ -13,7 +13,7 @@ export const Mutation = assign(createMutation(), { create: createMutation });
 
 export function createMutation(...middleware: IMiddleware[]) {
 
-    let cb: (...args: any[]) => void;
+    let cb: (...args: any[]) => any;
     let args: any[] = [];
 
     const commitFn = compose(middleware.concat(globalState.middlewares)
@@ -22,11 +22,30 @@ export function createMutation(...middleware: IMiddleware[]) {
             return result;
         }));
 
-    const commit = (state: any, fn: () => void, mutationType?: string, arg?: any[]) => {
-        cb = fn;
-        args = arg || [];
-        return commitFn(null as any, createMuationData(state, mutationType, arg), state);
-    };
+    // const commit = (state: any, fn: () => void, mutationType?: string, arg?: any[]) => {
+    //     cb = fn;
+    //     args = arg || [];
+    //     return commitFn(null as any, createMuationData(state, mutationType, arg), state);
+    // };
+
+    function commit(fn: () => any, mutationType?: string, arg?: any[]): any;
+    function commit(state: any, fn: () => any, mutationType?: string, arg?: any[]): any;
+    function commit(...commitArgs: any[]) {
+        let state: any;
+        let mutationType: string;
+        if (typeof commitArgs[0] === 'function') {
+            state = undefined;
+            cb = commitArgs[0];
+            mutationType = commitArgs[1];
+            args = commitArgs[2] || [];
+        } else {
+            state = commitArgs[0];
+            cb = commitArgs[1];
+            mutationType = commitArgs[2];
+            args = commitArgs[3] || [];
+        }
+        return commitFn(null as any, createMuationData(state, mutationType, args), state);
+    }
 
     function decorator(_target: any, methodName: string, descriptor: PropertyDescriptor) {
         const mutationFn = descriptor.value;
@@ -42,8 +61,8 @@ export function createMutation(...middleware: IMiddleware[]) {
 const unnamedName = '<unnamed mutation>';
 const unknownIdentifier = 'unknown';
 
-function createMuationData(ctx: any, mutationType: string | undefined, payload: any) {
-    const meta = ctx[meta_key] as DIMetaData | undefined,
+function createMuationData(ctx: any | undefined, mutationType: string | undefined, payload: any) {
+    const meta = ctx && ctx[meta_key] as DIMetaData | undefined,
         identifier = meta && meta.identifier || unknownIdentifier,
         mType = mutationType || unnamedName,
         type = identifier + ': ' + mType;

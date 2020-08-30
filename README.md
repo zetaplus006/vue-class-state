@@ -192,6 +192,7 @@ class Counter {
         }
         setInterval(() => {
             // 等同于 CacheMutation.commit(this, () => this.num++, 'add');
+            // 最简化写法 CacheMutation.commit(() => this.num++) ，注意由于没有传入this,这种写法中间件是拿不到state的,看情况使用
             this.add();
         }, 1000);
     }

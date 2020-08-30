@@ -37,7 +37,7 @@ class Counter {
             const cache = JSON.parse(cacheStr);
             State.replaceState(this, cache);
         }
-        setTimeout(() => {
+        setInterval(() => {
             // 等同于 CacheMutation.commit(this, () => this.num++, 'add');
             this.add();
         }, 1000);

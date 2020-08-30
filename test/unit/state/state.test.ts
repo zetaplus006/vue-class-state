@@ -58,11 +58,21 @@ test('Mutation.commit', t => {
                 this.b = 4;
             });
         }
+
+        public change2() {
+            Mutation.commit(() => {
+                this.a = 6;
+                this.b = 8;
+            });
+        }
     }
     const state = new Test();
     state.change();
     t.is(state.a, 2);
     t.is(state.b, 4);
+    state.change2();
+    t.is(state.a, 6);
+    t.is(state.b, 8);
 });
 
 test('State.replaceState', t => {
